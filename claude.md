@@ -14,6 +14,8 @@ Turn the Curiosity Shop into a roulette machine, for a server the user hosts.
 
 \- \*\*Selling is disabled\*\* while the mod is on (otherwise spins can be sold back for profit).
 
+\- \*\*The normal shop is removed.\*\* The user, after Checkpoint 2: "i want the shop to be re-designed by the roulette ui altogether, the shop should not exist anymore".
+
 \- The panel shows the \*\*list of items\*\* in the current category and price, and highlights the one you land on.
 
 
@@ -67,14 +69,17 @@ Deadlock's in-game UI is Valve Panorama. Browser web components (such as @deadlo
 \## UNVERIFIED (test each one before relying on it)
 
 1\. Does `SetCurrency(EGold, ...)` change only the spendable balance? Check that net worth and level do not drop after a spin. Does `EGold` cover both secured and unsecured souls?
+   \*\*Answered (Checkpoint 2):\*\* don't use `SetCurrency`; it writes `m\_nCurrencies` directly and skips the game's bookkeeping. `pawn.ModifyCurrency(ECurrencyType.EGold, -price, ECurrencySource.EItemPurchase)`, the shop's own spend path, took exactly the price in game with net worth and level unchanged (souls 916 -> 116, net worth 1716, level 4, the same 1s later). Secured vs unsecured is still open.
 
 2\. Is there any hook or override to block selling? None is documented. Look in the Deadworks GitHub repo for sell/purchase events. Fallback: poll each player's `Abilities` and detect a roulette item disappearing.
+   Leads from the Deadworks source: `OnClientConCommand` can block a player's console command by name (the example plugins block `selecthero`); `OnModifyCurrency` reports `EItemSale` refunds and can stop them; `OnProcessUsercmds` exposes the usercmd `in\_shop` flag; the server can send `CCitadelUserMsg\_ForceShopClosed`. The plugin logs all three while the normal shop is used, to find the real buy/sell commands.
 
 3\. Can a plugin grant a \*\*Corrupted\*\* item? Check the Deadworks abilities database (deadworks.net/db/abilities) and the item data for corrupted class names. The game's Broker trades high-tier items for Corrupted versions, each with a random drawback per match.
 
 4\. Which game image path serves item icons to a Panorama panel, so the mod can use the game's own art without bundling copies. (Hero portraits come from game data, e.g. `Heroes.X.GetHeroData()?.IconImageSmall`.)
 
 5\. Does `AddItem` refuse when inventory slots are full? What happens with active items (max 4)?
+   Known: `AddItem` gives a duplicate of an item the player already owns (Checkpoint 2), so the roll skips owned items.
 
 6\. Does the cost/tier in the item data match what `AddItem` accepts (some items have component discounts when bought normally; roulette items are charged the flat tier price)?
 
@@ -104,11 +109,11 @@ A 1280x760 screen. Header: "ROULETTE SHOP" and the player's soul balance. Left c
 
 0\. Run the asset script; confirm the item count and a few icons exist.
 
-1\. Scaffold a plugin from the Deadworks setup docs; build it; load it on a local server; a `/hello` command replies.
+1\. Scaffold a plugin from the Deadworks setup docs; build it; load it on a local server; a `/hello` command replies. \*\*Done\*\* (plugin in `RouletteShop/`).
 
-2\. Item pool generated from `items-full.json`; `!roulette weapon 800` picks a random 800-soul weapon item, checks and deducts souls, and calls `AddItem`; print balance before and after, and confirm net worth/level did not drop (UNVERIFIED #1).
+2\. Item pool generated from `items-full.json`; `!roulette weapon 800` picks a random 800-soul weapon item, checks and deducts souls, and calls `AddItem`; print balance before and after, and confirm net worth/level did not drop (UNVERIFIED #1). \*\*Done.\*\*
 
-3\. Sell blocking (UNVERIFIED #2): find a real hook or implement the polling fallback; prove a roulette item cannot be sold for souls.
+3\. Sell blocking (UNVERIFIED #2): find a real hook or implement the polling fallback; prove a roulette item cannot be sold for souls. With the normal shop removed, also block buying from it.
 
 4\. Corrupted (UNVERIFIED #3): implement the 1% roll behind a config flag, with a debug setting that forces it so it can be tested.
 

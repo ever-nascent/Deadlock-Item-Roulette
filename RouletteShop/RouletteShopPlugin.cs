@@ -35,13 +35,15 @@ public class RouletteShopPlugin : DeadworksPluginBase
         if (souls < price)
             throw new CommandException($"Not enough souls: you have {souls}, a spin costs {price}.");
 
-        var items = _pool.Get(category, tier);
+        // AddItem gives duplicates, which the normal shop never does, so only roll items the player doesn't have.
+        var items = _pool.Get(category, tier)
+            .Where(i => pawn.AbilityComponent.FindAbilityByName(i.ClassName) == null)
+            .ToArray();
         if (items.Length == 0)
-            throw new CommandException($"No {category} items at {price}.");
+            throw new CommandException($"You already own every {category} item at {price}.");
         var item = items[Random.Shared.Next(items.Length)];
 
         var before = Snapshot(controller, pawn);
-        bool alreadyOwned = pawn.AbilityComponent.FindAbilityByName(item.ClassName) != null;
 
         // Give first and charge only if that worked, so a failed spin never costs souls.
         if (pawn.AddItem(item.ClassName) == null)
@@ -52,7 +54,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
         var after = Snapshot(controller, pawn);
 
         caller.Reply($"Roulette: you got {item.Name} ({category}, {price}).");
-        Report(caller, $"{caller.Name} spun {category} {price} -> {item.ClassName}{(alreadyOwned ? " (already owned)" : "")}");
+        Report(caller, $"{caller.Name} spun {category} {price} -> {item.ClassName} ({items.Length} unowned in pool)");
         Report(caller, $"before: {before} | after: {after}");
 
         // Net worth may only update on a later tick, so look again once things have settled.
@@ -61,6 +63,34 @@ public class RouletteShopPlugin : DeadworksPluginBase
             if (caller.Player is { } c && c.GetHeroPawn() is { } p)
                 Report(caller, $"1s later: {Snapshot(c, p)}");
         });
+    }
+
+    // --- Checkpoint 3 research (temporary): what does the normal shop send when a player opens it, buys and sells? ---
+
+    private readonly Dictionary<int, bool> _inShop = new();
+
+    public override HookResult OnClientConCommand(ClientConCommandEvent e)
+    {
+        Console.WriteLine($"[Roulette] client command from {e.Controller?.PlayerName}: '{e.Command}' args [{string.Join(", ", e.Args)}]");
+        return HookResult.Continue;
+    }
+
+    public override HookResult OnModifyCurrency(ModifyCurrencyEvent e)
+    {
+        if (e.CurrencyType == ECurrencyType.EGold && e.Source is ECurrencySource.EItemPurchase or ECurrencySource.EItemSale)
+            Console.WriteLine($"[Roulette] souls {e.Source} {e.Amount} for {e.Pawn.Controller?.PlayerName} (spendOnly {e.SpendOnly})");
+        return HookResult.Continue;
+    }
+
+    public override void OnProcessUsercmds(ProcessUsercmdsEvent e)
+    {
+        foreach (var cmd in e.Usercmds)
+        {
+            if (_inShop.GetValueOrDefault(e.PlayerSlot) == cmd.InShop)
+                continue;
+            _inShop[e.PlayerSlot] = cmd.InShop;
+            Console.WriteLine($"[Roulette] slot {e.PlayerSlot} in_shop -> {cmd.InShop}");
+        }
     }
 
     private static string Snapshot(CCitadelPlayerController controller, CCitadelPlayerPawn pawn)
