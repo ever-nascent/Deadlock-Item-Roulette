@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roulette Shop mockup - wildcard (catalog advert + sales slip)</title>
+<style>
+@font-face { font-family: Retail; font-weight: 600; src: url(../deadlock-assets/ui/fonts/retaildemo-semibold.otf); }
+@font-face { font-family: Retail; font-weight: 700; src: url(../deadlock-assets/ui/fonts/retaildemo-bold.otf); }
+@font-face { font-family: Retail; font-weight: 700; font-style: italic; src: url(../deadlock-assets/ui/fonts/retaildemo-bolditalic.otf); }
+@font-face { font-family: Radiance; font-weight: 600; src: url(../deadlock-assets/ui/fonts/radiance-semibold.otf); }
+@font-face { font-family: Radiance; font-weight: 700; src: url(../deadlock-assets/ui/fonts/radiance-bold.otf); }
+
+:root { --ink: #1a1510; --black: #110d09; --cream: #ece2ca; --mint: rgb(154,255,214); --red: #b3261a; }
+/* also matches the tab buttons and the result block, so each takes its own category's colours */
+[data-cat=weapon]   { --tab: rgb(228,178,12);  --acc: #cc8932; --line: #a9731c; --cap: #3a2a14; --tint: rgba(0,0,0,0);          --box4: #130d07; --icon: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_icon_weapon.png); }
+[data-cat=vitality] { --tab: rgb(165,206,60);  --acc: #6dc04b; --line: #47743f; --cap: #223c1c; --tint: rgba(60,105,110,.25);  --box4: #090d08; --icon: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_icon_vitality.png); }
+[data-cat=spirit]   { --tab: rgb(184,102,222); --acc: #c878f0; --line: #684a86; --cap: #352447; --tint: rgba(150,125,190,.25); --box4: #19131f; --icon: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_icon_spirit.png); }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #0d0f12; color: var(--ink); font-family: Radiance, "Segoe UI", sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 2px #000 !important; }
+h1, h2, p { margin: 0; }
+.rd { font-family: Retail, Impact, sans-serif; font-weight: 700; text-transform: uppercase; }
+
+#stage { position: absolute; left: 50%; top: 0; width: 1280px; transform-origin: top center; }
+#panel { position: relative; width: 1280px; height: 760px; }
+
+/* ---- real shop tabs: masked shape in the category colour + ink icon + edge overlay; the selected one is tall ---- */
+.nav { position: absolute; left: 8px; top: 24px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.tab { position: relative; width: 84px; height: 73px; overflow: hidden; border-radius: 8px 0 0 8px; transition: height .2s; }
+.tab[aria-pressed=true] { height: 175px; }
+.tab i { position: absolute; inset: 0; }
+.tab .shape { background: var(--tab); -webkit-mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_shape.png) center top / cover no-repeat; mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_shape.png) center top / cover no-repeat; }
+.tab img { position: absolute; top: 50%; left: calc(50% - 6px); transform: translate(-50%,-50%); width: 60px; height: 60px; object-fit: contain; }
+.tab .edge { background: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_edge_overlay.png) right bottom / cover no-repeat; opacity: .6; }
+.tab[aria-pressed=false]:hover { filter: brightness(1.12); }
+
+/* ---- the catalog page: the shop's own paper, tinted per category like the real pages ---- */
+#page { position: absolute; left: 80px; top: 6px; width: 1192px; height: 748px;
+  background: linear-gradient(var(--tint), var(--tint)), url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_generic_bg.png) 0 0 / 100% 165%;
+  -webkit-mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_generic_bg.png) 0 0 / 100% 165%; mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_generic_bg.png) 0 0 / 100% 165%; }
+#page::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 12px; background: var(--tab); }
+
+.mast { position: absolute; left: 28px; top: 14px; width: 404px; height: 72px; background: var(--black); text-align: center; clip-path: polygon(0 2%, 99.6% 0, 100% 98%, .4% 100%); }
+.mast::after { content: ""; position: absolute; inset: 5px; border: 2px solid var(--acc); }
+.mast h1 { font-size: 41px; line-height: 1; letter-spacing: .05em; color: var(--cream); text-shadow: 2px 2px 0 var(--acc); padding-top: 9px; }
+.mast p { font-size: 12px; letter-spacing: .26em; color: var(--acc); margin-top: 1px; }
+
+.how { position: absolute; left: 456px; top: 14px; margin: 0; padding: 0; list-style: none; counter-reset: n; font-size: 15px; letter-spacing: .07em; }
+.how li { counter-increment: n; display: flex; align-items: center; gap: 9px; height: 24px; }
+.how li::before { content: counter(n); width: 20px; height: 20px; border-radius: 50%; background: var(--black); color: var(--cream); font-size: 13px; line-height: 21px; text-align: center; letter-spacing: 0; }
+
+/* ---- black tape labels with mint numbers (the real price-label look), plain to ornate by tier like the real page ---- */
+.tape { position: relative; display: inline-block; height: 40px; min-width: 94px; padding: 0 13px; color: var(--mint); font-size: 24px; line-height: 41px; text-align: center;
+  text-transform: none; text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap; transform: rotate(-5deg); }
+.tape::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--black); clip-path: polygon(0 6%, 100% 0, 99% 95%, 1.5% 100%); }
+.tape::after { pointer-events: none; position: absolute; }
+.p2, .p3 { font-size: 26px; }
+.p2::before { clip-path: none; border-radius: 5px; box-shadow: inset 0 0 0 3px var(--black), inset 0 0 0 4px #7d776c; }
+.p3::before { clip-path: none; --n: #0000 6px, var(--black) 6.5px; background: radial-gradient(circle at 0 0, var(--n)) 0 0 / 51% 51% no-repeat, radial-gradient(circle at 100% 0, var(--n)) 100% 0 / 51% 51% no-repeat,
+  radial-gradient(circle at 0 100%, var(--n)) 0 100% / 51% 51% no-repeat, radial-gradient(circle at 100% 100%, var(--n)) 100% 100% / 51% 51% no-repeat; }
+.p3::after { content: ""; inset: 4px 8px; border: 2px dotted #cfc7b6; opacity: .75; }
+.p4 { font-size: 28px; }
+.p4::before { clip-path: none; border-radius: 4px; box-shadow: inset 0 -2px 0 var(--black), inset 0 -3px 0 var(--acc); }
+.p4::after { content: "\2605"; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px; z-index: -2; background: var(--black); transform: rotate(45deg); font: 9px/1 serif; color: #cfc3ad; padding: 3px; text-align: left; text-shadow: none; }
+.prices { position: absolute; left: 10px; top: -21px; display: flex; gap: 12px; z-index: 2; }
+.prices .tape { transition: transform .15s, color .15s; }
+.prices .tape[aria-pressed=false] { color: #64a58c; transform: rotate(-5deg) scale(.9); }
+.prices .tape[aria-pressed=false]:hover { color: var(--mint); transform: rotate(-5deg) scale(.96); }
+.prices .tape[aria-pressed=true] { transform: rotate(-5deg) translateY(-4px) scale(1.14); filter: drop-shadow(0 5px 0 rgba(0,0,0,.4)); z-index: 1; }
+.pool[data-tier="4"] .tape { filter: drop-shadow(0 0 1px rgba(236,226,202,.9)); } /* hairline so black tape still reads on the black Tier 4 box */
+.glyph { display: inline-block; width: .5em; height: .95em; margin-right: .2em; vertical-align: -.12em; background: currentColor;
+  -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_soul.svg) center / contain no-repeat; mask: url(../deadlock-assets/ui/icons/hud/icons/icon_soul.svg) center / contain no-repeat; }
+
+/* ---- the reel: a Tier-2 style box whose bullseye sits behind the middle (winning) card ---- */
+.reel { position: absolute; left: 28px; top: 98px; width: 792px; height: 288px; border: 3px solid var(--line); outline: 1px solid var(--line); outline-offset: -7px;
+  --ring: color-mix(in srgb, var(--line) 55%, transparent);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--acc) 72%, transparent) 0 126px, transparent 127px),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0 70px, var(--ring) 71px 73px), rgba(255,244,220,.22); }
+[data-cat=spirit] .reel { background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--acc) 60%, transparent) 0 126px, transparent 127px),
+    repeating-conic-gradient(from 4deg at 50% 50%, color-mix(in srgb, var(--line) 30%, transparent) 0 8deg, transparent 8deg 24deg), rgba(255,244,220,.22); }
+.reel .cap { position: absolute; top: 12px; left: 20px; font-size: 13px; line-height: 1; letter-spacing: .14em; color: var(--cap); }
+.reel .cap.r { left: auto; right: 20px; }
+.window { position: absolute; left: 19px; top: 32px; width: 748px; height: 219px; clip-path: inset(-26px 0); }
+.strip { display: flex; gap: 12px; will-change: transform; }
+.strip .win { transform: scale(1.05); box-shadow: 0 6px 16px rgba(0,0,0,.55); transition: transform .25s; }
+.reel::after { content: ""; position: absolute; left: 50%; top: 50%; width: 158px; height: 238px; transform: translate(-50%,-50%); border: 4px solid var(--black); border-radius: 11px; pointer-events: none; }
+.ptr { position: absolute; left: 50%; top: 0; width: 34px; height: 22px; margin-left: -17px; background: var(--black); clip-path: polygon(0 0, 100% 0, 50% 100%); z-index: 2; }
+.ptr.bot { top: auto; bottom: 0; transform: scaleY(-1); }
+
+/* ---- item card: the real shop card (backer by category+tier, icon 64% / name plate 36%); fonts scale with --w ---- */
+.card { --w: 73; position: relative; flex: none; width: calc(var(--w) * 1px); aspect-ratio: 82/128; border-radius: .385em; overflow: hidden; display: flex; flex-direction: column;
+  font: 700 calc(var(--w) * 13px / 73)/.88 Retail, Impact, sans-serif; }
+.card > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.card .ico { flex: 0 0 64.0625%; position: relative; z-index: 3; display: flex; overflow: hidden; border-radius: .385em .385em 0 0; }
+.card .ico img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.card.active { border-radius: 50% 50% .385em .385em / 32% 32% .385em .385em; }
+.card.active .ico { padding: 3%; }
+.card.active .ico img { border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.45); }
+.card .imbue { position: absolute; bottom: 35.9375%; left: 0; width: 100%; z-index: 6; background: rgb(90,58,138); color: rgb(212,184,240); font-size: .615em; font-weight: 600; line-height: 1.25;
+  padding: .12em .38em; text-align: center; text-transform: uppercase; letter-spacing: .125em; border-radius: .25em; }
+.card .nm { flex: 0 0 35.9375%; position: relative; z-index: 3; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 4%; }
+.card .nm span { letter-spacing: -.02em; overflow-wrap: break-word; color: rgb(26,21,16); padding: 0 .3em; }
+.card .md { font-size: .923em; } .card .sm { font-size: .846em; } .card .xs { font-size: .769em; }
+.card.t4.weapon .nm span { color: rgb(228,197,161); } .card.t4.vitality .nm span { color: rgb(194,231,205); } .card.t4.spirit .nm span { color: rgb(227,212,242); }
+
+/* ---- the pool: one wide tier box that redraws itself as the real Tier 1-4 box; the four price labels sit on its top edge ---- */
+.pool { position: absolute; left: 28px; top: 426px; width: 792px; height: 312px; --ring: color-mix(in srgb, var(--line) 50%, transparent); }
+.pool::before { content: ""; position: absolute; inset: 0; border: 2px solid var(--line); }
+.pool[data-tier="1"]::before { background: repeating-linear-gradient(135deg, transparent 0 13px, var(--ring) 13px 14px), rgba(255,244,220,.2); }
+.pool[data-tier="2"]::before { border-width: 3px; outline: 1px solid var(--line); outline-offset: -7px; background: repeating-radial-gradient(circle at 87.75% 54.5%, transparent 0 52px, var(--ring) 53px 55px), rgba(255,244,220,.24); }
+.pool[data-tier="3"]::before { border: 6px double var(--line); --d: color-mix(in srgb, var(--acc) 42%, transparent) 2.7px, transparent 3.2px;
+  background: radial-gradient(circle, var(--d)) 0 0 / 10px 10px, radial-gradient(circle, var(--d)) 5px 5px / 10px 10px, rgba(255,244,220,.08); }
+.pool[data-tier="4"]::before { background: var(--box4); border-color: var(--box4); outline: 1px solid color-mix(in srgb, var(--cream) 60%, transparent); outline-offset: -6px; }
+.pool::after { content: ""; position: absolute; right: 22px; top: 95px; width: 150px; height: 150px; opacity: .17; background: var(--cap); -webkit-mask: var(--icon) center / contain no-repeat; mask: var(--icon) center / contain no-repeat; }
+.pool[data-tier="4"]::after { background: var(--acc); opacity: .3; }
+.pool.full::after { display: none; } /* no room beside the cards: do not let the emblem peek out in slivers */
+.tcap { position: absolute; left: 448px; right: 20px; top: 11px; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; color: var(--cap); line-height: 1; }
+.tcap b { font-size: 21px; letter-spacing: .02em; }
+.tcap i { display: none; font-size: 15px; color: var(--acc); }
+.tcap span { margin-left: auto; font: 700 13px/1 Radiance, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.pool[data-tier="4"] .tcap { color: var(--cream); } .pool[data-tier="4"] .tcap i { display: inline; }
+.grid { position: absolute; left: 18px; top: 40px; width: 756px; height: 260px; display: grid; gap: 4px; align-content: center; justify-content: start; z-index: 1; }
+.grid .card { transition: transform .15s; }
+.grid .card:hover { transform: scale(1.15); z-index: 10; }
+.grid .hit, .grid .hit:hover { transform: scale(1.06) rotate(-2deg); z-index: 9; overflow: visible; box-shadow: 0 0 0 2px var(--black), 0 0 0 4px var(--mint), 0 8px 14px rgba(0,0,0,.6); }
+.grid .hit::after { content: "YOURS"; position: absolute; left: 50%; top: 3px; transform: translateX(-50%) rotate(-5deg); z-index: 8; background: var(--black); color: var(--mint); font-size: 12px; line-height: 1; letter-spacing: .08em; padding: 3px 6px 2px; }
+
+/* ---- sales slip: balance, result, fine print ---- */
+.slip { position: absolute; left: 844px; top: 14px; width: 324px; height: 606px; transform: rotate(1.1deg); filter: drop-shadow(0 5px 8px rgba(0,0,0,.5)); }
+.paper { --z: 6px; height: 100%; padding: 20px 18px 22px; background: #eadfc6; display: flex; flex-direction: column; align-items: stretch; text-align: center;
+  --zz: #0000, #000 1deg 89deg, #0000 90deg;
+  -webkit-mask: conic-gradient(from -45deg at bottom, var(--zz)) bottom / calc(2 * var(--z)) 51% repeat-x, conic-gradient(from 135deg at top, var(--zz)) top / calc(2 * var(--z)) 51% repeat-x;
+  mask: conic-gradient(from -45deg at bottom, var(--zz)) bottom / calc(2 * var(--z)) 51% repeat-x, conic-gradient(from 135deg at top, var(--zz)) top / calc(2 * var(--z)) 51% repeat-x; }
+.shead { display: flex; justify-content: space-between; font-size: 12px; letter-spacing: .2em; padding-bottom: 7px; border-bottom: 3px double var(--ink); }
+.souls { display: flex; align-items: center; justify-content: space-between; padding: 12px 2px 12px; border-bottom: 2px dashed rgba(26,21,16,.55); font-size: 14px; letter-spacing: .16em; }
+.souls .tape { font-size: 27px; min-width: 0; padding: 0 14px 0 12px; }
+#result { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 0; }
+.yougot { font-size: 14px; letter-spacing: .32em; margin-right: -.32em; }
+.got { position: relative; width: 232px; height: 228px; display: grid; place-items: center; margin: 2px 0 0; }
+.burst { position: absolute; inset: 0; background: var(--acc); -webkit-mask: url(../deadlock-assets/ui/images/shop/catalog/backer_star_test.png) center / contain no-repeat; mask: url(../deadlock-assets/ui/images/shop/catalog/backer_star_test.png) center / contain no-repeat; }
+.got .card { transform: rotate(-4deg); box-shadow: 0 5px 12px rgba(0,0,0,.5); }
+.got .slot { position: relative; width: 112px; height: 175px; border: 3px dashed var(--ink); border-radius: 8px; display: grid; place-items: center; font-size: 64px; transform: rotate(-4deg); background: #eadfc6; }
+.name { font-size: 28px; line-height: .95; letter-spacing: .01em; margin: 4px 0 6px; max-width: 100%; }
+.meta { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--cap); }
+.corrupt { display: none; align-items: center; gap: 8px; margin-top: 9px; padding: 5px 12px 3px 9px; border: 3px solid var(--red); color: var(--red); font-size: 20px; line-height: 1; letter-spacing: .16em; transform: rotate(-3deg); }
+.corrupt i { width: 22px; height: 22px; margin-top: -2px; background: var(--red); -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_corrupted_souls.svg) center / contain no-repeat; mask: url(../deadlock-assets/ui/icons/hud/icons/icon_corrupted_souls.svg) center / contain no-repeat; }
+#result.corrupted .corrupt { display: flex; }
+#result.corrupted .burst { background: var(--red); }
+.fine { border-top: 2px dashed rgba(26,21,16,.55); padding-top: 9px; font-size: 12.5px; font-weight: 600; line-height: 1.45; }
+
+/* ---- SPIN: a black printing block, price in the label's mint ---- */
+#spin { position: absolute; left: 844px; top: 640px; width: 324px; height: 92px; background: var(--black); color: var(--cream); font-size: 46px; line-height: 1; letter-spacing: .06em;
+  display: flex; align-items: center; justify-content: center; gap: 18px; box-shadow: 0 6px 0 rgba(0,0,0,.55); transition: transform .08s, box-shadow .08s; }
+#spin::before { content: ""; position: absolute; inset: 5px; border: 2px solid var(--acc); pointer-events: none; }
+#spin .cost { color: var(--mint); font-size: 36px; transform: rotate(-5deg); letter-spacing: 0; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+#spin:hover:not(:disabled)::before { border-color: var(--mint); }
+#spin:active:not(:disabled), #spin:disabled { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.55); }
+#spin:disabled { background: #3b332a; font-size: 30px; letter-spacing: .1em; }
+#spin:disabled::before { border-color: #8a7d69; }
+#spin.broke { color: #ffb4a4; font-size: 27px; }
+#spin.broke::before { border-color: #e2705c; }
+
+#mock { width: 1280px; padding: 9px 24px; font: 13px "Segoe UI", sans-serif; color: #8b93a0; display: flex; gap: 20px; align-items: center; }
+#mock button { text-decoration: underline; }
+</style>
+</head>
+<body data-cat="weapon">
+<div id="stage">
+  <div id="panel">
+    <nav class="nav" id="tabs" aria-label="Category"></nav>
+    <div id="page">
+      <header class="mast rd"><h1>Roulette Shop</h1><p>Items of chance &middot; bought, never sold</p></header>
+      <ol class="how rd"><li>Pick a department</li><li>Pick a price</li><li>Spin &mdash; keep what lands</li></ol>
+
+      <section class="reel" aria-label="Reel">
+        <b class="cap rd" id="reelCap"></b><b class="cap r rd">Middle card wins</b>
+        <i class="ptr"></i><i class="ptr bot"></i>
+        <div class="window"><div class="strip" id="strip"></div></div>
+      </section>
+
+      <section class="pool" id="pool" aria-label="Item pool">
+        <div class="prices" id="prices" role="group" aria-label="Price"></div>
+        <p class="tcap rd"><b id="tierName"></b><i>Experts only</i><span id="count"></span></p>
+        <div class="grid" id="grid"></div>
+      </section>
+
+      <aside class="slip"><div class="paper">
+        <p class="shead rd"><span>Sales slip</span><span>All sales final</span></p>
+        <div class="souls rd"><span>Your souls</span><b class="tape"><i class="glyph"></i><span id="balance"></span></b></div>
+        <div id="result" aria-live="polite"></div>
+        <p class="fine">Selling is disabled while Roulette Shop is on<br>1% of spins come back Corrupted</p>
+      </div></aside>
+      <button class="rd" id="spin"></button>
+    </div>
+  </div>
+  <div id="mock">
+    <span>Mockup controls (not part of the panel):</span>
+    <button id="refill">Refill souls</button>
+    <label><input type="checkbox" id="force"> Force corrupted</label>
+    <span id="rm" hidden>Reduced motion is on, so spins resolve instantly (add #instant=0 to the URL to see the reel animate)</span>
+  </div>
+</div>
+
+<script src="../deadlock-assets/manifest.js"></script>
+<script>
+const A = '../deadlock-assets/', C = A + 'ui/images/shop/catalog/';
+const CATS = ['weapon', 'vitality', 'spirit'], PRICES = [800, 1600, 3200, 6400];
+const W = 140, STEP = W + 12, WIN = 27, LEN = 30; // reel card width; card + gap; the winner's index in a LEN-card strip
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US');
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]);
+
+// #cat=weapon|vitality|spirit&tier=1..4&souls=N&corrupt=1&spin=1&instant=1  (instant=0 forces the animation even when the OS asks for reduced motion)
+const H = new URLSearchParams(location.hash.slice(1));
+const reduced = !H.has('instant') && matchMedia('(prefers-reduced-motion: reduce)').matches, instant = reduced || H.get('instant') === '1';
+let cat = CATS.includes(H.get('cat')) ? H.get('cat') : 'weapon';
+let tier = [1, 2, 3, 4].includes(+H.get('tier')) ? +H.get('tier') : 1;
+let balance = /^\d+$/.test(H.get('souls') || '') ? +H.get('souls') : 9600;
+let spinning = false, strip = [], landed = null;
+
+const pool = () => MANIFEST.items.filter(i => i.slot === cat && i.tier === tier);
+const size = n => n.length <= 14 ? '' : n.length <= 19 ? 'md' : n.length <= 22 ? 'sm' : 'xs';
+const card = (i, w, cls = '') => `<div class="card ${i.slot} t${i.tier}${i.active ? ' active' : ''} ${cls}" style="--w:${w}" data-id="${i.class_name}">
+  <img src="${C}cards/card_backer_${i.slot}_t${i.tier}.png" alt=""><div class="ico"><img src="${A}${i.icon}" alt=""></div>
+  ${i.imbue ? '<span class="imbue">Imbue</span>' : ''}<div class="nm"><span class="${size(i.name)}">${i.name}</span></div></div>`;
+// the real card clips a name wider than its plate (Sharpshooter); shrink those few to fit instead
+const fitNames = root => root.querySelectorAll('.nm span').forEach(s => {
+  s.style.fontSize = '';
+  const k = s.parentNode.clientWidth * .97 / s.offsetWidth;
+  if (k < 1) s.style.fontSize = parseFloat(getComputedStyle(s).fontSize) * k + 'px';
+});
+// n random pool items, never the same one twice in a row
+const fill = (n, prev) => Array.from({ length: n }, () => { let i; do i = pick(pool()); while (i === prev); return prev = i; });
+
+function paintStrip() { $('strip').innerHTML = strip.map((i, k) => card(i, W, landed && k === 2 ? 'win' : '')).join(''); fitNames($('strip')); }
+
+function render() {
+  const items = pool(), n = items.length, price = PRICES[tier - 1];
+  document.body.dataset.cat = cat;
+  for (const b of $('tabs').children) b.setAttribute('aria-pressed', b.dataset.cat === cat);
+  for (const b of $('prices').children) b.setAttribute('aria-pressed', +b.dataset.tier === tier);
+  $('balance').textContent = fmt(balance);
+  $('reelCap').textContent = `${cat} · ${fmt(price)} draw`;
+  $('pool').dataset.tier = tier;
+  $('tierName').textContent = `Tier ${tier}`;
+  $('count').textContent = `${n} items`;
+  // one or two rows, whichever gives the bigger card inside the 756x260 grid area
+  const fitW = rows => { const cols = Math.ceil(n / rows); return Math.floor(Math.min((756 - (cols - 1) * 4) / cols, (260 - (rows - 1) * 4) / rows * 82 / 128)); };
+  const rows = fitW(1) >= fitW(2) ? 1 : 2, w = fitW(rows);
+  const cols = Math.ceil(n / rows);
+  $('pool').classList.toggle('full', cols * (w + 4) > 610); // the emblem needs ~170px of free box
+  $('grid').style.gridTemplateColumns = `repeat(${cols}, ${w}px)`;
+  $('grid').innerHTML = items.map(i => card(i, w, i === landed ? 'hit' : '')).join('');
+  fitNames($('grid'));
+
+  const broke = balance < price, b = $('spin');
+  b.disabled = spinning || broke;
+  b.classList.toggle('broke', broke && !spinning);
+  b.innerHTML = spinning ? 'Spinning...' : broke ? 'Not enough souls' : `Spin <span class="cost"><i class="glyph"></i>${fmt(price)}</span>`;
+}
+
+function showResult(item, corrupted) {
+  const r = $('result');
+  r.className = corrupted ? 'corrupted' : '';
+  r.innerHTML = item ? `<div class="yougot rd">You got</div>
+    <div class="got" data-cat="${item.slot}"><span class="burst"></span>${card(item, 122)}</div>
+    <h2 class="name rd">${item.name}</h2><div class="meta" data-cat="${item.slot}">${item.slot} · ${fmt(item.cost)} souls</div>
+    <div class="corrupt rd"><i></i>Corrupted</div>`
+    : `<div class="yougot rd">No sale yet</div>
+    <div class="got"><span class="burst" style="background:rgba(26,21,16,.13)"></span><div class="slot rd">?</div></div>
+    <h2 class="name rd">Pick a department<br>and a price</h2><div class="meta">then spin</div>`;
+  fitNames(r);
+}
+
+function resetStrip() {
+  landed = null;
+  strip = shuffle(pool()).slice(0, 5);
+  $('strip').style.transition = $('strip').style.transform = 'none';
+  paintStrip();
+}
+
+function spin() {
+  const price = PRICES[tier - 1], el = $('strip');
+  if (spinning || balance < price) return;
+  // In the real mod the server does this part and sends back the result; the client only animates.
+  const winner = pick(pool()), corrupted = $('force').checked || Math.random() < 0.01;
+  balance -= price;
+  spinning = true;
+  landed = null;
+
+  strip = [...strip.slice(-5), ...fill(LEN - 5, strip[4])];
+  const o = shuffle(pool().filter(i => i !== winner && i !== strip[WIN - 3])); // the five cards it settles on are all different (pools have 7+)
+  strip.splice(WIN - 2, 5, o[0], o[1], winner, o[2], o[3]);
+  const done = () => {
+    spinning = false;
+    landed = winner;
+    strip = strip.slice(WIN - 2, WIN + 3);
+    el.style.transition = el.style.transform = 'none';
+    paintStrip();
+    showResult(winner, corrupted);
+    render();
+    const id = q => document.querySelector(q)?.dataset.id; // self-check: the middle reel card, the slip and the pool highlight must agree
+    console.assert([id('#strip .card:nth-child(3)'), id('#result .card'), id('#grid .hit')].every(x => x === winner.class_name), 'reel, slip and pool disagree');
+  };
+  el.style.transition = el.style.transform = 'none';
+  paintStrip();
+  render();
+  if (instant) return done();
+  el.offsetWidth; // reflow so the transition restarts from 0
+  el.style.transition = 'transform 4s cubic-bezier(.12,.8,.14,1)';
+  el.style.transform = `translateX(${-(WIN - 2) * STEP}px)`;
+  el.ontransitionend = e => { if (e.target === el) { el.ontransitionend = null; done(); } };
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button');
+  if (!t || spinning) return;
+  if (t.dataset.cat) { cat = t.dataset.cat; resetStrip(); }
+  else if (t.dataset.tier) { tier = +t.dataset.tier; resetStrip(); }
+  else if (t.id === 'spin') return spin();
+  else if (t.id === 'refill') balance = 9600;
+  render();
+});
+
+$('tabs').innerHTML = CATS.map(c => `<button class="tab" data-cat="${c}" aria-label="${c[0].toUpperCase() + c.slice(1)}" title="${c[0].toUpperCase() + c.slice(1)}">
+  <i class="shape"></i><img src="${C}catalog_shop_tab_icon_${c}.png" alt=""><i class="edge"></i></button>`).join('');
+$('prices').innerHTML = PRICES.map((p, t) => `<button class="tape rd p${t + 1}" data-tier="${t + 1}" aria-label="${fmt(p)} souls">${p}</button>`).join('');
+$('force').checked = H.get('corrupt') === '1';
+$('rm').hidden = !reduced;
+
+const fit = () => $('stage').style.transform = `translateX(-50%) scale(${Math.min(1, innerWidth / 1280, innerHeight / 800)})`;
+addEventListener('resize', fit);
+addEventListener('hashchange', () => location.reload());
+fit(); resetStrip(); showResult(); render();
+document.fonts.ready.then(() => fitNames(document)); // measure again once Retail Demo has loaded
+if (H.get('spin') === '1') spin();
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roulette Shop mockup (approved layout, real shop parts)</title>
+<style>
+@font-face { font-family: Retail; font-weight: 600; src: url(../deadlock-assets/ui/fonts/retaildemo-semibold.otf); }
+@font-face { font-family: Retail; font-weight: 700; src: url(../deadlock-assets/ui/fonts/retaildemo-bold.otf); }
+@font-face { font-family: Retail; font-weight: 700; font-style: italic; src: url(../deadlock-assets/ui/fonts/retaildemo-bolditalic.otf); }
+@font-face { font-family: Radiance; font-weight: 600; src: url(../deadlock-assets/ui/fonts/radiance-semibold.otf); }
+@font-face { font-family: Radiance; font-weight: 700; src: url(../deadlock-assets/ui/fonts/radiance-bold.otf); }
+
+/* --tab: tab paint, --rule: printed box rules, --cap: caption ink, --name: accent on black, --t4: tier 4 box black */
+:root { --mint: rgb(154,255,214); --ink: rgb(26,21,16); --cream: #eadfc6; --black: #120e0a; --red: #b3261a; --art: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_generic_bg.png);
+  --tab: rgb(228,178,12); --rule: #c4862c; --cap: #49381f; --name: #d99a3a; --t4: #110c08; --hue: none; }
+[data-cat=vitality] { --tab: rgb(165,206,60); --rule: #557f4c; --cap: #2c4b26; --name: #a9d84a; --t4: #0a0d09; --hue: hue-rotate(30deg) saturate(.65); }
+[data-cat=spirit] { --tab: rgb(184,102,222); --rule: #72559a; --cap: #3f2a57; --name: #c878f0; --t4: #1a1423; --hue: hue-rotate(-72deg) saturate(.55); }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #07090c; color: var(--ink); font-family: Radiance, "Segoe UI", sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 5px; box-shadow: 0 0 0 5px var(--ink); }
+#stage { position: absolute; left: 50%; top: 0; width: 1280px; transform-origin: top center; }
+#panel { position: relative; width: 1280px; height: 760px; background: #0b0d11; overflow: hidden; }
+
+/* category tabs: the real shop's masked tab shape + ink icon + edge overlay; selected tab is the tall one */
+#tabs { position: absolute; left: 6px; top: 26px; width: 84px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 1; }
+.tab { position: relative; width: 84px; height: 73px; overflow: hidden; border-radius: 8px 0 0 8px; transition: height .2s; }
+.tab[aria-pressed=true] { height: 175px; }
+.tab .shape { position: absolute; inset: 0; background: var(--c); -webkit-mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_shape.png) center top / cover no-repeat; }
+.tab img { position: absolute; top: 50%; left: calc(50% - 6px); transform: translate(-50%,-50%); width: 60px; height: 60px; object-fit: contain; }
+.tab .edge { position: absolute; inset: 0; background: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_edge_overlay.png) right bottom / cover no-repeat; opacity: .6; }
+.tab:not([aria-pressed=true]):hover .shape { filter: brightness(1.12); }
+
+/* the catalog page */
+.page { position: absolute; z-index: 2; left: 78px; top: 8px; right: 8px; bottom: 8px; display: grid;
+  grid-template: "mast mast pool" 100px "price mach pool" 1fr "foot foot foot" 30px / 146px 512px 1fr; gap: 14px 24px; padding: 16px 18px 8px 32px; }
+.paper { position: absolute; inset: 0; z-index: -1; background: var(--art) left top / 118% 200%; filter: var(--hue); } /* only the light top-left of the texture, so ink stays readable */
+.page::after { content: ""; position: absolute; left: 0; top: 5px; bottom: 0; width: 9px; background: var(--tab); }
+
+/* masthead, in the manner of the FAIRFAX banner */
+header { grid-area: mast; display: flex; align-items: center; gap: 24px; }
+.mast { position: relative; isolation: isolate; flex: none; width: 440px; height: 98px; text-align: center; background: var(--black);
+  clip-path: polygon(0 2%, 31% 0, 68% 2%, 100% 0, 99.5% 98%, 62% 100%, 27% 98%, .4% 100%); }
+.mast::before, .mast::after { content: ""; position: absolute; z-index: -1; clip-path: polygon(0 0, 100% 0, 96.5% 50%, 100% 100%, 0 100%, 3.5% 50%); }
+.mast::before { inset: 9px 20px 30px; background: var(--name); }
+.mast::after { inset: 12px 27px 33px; background: var(--black); }
+h1 { margin: 0; padding-top: 9px; font: 700 42px/59px Retail, Impact, sans-serif; letter-spacing: .05em; color: var(--cream); text-shadow: 2px 2px 0 var(--rule); }
+.mast p { margin: 6px 0 0; font: 700 12px/1 Retail, sans-serif; letter-spacing: .36em; color: var(--name); }
+.souls { flex: 1; height: 78px; margin-right: 12px; display: grid; align-content: center; justify-items: center; gap: 5px; background: var(--black); color: var(--cream); transform: rotate(-2deg);
+  clip-path: polygon(1% 5%, 40% 0, 100% 3%, 99% 96%, 55% 100%, 0 95%); }
+.souls small { font: 700 12px/1 Radiance, sans-serif; letter-spacing: .24em; }
+.souls b { display: flex; align-items: center; gap: 9px; font: 700 36px/1 Retail, sans-serif; color: var(--mint); text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.souls i { width: 17px; height: 32px; background: var(--mint); -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_soul.svg) center / contain no-repeat; }
+
+/* price label: black tape, mint Retail Demo number, -5deg in total (label -3, number -2) */
+.tape { position: relative; z-index: 3; isolation: isolate; display: inline-grid; place-items: center; min-width: 78px; height: 35px; padding: 2px 11px 0; transform: rotate(-3deg);
+  font: 700 24px/1 Retail, sans-serif; letter-spacing: 0; color: var(--mint); text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap; }
+.tape b { transform: rotate(-2deg); }
+.tape::before, .tape::after { content: ""; position: absolute; z-index: -1; }
+.tape::before { inset: 0; background: var(--black); clip-path: polygon(0 8%, 34% 3%, 71% 6%, 100% 0, 99% 93%, 64% 97%, 28% 94%, 1% 100%); }
+.tape.t2, .tape.t3 { font-size: 26px; }
+.tape.t2::after { inset: 4px; border: 1px solid rgba(234,223,198,.4); border-radius: 4px; }
+.tape.t3 { height: 39px; padding: 2px 16px 0; }                       /* ticket: notched corners, dotted inner line */
+.tape.t3::before { clip-path: none; --n: #0000 6px, #000 6.5px; -webkit-mask: radial-gradient(circle at 0 0, var(--n)) 0 0 / 51% 51% no-repeat,
+  radial-gradient(circle at 100% 0, var(--n)) 100% 0 / 51% 51% no-repeat, radial-gradient(circle at 0 100%, var(--n)) 0 100% / 51% 51% no-repeat, radial-gradient(circle at 100% 100%, var(--n)) 100% 100% / 51% 51% no-repeat; }
+.tape.t3::after { inset: 4px 8px; border-top: 2px dotted rgba(234,223,198,.75); border-bottom: 2px dotted rgba(234,223,198,.75); }
+.tape.t4 { font-size: 28px; height: 40px; padding: 2px 14px 0; }       /* plate over a starred diamond */
+.tape.t4::before { clip-path: polygon(3% 0, 97% 0, 100% 18%, 100% 82%, 97% 100%, 3% 100%, 0 82%, 0 18%); box-shadow: inset 0 0 0 1.5px var(--name); background: #1b1612; }
+.tape.t4::after { z-index: -2; left: 50%; top: 50%; width: 42px; height: 42px; margin: -21px; transform: rotate(45deg); background: var(--black); border: 1.5px solid var(--name); }
+
+/* tier boxes: t1 hatched thin rule, t2 double rule + target rings, t3 ticket edge + halftone, t4 black "experts only" */
+.box { position: relative; isolation: isolate; color: var(--cap); }
+.box::before, .box::after { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+.box.t1 { border: 1.5px solid var(--rule); background: repeating-linear-gradient(-52deg, #0000 0 12px, color-mix(in srgb, var(--rule) 60%, #0000) 12px 13px), rgba(255,247,226,.24); }
+.box.t2 { border: 3px solid var(--rule); background: rgba(255,247,226,.3); }
+.box.t2::before { inset: 3px; border: 1px solid var(--rule); }
+.box.t2::after { inset: 4px; background: radial-gradient(circle at 60% 55%, color-mix(in srgb, var(--tab) 30%, #0000) 0 16%, #0000 16.3%),
+  repeating-radial-gradient(circle at 60% 55%, #0000 0 11.6%, color-mix(in srgb, var(--rule) 65%, #0000) 11.6% 12%); }
+[data-cat=spirit] .box.t2::after { background: repeating-conic-gradient(from 8deg at 55% 50%, color-mix(in srgb, var(--rule) 26%, #0000) 0 8deg, #0000 8deg 26deg); }
+.box.t3 { --tk: var(--rule) 0 1.5px, #0000 1.5px 4px; border: 1.5px solid var(--rule); background: repeating-linear-gradient(90deg, var(--tk)) top / 100% 6px no-repeat,
+  repeating-linear-gradient(90deg, var(--tk)) bottom / 100% 6px no-repeat, repeating-linear-gradient(0deg, var(--tk)) left / 6px 100% no-repeat, repeating-linear-gradient(0deg, var(--tk)) right / 6px 100% no-repeat; }
+.box.t3::before { inset: 6px; border: 1.5px solid var(--rule); }
+.box.t3::after { inset: 8px; --d: color-mix(in srgb, var(--rule) 55%, #0000) 0 2.2px, #0000 2.7px; background: radial-gradient(circle, var(--d)) 0 0 / 8px 8px, radial-gradient(circle, var(--d)) 4px 4px / 8px 8px;
+  -webkit-mask: linear-gradient(20deg, #000 15%, rgba(0,0,0,.3)); }
+.box.t4 { background: var(--t4); color: #dccdae; }
+.box.t4::before { inset: 5px; border: 1px solid rgba(220,205,174,.55); }
+.box.t4::after { content: "★"; right: 9px; bottom: 8px; font: 11px/1 "Segoe UI Symbol", sans-serif; color: rgba(220,205,174,.75); }
+.cap { position: absolute; font: 700 16px/1 Retail, sans-serif; letter-spacing: .04em; white-space: nowrap; }
+.cap em { margin-left: 6px; font-size: 14px; color: var(--name); }
+
+/* left: four price selectors, each a small tier box with its tape label on the corner */
+#prices { grid-area: price; display: grid; align-content: space-between; padding: 18px 0 2px; }
+.price { position: relative; height: 108px; }
+.price .box { position: absolute; inset: 0; opacity: .65; transition: opacity .15s; }   /* only the box dims; label and text stay solid */
+.price:hover .box { opacity: .9; }
+.price[aria-pressed=true] .box { opacity: 1; outline: 3px solid var(--ink); outline-offset: 4px; }
+.price .tape { position: absolute; left: -13px; top: -15px; transition: transform .15s; }
+.price[aria-pressed=true] .tape { transform: rotate(-3deg) scale(1.12); }
+.price .cap { right: 10px; top: 10px; font-size: 14px; color: var(--cap); }
+.price[data-tier="4"] .cap { color: #e6d9bd; }
+.price .n { position: absolute; left: 14px; bottom: 12px; padding: 3px 7px; background: var(--cream); color: var(--ink); font: 700 12px/1 Radiance, sans-serif; letter-spacing: .14em; }
+.price > i { display: none; position: absolute; right: -24px; top: 50%; margin-top: -11px; border: 11px solid #0000; border-left: 13px solid var(--ink); }
+.price[aria-pressed=true] > i { display: block; }
+
+/* centre: the machine */
+.mach { grid-area: mach; display: flex; flex-direction: column; gap: 18px; padding-top: 12px; min-height: 0; }
+.reel { position: relative; padding: 20px 9px; background: radial-gradient(circle, var(--cream) 0 2.6px, #0000 3.1px) 0 4px / 18px 12px repeat-x,
+  radial-gradient(circle, var(--cream) 0 2.6px, #0000 3.1px) 0 calc(100% - 4px) / 18px 12px repeat-x, var(--black); }
+.window { overflow: hidden; }
+.strip { display: flex; gap: 6px; }
+.strip .mod-box { flex: none; width: 94px; }
+.strip.done .mod-box:not(:nth-child(3)) { opacity: .5; }   /* after it lands, the four losers step back */
+.reel::after { content: ""; position: absolute; top: 14px; bottom: 14px; left: 50%; width: 106px; margin-left: -53px; border: 3px solid var(--tab); border-radius: 8px; pointer-events: none; }
+.ptr { position: absolute; left: 50%; margin-left: -14px; border: 14px solid #0000; z-index: 2; filter: drop-shadow(0 0 1.5px var(--ink)) drop-shadow(0 0 1.5px var(--ink)); }
+.ptr.top { top: -9px; border-top: 20px solid var(--tab); border-bottom: 0; }
+.ptr.bot { bottom: -9px; border-bottom: 20px solid var(--tab); border-top: 0; }
+
+.result { position: relative; flex: 1; min-height: 0; display: flex; align-items: center; gap: 26px; padding: 12px 26px; background: var(--cream); border: 2px dashed var(--ink); overflow: hidden; }
+.result .mod-box, .slot { flex: none; width: 126px; transform: rotate(-4deg); }
+.result .mod-box { box-shadow: 3px 5px 0 rgba(26,21,16,.3); }
+.slot { aspect-ratio: 82/128; border: 2px dashed rgba(26,21,16,.5); border-radius: 5px; display: grid; place-items: center; font: 700 64px/1 Retail, sans-serif; color: rgba(26,21,16,.45); }
+.yougot { font: 700 13px/1 Radiance, sans-serif; letter-spacing: .24em; color: var(--cap); }
+.result h2 { margin: 8px 0 10px; font: 700 34px/1 Retail, sans-serif; color: var(--ink); }
+.meta { font: 700 14px/1.3 Radiance, sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--cap); }
+.corrupt { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 5px 10px 4px; border: 2px solid var(--red); transform: rotate(-2deg); font: 700 20px/1 Retail, sans-serif; letter-spacing: .12em; color: var(--red); }
+.corrupt i { width: 24px; height: 24px; background: var(--red); -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_corrupted_souls.svg) center / contain no-repeat; }
+.result.corrupted { border-color: var(--red); }
+.result.corrupted::before { content: ""; position: absolute; inset: 0; opacity: .3; background: url(../deadlock-assets/ui/images/shop/catalog/catalog_tooltip_header_weapon_corrupted.png) left bottom / 100% auto no-repeat; transform: scaleY(-1); }
+.result > * { position: relative; }
+
+.spin { flex: none; height: 84px; display: flex; align-items: center; justify-content: center; gap: 18px; background: var(--tab); border: 2px solid var(--ink); box-shadow: 4px 5px 0 var(--ink);
+  font: 700 44px/1 Retail, Impact, sans-serif; letter-spacing: .1em; color: var(--ink); margin: 0 5px 6px 0; outline: 1.5px solid var(--ink); outline-offset: -8px; }
+.spin:hover:not(:disabled) { filter: brightness(1.07); }
+.spin:active:not(:disabled) { transform: translate(3px,4px); box-shadow: 1px 1px 0 var(--ink); }
+.spin:disabled { cursor: default; }
+.spin.busy { background: color-mix(in srgb, var(--tab) 45%, #a3977f); font-size: 32px; }
+.spin.broke { background: #cfc3a8; border-style: dashed; box-shadow: none; outline: 0; color: #96190f; font-size: 30px; }
+
+/* right: the pool, one big tier box */
+.pool { grid-area: pool; margin-top: 22px; padding: 46px 14px 12px; display: flex; flex-direction: column; min-height: 0; }
+.pool .tape { position: absolute; left: -15px; top: -17px; }
+.pool .cap { left: 92px; top: 13px; font-size: 19px; }
+.count { position: absolute; right: 16px; top: 15px; font: 700 12px/1 Radiance, sans-serif; letter-spacing: .14em; }
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.cell { position: relative; }
+.grid.done .cell:not(.hit) { opacity: .5; }
+.cell.hit { z-index: 5; }
+.cell.hit .mod-box { transform: scale(1.16) rotate(-3deg); outline: 3px solid var(--mint); box-shadow: 0 0 0 7px var(--ink); }
+.grid.bad .cell.hit .mod-box { outline-color: #ff6a55; }
+.won { position: absolute; z-index: 6; left: -14px; top: -15px; padding: 4px 7px 3px; background: var(--black); color: var(--mint); font: 700 12px/1 Retail, sans-serif; letter-spacing: .08em; transform: rotate(-9deg); white-space: nowrap; }
+.odds { margin: auto 8px 8px auto; text-align: right; transform: rotate(-5deg); transform-origin: right bottom; font: italic 700 var(--fs, 30px)/.9 Retail, sans-serif; }
+.odds span { display: block; margin-top: 6px; font: 700 12px/1 Radiance, sans-serif; letter-spacing: .16em; }
+
+footer { grid-area: foot; display: flex; justify-content: space-between; align-items: center; padding: 0 4px; font: 700 13px/1 Radiance, sans-serif; letter-spacing: .05em; color: var(--ink); }
+footer span { padding: 5px 9px 4px; background: var(--cream); }
+
+/* item card, exactly as the real shop builds it; type scales with the card (cqw = % of card width, 73px = 100) */
+.mod-box { container-type: inline-size; aspect-ratio: 82/128; border-radius: 5px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.card-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.mod-icon-container { flex: 0 0 64.0625%; aspect-ratio: 1; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; z-index: 3; border-radius: 5px 5px 0 0; }
+.mod-icon { width: 100%; height: 100%; object-fit: cover; border-radius: 5px 5px 0 0; }
+.mod-box.active { border-radius: 50% 50% 5px 5px / 32% 32% 5px 5px; }
+.mod-box.active .mod-icon-container { padding: 3%; }
+.mod-box.active .mod-icon { border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.45); }
+.imbue-tag { position: absolute; bottom: 35.9375%; left: 0; width: 100%; z-index: 6; background: rgb(90,58,138); color: rgb(212,184,240); font: 600 10.96cqw/1.2 Retail, sans-serif;
+  padding: 1.4cqw 4.1cqw; text-align: center; text-transform: uppercase; letter-spacing: 1.37cqw; border-radius: 2px; }
+.mod-name-container { flex: 0 0 35.9375%; padding: 0 4%; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; z-index: 3; }
+.mod-name { font: 700 17.81cqw/.88 Retail, sans-serif; letter-spacing: -.02em; overflow-wrap: break-word; color: rgb(26,21,16); padding: 0 5.5cqw; }
+.mod-name.md { font-size: 16.44cqw; }
+.mod-name.sm { font-size: 15.07cqw; }
+.mod-name.xs { font-size: 13.7cqw; }
+.tier-4 .mod-name.weapon { color: rgb(228,197,161); }
+.tier-4 .mod-name.vitality { color: rgb(194,231,205); }
+.tier-4 .mod-name.spirit { color: rgb(227,212,242); }
+
+#mock { width: 1280px; height: 40px; padding: 0 24px; font: 13px "Segoe UI", sans-serif; color: #aab2be; display: flex; gap: 20px; align-items: center; }
+#mock button { text-decoration: underline; color: #e3e8ef; }
+#mock button:focus-visible { outline-offset: 2px; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .tab, .price * { transition: none; } }
+</style>
+</head>
+<body data-cat="weapon">
+<div id="stage">
+  <div id="panel">
+    <nav id="tabs" aria-label="Category"></nav>
+    <div class="page">
+      <div class="paper"></div>
+      <header>
+        <div class="mast"><h1>ROULETTE SHOP</h1><p>FORTUNES BOUGHT · NEVER SOLD</p></div>
+        <div class="souls"><small>YOUR SOULS</small><b><i></i><span id="balance"></span></b></div>
+      </header>
+      <div id="prices" role="group" aria-label="Price"></div>
+      <section class="mach">
+        <div class="reel"><i class="ptr top"></i><i class="ptr bot"></i><div class="window"><div class="strip" id="strip"></div></div></div>
+        <div class="result" id="result" aria-live="polite"></div>
+        <button class="spin" id="spin"></button>
+      </section>
+      <section class="pool box t1" id="pool" aria-label="Item pool">
+        <div id="poolHead"></div>
+        <div class="grid" id="grid"></div>
+        <p class="odds" id="odds"></p>
+      </section>
+      <footer><span>✱ Selling is disabled while Roulette Shop is on</span><span>✱ 1% of spins come back Corrupted</span></footer>
+    </div>
+  </div>
+  <div id="mock">
+    <span>Mockup controls (not part of the panel):</span>
+    <button id="refill">Refill souls</button>
+    <label><input type="checkbox" id="force"> Force corrupted</label>
+  </div>
+</div>
+
+<script src="../deadlock-assets/manifest.js"></script>
+<script>
+const A = '../deadlock-assets/', CAT = A + 'ui/images/shop/catalog/';
+const CATS = ['weapon', 'vitality', 'spirit'], PRICES = [800, 1600, 3200, 6400];
+const TABC = { weapon: 'rgb(228,178,12)', vitality: 'rgb(165,206,60)', spirit: 'rgb(184,102,222)' };
+const WIN = 27, LEN = 30, DUR = 4000; // the winner's index in a LEN-card strip; spin time in ms
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US');
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+// #cat=weapon|vitality|spirit&tier=1..4&souls=N&corrupt=1&spin=1&instant=1
+const Q = new URLSearchParams(location.hash.slice(1));
+const instant = Q.has('instant') ? Q.get('instant') === '1' : matchMedia('(prefers-reduced-motion: reduce)').matches; // instant=0 forces the animation
+if (instant && !Q.has('instant')) $('mock').insertAdjacentHTML('beforeend', '<span>Reduced motion is on, so spins resolve instantly. Add #instant=0 to the URL to watch the reel.</span>');
+let cat = CATS.includes(Q.get('cat')) ? Q.get('cat') : 'weapon';
+let tier = [1, 2, 3, 4].includes(+Q.get('tier')) ? +Q.get('tier') : 1;
+let balance = Q.has('souls') ? Math.max(0, Math.floor(+Q.get('souls')) || 0) : 9600;
+let spinning = false, strip = [], landed = null, bad = false;
+
+const poolOf = (c, t) => MANIFEST.items.filter(i => i.slot === c && i.tier === t);
+const pool = () => poolOf(cat, tier);
+const other = (...not) => { let c; do c = pick(pool()); while (not.includes(c)); return c; };
+const fill = (n, last) => Array.from({ length: n }, () => last = other(last));               // reel filler: never the same card twice in a row
+const distinct = (n, got = []) => { while (got.length < n) got.push(other(...got)); return got; }; // pools have 7+ items, so 5 different ones always exist
+console.assert(CATS.every(c => PRICES.every((p, t) => poolOf(c, t + 1).length && poolOf(c, t + 1).every(i => i.cost === p))), 'empty pool or cost/tier mismatch');
+
+// The real shop's size steps go by name length only, which clips "Sharpshooter" and "Unstoppable"; here an 11+ letter word also steps down.
+const size = (n, w = Math.max(...n.split(' ').map(s => s.length))) => n.length > 22 ? ' xs' : n.length > 19 || w > 11 ? ' sm' : n.length > 14 || w > 10 ? ' md' : '';
+const card = i => `<div class="mod-box tier-${i.tier} ${i.slot}${i.active ? ' active' : ''}" data-item="${i.class_name}">
+  <img class="card-background" src="${CAT}cards/card_backer_${i.slot}_t${i.tier}.png" alt="">
+  <div class="mod-icon-container"><img class="mod-icon" src="${A}${i.icon}" alt=""></div>${i.imbue ? '<span class="imbue-tag">Imbue</span>' : ''}
+  <div class="mod-name-container"><span class="mod-name ${i.slot}${size(i.name)}">${i.name}</span></div></div>`;
+const tape = t => `<span class="tape t${t}"><b>${PRICES[t - 1]}</b></span>`; // no comma, as on the real labels
+
+$('tabs').innerHTML = CATS.map(c => `<button class="tab" data-cat="${c}" aria-label="${c} items" style="--c:${TABC[c]}">
+  <i class="shape"></i><img src="${CAT}catalog_shop_tab_icon_${c}.png" alt=""><i class="edge"></i></button>`).join('');
+$('prices').innerHTML = PRICES.map((p, t) => `<button class="price" data-tier="${t + 1}" aria-label="Tier ${t + 1}, ${fmt(p)} souls">
+  <span class="box t${t + 1}"></span><span class="cap">TIER ${t + 1}</span><span class="n"></span>${tape(t + 1)}<i></i></button>`).join('');
+
+function renderStrip() { $('strip').innerHTML = strip.map(card).join(''); }
+
+function render() {
+  const price = PRICES[tier - 1], p = pool(), broke = balance < price, b = $('spin');
+  document.body.dataset.cat = cat;
+  $('balance').textContent = fmt(balance);
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-pressed', t.dataset.cat === cat));
+  document.querySelectorAll('.price').forEach(t => {
+    t.setAttribute('aria-pressed', +t.dataset.tier === tier);
+    t.querySelector('.n').textContent = poolOf(cat, +t.dataset.tier).length + ' ITEMS';
+  });
+  $('pool').className = 'pool box t' + tier;
+  $('poolHead').innerHTML = `${tape(tier)}<span class="cap">TIER ${tier}${tier === 4 ? '<em>EXPERTS ONLY</em>' : ''}</span><span class="count">${cat.toUpperCase()} · ${p.length} ITEMS</span>`;
+  $('strip').className = 'strip' + (landed ? ' done' : '');
+  $('grid').className = 'grid' + (landed ? ' done' : '') + (landed && bad ? ' bad' : '');
+  $('grid').innerHTML = p.map(i => `<div class="cell${i === landed ? ' hit' : ''}">${card(i)}${i === landed ? '<b class="won">YOU GOT</b>' : ''}</div>`).join('');
+  $('odds').innerHTML = `1 in ${p.length}<span>ODDS ON EVERY ITEM</span>`;
+  $('odds').style.setProperty('--fs', [58, 58, 58, 46, 30][Math.ceil(p.length / 5)] + 'px'); // fewer rows, more room
+  b.disabled = spinning || broke;
+  b.className = 'spin' + (spinning ? ' busy' : broke ? ' broke' : '');
+  b.innerHTML = spinning ? 'SPINNING...' : broke ? 'NOT ENOUGH SOULS' : `SPIN ${tape(tier)}`;
+}
+
+function showResult(item, corrupted) {
+  const r = $('result');
+  r.className = 'result' + (corrupted ? ' corrupted' : '');
+  r.innerHTML = item ? `${card(item)}<div><div class="yougot">YOU GOT</div><h2>${item.name}</h2>
+    <div class="meta">${item.slot} · ${fmt(item.cost)} souls</div>
+    ${corrupted ? '<div class="corrupt"><i></i>CORRUPTED</div>' : ''}</div>`
+    : `<div class="slot">?</div><div><div class="yougot">PICK A CATEGORY AND A PRICE</div><h2>Then spin</h2>
+    <div class="meta">One random item from the box on the right</div></div>`;
+}
+
+function resetStrip() {
+  strip = distinct(5);
+  $('strip').style.transition = $('strip').style.transform = 'none';
+  renderStrip();
+}
+
+function spin() {
+  const price = PRICES[tier - 1];
+  if (spinning || balance < price) return;
+  // In the real mod the server does this part and sends back the result; the client only animates.
+  const winner = pick(pool()), corrupted = $('force').checked || Math.random() < 0.01;
+  balance -= price;
+  spinning = true;
+  landed = null;
+  strip = [...strip.slice(-5), ...fill(LEN - 5, strip.at(-1))];
+  const [, a, b, c, d] = distinct(5, [winner]);
+  strip.splice(WIN - 2, 5, a, b, winner, c, d); // the five cards it stops on are all different
+
+  const el = $('strip');
+  let finished = false;
+  const done = () => {
+    if (finished) return;
+    finished = true;
+    spinning = false;
+    landed = winner;
+    bad = corrupted;
+    strip = strip.slice(WIN - 2, WIN + 3); // the winner ends up in the middle of the 5 visible cards
+    el.style.transition = el.style.transform = 'none';
+    renderStrip();
+    showResult(winner, corrupted);
+    render();
+  };
+  if (instant) return done();
+
+  el.style.transition = el.style.transform = 'none';
+  renderStrip();
+  const step = el.children[1].offsetLeft - el.children[0].offsetLeft; // card width + gap; reading it also restarts the transition
+  el.style.transition = `transform ${DUR}ms cubic-bezier(.12,.8,.14,1)`;
+  el.style.transform = `translateX(${-(WIN - 2) * step}px)`;
+  render();
+  el.addEventListener('transitionend', done, { once: true });
+  setTimeout(done, DUR + 400); // in case the tab is hidden and transitionend never arrives
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button');
+  if (!t || spinning) return;
+  if (t.dataset.cat) { cat = t.dataset.cat; landed = null; resetStrip(); }
+  else if (t.dataset.tier) { tier = +t.dataset.tier; landed = null; resetStrip(); }
+  else if (t.id === 'spin') return spin();
+  else if (t.id === 'refill') balance = 9600;
+  render();
+});
+addEventListener('hashchange', () => location.reload());
+
+const fit = () => $('stage').style.transform = `translateX(-50%) scale(${Math.min(1, innerWidth / 1280, innerHeight / 800)})`;
+addEventListener('resize', fit);
+$('force').checked = Q.get('corrupt') === '1';
+fit(); resetStrip(); showResult(); render();
+if (Q.get('spin') === '1') spin();
+</script>
+</body>
+</html>

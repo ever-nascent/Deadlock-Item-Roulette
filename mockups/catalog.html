@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roulette Shop mockup: catalog page</title>
+<style>
+@font-face { font-family: 'Retail Demo'; font-weight: 700; src: url(../deadlock-assets/ui/fonts/retaildemo-bold.otf); }
+@font-face { font-family: 'Retail Demo'; font-weight: 600; src: url(../deadlock-assets/ui/fonts/retaildemo-semibold.otf); }
+@font-face { font-family: Radiance; font-weight: 600; src: url(../deadlock-assets/ui/fonts/radiance-semibold.otf); }
+@font-face { font-family: Radiance; font-weight: 700; src: url(../deadlock-assets/ui/fonts/radiance-bold.otf); }
+
+:root { --ink: rgb(26,21,16); --cream: #eadfc6; --mint: rgb(154,255,214); --tape: #100d0a; --red: #b3261a; --hit: var(--mint);
+  --u: calc(100cqw / 75.4); /* 1px on the real shop's 75.4px-wide card; card internals scale with the card */ }
+[data-cat=weapon]   { --tab: rgb(228,178,12);  --line: #b9772a; --acc: #d99a3a; --deep: #7c4610; --paper-x: -15px; }
+[data-cat=vitality] { --tab: rgb(165,206,60);  --line: #4c7a48; --acc: #a9d84a; --deep: #2c5a26; --paper-x: -742px; }
+[data-cat=spirit]   { --tab: rgb(184,102,222); --line: #66508c; --acc: #c878f0; --deep: #5d3190; --paper-x: -380px; }
+body.corrupt { --hit: #ff5a40; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: #0d0f12; color: var(--ink); font-family: Radiance, "Segoe UI", sans-serif; overflow: hidden; }
+button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+h1, h2, p { margin: 0; }
+
+#stage { position: absolute; left: 50%; top: 0; width: 1280px; transform-origin: top center; }
+#panel { position: relative; width: 1280px; height: 760px; overflow: hidden; background: #0d0f12; }
+
+/* ---------- the real shop: tabs + catalog page (laid out at the real 1080px, scaled to fit 760px of height) ---------- */
+.shop { position: absolute; left: 4px; top: 0; display: flex; align-items: flex-start; width: 1080px; font-family: 'Retail Demo', Impact, sans-serif;
+  transform: scale(.8504); transform-origin: 0 0; }
+.nav-container { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-right: -12px; }
+.category-icon-container { position: relative; width: 84px; height: 73px; overflow: hidden; border-radius: 8px 0 0 8px; transition: height .2s; }
+.category-icon-container.active { height: 175px; }
+.tab-shape { position: absolute; inset: 0; background: var(--tab);
+  -webkit-mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_shape.png) center top / cover no-repeat;
+          mask: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_shape.png) center top / cover no-repeat; }
+.tab-icon { position: absolute; top: 50%; left: calc(50% - 6px); transform: translate(-50%,-50%); width: 60px; height: 60px; object-fit: contain; }
+.tab-edge-overlay { position: absolute; inset: 0; background: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_tab_edge_overlay.png) right bottom / cover no-repeat; opacity: .6; }
+.category-icon-container:not(.active):hover .tab-shape { filter: brightness(1.12); }
+
+.tiers { display: flex; flex-wrap: wrap; justify-content: space-between; position: relative; z-index: 1; flex: 1; height: 893.66px; /* 1008 x 1618/1825, fixed so % always means the art */
+  background: 0 0 / contain no-repeat; }
+.tiers.weapon   { background-image: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_bg_weapon.png); }
+.tiers.vitality { background-image: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_bg_vitality.png); }
+.tiers.spirit   { background-image: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_bg_spirit.png); }
+.tier-section { display: flex; flex-direction: column; margin: 1%; }
+.tier-section.tier-1 { width: 45%; padding: 16% 2% 3% 4%; }
+.tier-section.tier-2 { width: 51%; padding: 5% 3.5% 2% 1%; }
+.tiers.weapon .tier-section.tier-3 { width: 54%; padding-top: 3%; margin-left: 5%; }
+.tiers.weapon .tier-section.tier-4 { width: 31%; margin-right: 5%; padding-top: 3%; }
+.tiers:not(.weapon) .tier-section.tier-3 { width: 45%; margin-right: .8%; padding: 5% 2% 2% 4%; }
+.tiers:not(.weapon) .tier-section.tier-4 { width: 51%; padding: 5% 2.8% 1.4% 1%; }
+.mods-grid { display: grid; gap: 4px; grid-auto-rows: min-content; width: 100%; }
+.mods-grid.tier-1 { grid-template-columns: repeat(5,1fr); }
+.mods-grid.tier-2 { grid-template-columns: repeat(6,1fr); }
+.tiers.weapon .mods-grid.tier-3 { grid-template-columns: repeat(7,1fr); }
+.tiers.weapon .mods-grid.tier-4 { grid-template-columns: repeat(4,1fr); }
+.tiers:not(.weapon) .mods-grid.tier-3 { grid-template-columns: repeat(5,1fr); }
+.tiers:not(.weapon) .mods-grid.tier-4 { grid-template-columns: repeat(6,1fr); }
+
+/* A tier box IS the price button. --b* = the printed box in the page art (% of the page), --p* = the spec's price-label centre. */
+.tier-btn { position: absolute; z-index: 20; left: calc(var(--bx) * 1%); top: calc(var(--by) * 1%); width: calc(var(--bw) * 1%); height: calc(var(--bh) * 1%);
+  background: rgba(13,10,7,.5); transition: background .15s; }
+.tier-btn:hover { background: rgba(13,10,7,.3); }
+.tier-btn[aria-pressed=true] { background: none; } /* no ring: it would cut across the printed price label */
+.tier-btn:not([aria-pressed=true]) .tier-price { opacity: .8; }
+.tier-price { position: absolute; left: calc((var(--px) - var(--bx)) / var(--bw) * 100%); top: calc((var(--py) - var(--by)) / var(--bh) * 100%);
+  transform: translate(-50%,-50%) rotate(-5deg); font: 700 24px/1 'Retail Demo'; color: var(--mint); text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap; }
+.tier-price.tier-1 { padding: 5px 9px 3px; background: #0b0908; border-radius: 2px; } /* tier 1's label is a plain black strip: back it, so a highlighted first card can't slide under the number */
+.tier-price.tier-2, .tier-price.tier-3 { font-size: 26px; }
+.tier-price.tier-4 { font-size: 28px; }
+.weapon .tier-btn.tier-1 { --bx: 3.34;  --by: 15.02; --bw: 41.7;  --bh: 33.62; --px: 6.58;  --py: 17.24; }
+.weapon .tier-btn.tier-2 { --bx: 46.79; --by: 2.16;  --bw: 49.97; --bh: 46.6;  --px: 51.56; --py: 3.89; }
+.weapon .tier-btn.tier-3 { --bx: 3.07;  --by: 51.6;  --bw: 57.7;  --bh: 46.66; --px: 8.49;  --py: 52.97; }
+.weapon .tier-btn.tier-4 { --bx: 61.8;  --by: 51.73; --bw: 35.34; --bh: 46.5;  --px: 68.55; --py: 52.41; }
+.tiers:not(.weapon) .tier-btn.tier-1 { --bx: 3.73;  --by: 15.1;  --bw: 41.75; --bh: 33.75; --px: 6.85;  --py: 17.43; }
+.tiers:not(.weapon) .tier-btn.tier-2 { --bx: 47.12; --by: 2.35;  --bw: 50.1;  --bh: 46.6;  --px: 51.48; --py: 4.05; }
+.tiers:not(.weapon) .tier-btn.tier-3 { --bx: 3.4;   --by: 51.9;  --bw: 42.1;  --bh: 46.3;  --px: 8.38;  --py: 52.97; }
+.tiers:not(.weapon) .tier-btn.tier-4 { --bx: 47.12; --by: 51.85; --bw: 50.36; --bh: 46.35; --px: 52.49; --py: 51.92; }
+
+/* ---------- the real item card; every size inside is in --u so the card scales as one piece ---------- */
+.mod-box { container-type: inline-size; aspect-ratio: 82/128; border-radius: 6.6% / 4.25%; display: flex; flex-direction: column; overflow: hidden; position: relative;
+  font-family: 'Retail Demo', Impact, sans-serif; }
+.card-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.mod-icon-container { flex: 0 0 64.0625%; aspect-ratio: 1; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; z-index: 3;
+  border-radius: calc(5 * var(--u)) calc(5 * var(--u)) 0 0; }
+.mod-icon { width: 100%; height: 100%; object-fit: cover; border-radius: calc(5 * var(--u)) calc(5 * var(--u)) 0 0; }
+.mod-box.active { border-radius: 50% 50% 6.6% 6.6% / 32% 32% 4.25% 4.25%; }
+.mod-box.active .mod-icon-container { padding: 3%; }
+.mod-box.active .mod-icon { border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.45); }
+.imbue-tag { position: absolute; bottom: 35.9375%; left: 0; width: 100%; z-index: 6; background: rgb(90,58,138); color: rgb(212,184,240);
+  font-size: calc(8 * var(--u)); font-weight: 600; line-height: 1.25; padding: var(--u) calc(3 * var(--u)); text-align: center; text-transform: uppercase;
+  letter-spacing: var(--u); border-radius: calc(2 * var(--u)); }
+.mod-name-container { flex: 0 0 35.9375%; padding: 0 4%; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; z-index: 3; }
+.mod-name { font-weight: 700; font-size: calc(13 * var(--u)); line-height: .88; letter-spacing: -.02em; overflow-wrap: break-word; color: var(--ink); padding: 0 calc(4 * var(--u)); }
+.mod-name.name-size-md { font-size: calc(12 * var(--u)); }
+.mod-name.name-size-sm { font-size: calc(11 * var(--u)); }
+.mod-name.name-size-xs { font-size: calc(10 * var(--u)); }
+.mod-box.tier-4 .mod-name.weapon   { color: rgb(228,197,161); }
+.mod-box.tier-4 .mod-name.vitality { color: rgb(194,231,205); }
+.mod-box.tier-4 .mod-name.spirit   { color: rgb(227,212,242); }
+.tiers .mod-box.tick { outline: 3px solid var(--mint); outline-offset: 1px; z-index: 9; }
+.tiers .mod-box.hit { transform: scale(1.15); z-index: 10; outline: 4px solid var(--hit); outline-offset: 1px; box-shadow: 0 0 0 8px var(--tape), 0 12px 22px rgba(0,0,0,.65); }
+
+/* ---------- the roulette sheet: a second sheet of the same catalog ---------- */
+.sheet { position: absolute; left: 930px; top: 6px; width: 346px; height: 748px; padding: 16px 14px 0; isolation: isolate; }
+.sheet::before { content: ""; position: absolute; inset: 0; z-index: -1; filter: brightness(1.1); /* the texture's three bands are one paper per category */
+  background: url(../deadlock-assets/ui/images/shop/catalog/catalog_shop_filter_bg.png) var(--paper-x) 0 / 1131px 1700px no-repeat; }
+.tape { display: inline-flex; align-items: center; gap: .22em; padding: .2em .45em .16em; background: var(--tape); border-radius: 3px; box-shadow: inset 0 0 0 1.5px rgba(234,223,198,.16);
+  transform: rotate(-5deg); font: 700 24px/1 'Retail Demo', Impact, sans-serif; color: var(--mint); text-shadow: 0 1px 3px rgba(0,0,0,.7); white-space: nowrap; }
+.glyph { flex: none; width: .5em; height: .96em; background: currentColor;
+  -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_soul.svg) center / contain no-repeat; mask: url(../deadlock-assets/ui/icons/hud/icons/icon_soul.svg) center / contain no-repeat; }
+.cap { font: 700 12px/1.2 Radiance, sans-serif; letter-spacing: .16em; text-transform: uppercase; }
+
+.mast { height: 66px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--tape); color: var(--cream);
+  box-shadow: inset 0 0 0 4px var(--tape), inset 0 0 0 5.5px var(--acc); }
+.mast h1 { font: 700 28px/1 'Retail Demo', Impact, sans-serif; letter-spacing: .03em; text-transform: uppercase; text-shadow: 2px 2px 0 var(--line); }
+.mast p { font: 700 12px/1 Radiance, sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--acc); }
+
+.machine { display: flex; gap: 12px; height: 590px; margin-top: 12px; }
+.reel { position: relative; flex: none; padding: 10px; background: var(--tape); border-radius: 3px; box-shadow: inset 0 0 0 1.5px rgba(234,223,198,.16), 2px 3px 0 rgba(0,0,0,.3); }
+.window { position: relative; width: 70.47px; height: 570px; overflow: hidden; }
+.strip { display: flex; flex-direction: column; gap: 5px; }
+.strip .mod-box { flex: none; width: 70.47px; }
+.window::before, .window::after { content: ""; position: absolute; left: 0; right: 0; height: 227px; z-index: 8; background: rgba(16,13,10,.45); }
+.window::before { top: 0; } .window::after { bottom: 0; }
+.reel::after { content: ""; position: absolute; left: 4px; right: 4px; top: 234px; height: 122px; border: 3px solid var(--hit); border-radius: 8px; }
+.ptr { position: absolute; top: 285px; border: 10px solid transparent; z-index: 9; filter: drop-shadow(0 1px 1px rgba(0,0,0,.6)); }
+.ptr.l { left: -8px; border-left-color: var(--hit); } .ptr.r { right: -8px; border-right-color: var(--hit); }
+
+.side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.souls { display: flex; align-items: center; gap: 12px; height: 44px; padding-left: 4px; }
+.souls .tape { font-size: 27px; }
+.result { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 11px 12px 12px;
+  background: #e7dcc3 url(../deadlock-assets/ui/images/shop/catalog/cards/shopitem_papertexture01.png) center / cover; background-blend-mode: multiply; box-shadow: 2px 3px 0 rgba(0,0,0,.3); }
+.result .yougot { align-self: stretch; padding-bottom: 7px; border-bottom: 2px solid var(--ink); font: 700 13px/1 Radiance, sans-serif; letter-spacing: .26em; text-transform: uppercase; }
+.result .body { margin: auto 0; display: flex; flex-direction: column; align-items: center; }
+.result .mod-box, .result .slot { flex: none; width: 118px; margin-bottom: 16px; transform: rotate(-3deg); }
+.result .mod-box { box-shadow: 0 6px 14px rgba(0,0,0,.45); }
+.result .slot { aspect-ratio: 82/128; display: grid; place-items: center; border: 2px dashed rgba(26,21,16,.5); border-radius: 7px; font: 700 56px 'Retail Demo', Impact, sans-serif; color: rgba(26,21,16,.4); }
+.result .name { font: 700 21px/1 'Retail Demo', Impact, sans-serif; letter-spacing: -.01em; }
+.result .meta { display: flex; align-items: center; gap: 9px; margin-top: 9px; font: 700 15px/1 'Retail Demo', Impact, sans-serif; text-transform: uppercase; letter-spacing: .03em; color: var(--deep); }
+.result .meta .tape { font-size: 18px; }
+.result .hint { margin-top: 8px; font: 600 14px/1.3 Radiance, sans-serif; }
+.stamp { display: none; align-items: center; gap: 6px; margin-top: 13px; padding: 5px 9px 3px; border: 3px solid var(--red); border-radius: 4px; transform: rotate(-4deg);
+  font: 700 17px/1 'Retail Demo', Impact, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--red); }
+.stamp i { width: 19px; height: 19px; margin-top: -2px; background: currentColor;
+  -webkit-mask: url(../deadlock-assets/ui/icons/hud/icons/icon_corrupted_souls.svg) center / contain no-repeat; mask: url(../deadlock-assets/ui/icons/hud/icons/icon_corrupted_souls.svg) center / contain no-repeat; }
+.result.corrupted .stamp { display: flex; }
+.draw { text-align: center; }
+.spin { flex: none; height: 96px; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--tab); border-radius: 5px;
+  box-shadow: inset 0 0 0 4px var(--tab), inset 0 0 0 6px rgba(26,21,16,.8), 0 5px 0 #0c0906;
+  font: 700 38px/1 'Retail Demo', Impact, sans-serif; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); margin-bottom: 5px; }
+.spin .tape { font-size: 24px; letter-spacing: 0; }
+.spin:hover:not(:disabled) { filter: brightness(1.08); }
+.spin:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 0 0 4px var(--tab), inset 0 0 0 6px rgba(26,21,16,.8), 0 2px 0 #0c0906; }
+.spin:disabled { cursor: default; }
+.spin.busy { font-size: 22px; filter: saturate(.45) brightness(.85); }
+.spin.broke { padding: 0 20px; font-size: 21px; line-height: 1.08; background: #b3a78f; color: #7d1a10; box-shadow: inset 0 0 0 4px #b3a78f, inset 0 0 0 6px #7d1a10, 0 5px 0 #0c0906; }
+.sheet footer { margin-top: 12px; font: 700 12.5px/1.4 Radiance, sans-serif; }
+.sheet footer p::before { content: "\2731\00a0"; color: var(--deep); }
+
+#mock { width: 1280px; padding: 8px 24px; font: 13px "Segoe UI", sans-serif; color: #8b93a0; display: flex; gap: 20px; align-items: center; }
+#mock button { text-decoration: underline; }
+</style>
+</head>
+<body data-cat="weapon">
+<div id="stage">
+  <div id="panel">
+    <div class="shop">
+      <nav class="nav-container" id="tabs" aria-label="Category"></nav>
+      <div class="tiers" id="tiers"></div>
+    </div>
+    <aside class="sheet">
+      <header class="mast"><h1>Roulette Shop</h1><p>One spin &middot; one item &middot; no refunds</p></header>
+      <div class="machine">
+        <div class="reel"><i class="ptr l"></i><i class="ptr r"></i><div class="window"><div class="strip" id="strip"></div></div></div>
+        <div class="side">
+          <div class="souls"><span class="tape"><i class="glyph"></i><b id="balance"></b></span><span class="cap">Your<br>souls</span></div>
+          <div class="result" id="result" aria-live="polite"></div>
+          <p class="cap draw" id="draw"></p>
+          <button class="spin" id="spin"></button>
+        </div>
+      </div>
+      <footer><p>Selling is disabled while Roulette Shop is on</p><p>1% of spins come back Corrupted</p></footer>
+    </aside>
+  </div>
+  <div id="mock">
+    <span>Mockup controls (not part of the panel):</span>
+    <button id="refill">Refill souls</button>
+    <label><input type="checkbox" id="force"> Force corrupted</label>
+  </div>
+</div>
+
+<script src="../deadlock-assets/manifest.js"></script>
+<script>
+const A = '../deadlock-assets/', CAT = A + 'ui/images/shop/catalog/';
+const CATS = ['weapon', 'vitality', 'spirit'], PRICES = [800, 1600, 3200, 6400];
+const STEP = 115, WIN = 27, LEN = 30, SPIN_MS = 4200; // reel card height + gap; the winner's index in a LEN-card strip
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('en-US');
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const GLYPH = '<i class="glyph"></i>';
+
+// #cat=weapon|vitality|spirit&tier=1..4&souls=N&corrupt=1&spin=1&instant=1
+const H = new URLSearchParams(location.hash.slice(1));
+let cat = CATS.includes(H.get('cat')) ? H.get('cat') : 'weapon';
+let tier = [1, 2, 3, 4].includes(+H.get('tier')) ? +H.get('tier') : 1;
+let balance = H.has('souls') ? Math.max(0, Math.floor(+H.get('souls')) || 0) : 9600;
+let spinning = false, strip = [], landed = null;
+// instant=1 skips the animation, and so does prefers-reduced-motion; instant=0 forces the animation even then (to preview it)
+const instant = H.has('instant') ? H.get('instant') !== '0' : matchMedia('(prefers-reduced-motion: reduce)').matches;
+$('force').checked = H.get('corrupt') === '1';
+addEventListener('hashchange', () => location.reload());
+
+const pool = (c = cat, t = tier) => MANIFEST.items.filter(i => i.slot === c && i.tier === t).sort((a, b) => a.name.localeCompare(b.name));
+// The spec's size steps, plus one of ours: a short name that is a single 12-letter word (Sharpshooter) is clipped at 13px in the real shop, so it drops to md.
+const size = n => n.length > 22 ? ' name-size-xs' : n.length >= 20 ? ' name-size-sm' : n.length >= 15 || /\S{12}/.test(n) ? ' name-size-md' : '';
+const card = i => `<div class="mod-box tier-${i.tier} ${i.slot}${i.active ? ' active' : ''}" data-id="${i.class_name}">
+  <img class="card-background" src="${CAT}cards/card_backer_${i.slot}_t${i.tier}.png" alt="">
+  <div class="mod-icon-container"><img class="mod-icon" src="${A}${i.icon}" alt=""></div>${i.imbue ? '<span class="imbue-tag">Imbue</span>' : ''}
+  <div class="mod-name-container"><span class="mod-name ${i.slot}${size(i.name)}">${i.name}</span></div></div>`;
+
+$('tabs').innerHTML = CATS.map(c => `<button class="category-icon-container" data-cat="${c}" aria-label="${c[0].toUpperCase() + c.slice(1)}">
+  <span class="tab-shape"></span><img class="tab-icon" src="${CAT}catalog_shop_tab_icon_${c}.png" alt=""><span class="tab-edge-overlay"></span></button>`).join('');
+
+function renderPage() { // the whole catalog page for the current category: four tier boxes, each one a price button
+  $('tiers').className = 'tiers ' + cat;
+  $('tiers').innerHTML = [1, 2, 3, 4].map(t => `<div class="tier-section tier-${t}"><div class="mods-grid tier-${t}">${pool(cat, t).map(card).join('')}</div></div>`).join('')
+    + [1, 2, 3, 4].map(t => `<button class="tier-btn tier-${t}" data-tier="${t}" aria-label="${fmt(PRICES[t - 1])} souls, ${pool(cat, t).length} items">
+      <span class="tier-price tier-${t}">${PRICES[t - 1]}</span></button>`).join('');
+}
+
+function render() {
+  const price = PRICES[tier - 1], broke = balance < price, b = $('spin');
+  document.body.dataset.cat = cat;
+  $('balance').textContent = fmt(balance);
+  document.querySelectorAll('#tabs button').forEach(t => { const on = t.dataset.cat === cat; t.classList.toggle('active', on); t.setAttribute('aria-pressed', on); });
+  document.querySelectorAll('.tier-btn').forEach(t => t.setAttribute('aria-pressed', +t.dataset.tier === tier));
+  document.querySelectorAll('#tiers .mod-box').forEach(c => { c.classList.remove('tick'); c.classList.toggle('hit', !!landed && c.dataset.id === landed.class_name); });
+  $('draw').textContent = `Random pick · 1 of ${pool().length}`;
+  b.disabled = spinning || broke;
+  b.className = 'spin' + (spinning ? ' busy' : broke ? ' broke' : '');
+  b.innerHTML = spinning ? 'Spinning...' : broke ? 'Not enough souls' : `<span>Spin</span><span class="tape">${GLYPH}${price}</span>`;
+}
+
+function showResult(item, corrupted) {
+  document.body.classList.toggle('corrupt', !!corrupted);
+  $('result').className = 'result' + (corrupted ? ' corrupted' : '');
+  $('result').innerHTML = item ? `<div class="yougot">You got</div><div class="body">${card(item)}<h2 class="name">${item.name}</h2>
+      <div class="meta">${item.slot}<span class="tape">${GLYPH}${item.cost}</span></div>
+      <div class="stamp"><i></i>Corrupted</div></div>`
+    : `<div class="yougot">No spin yet</div><div class="body"><div class="slot">?</div><h2 class="name">Pick a box</h2>
+      <p class="hint">Choose a category tab and a price box on the page, then spin.</p></div>`;
+}
+
+const renderStrip = () => { const el = $('strip'); el.style.transition = el.style.transform = 'none'; el.innerHTML = strip.map(card).join(''); return el; };
+function fill(n, out = []) { // n more random pool items, never the same item twice in a row
+  for (const p = pool(), end = out.length + n; out.length < end;) { const i = pick(p); if (i !== out.at(-1)) out.push(i); }
+  return out;
+}
+function resetStrip() { // five different items at rest
+  strip = pool().sort(() => Math.random() - .5).slice(0, 5); landed = null; document.body.classList.remove('corrupt'); renderStrip();
+}
+
+function tick() { // while the reel moves, light up on the page whichever item is under the pointer
+  if (!spinning) return;
+  const item = strip[Math.round(-new DOMMatrix(getComputedStyle($('strip')).transform).m42 / STEP) + 2];
+  document.querySelectorAll('#tiers .tick').forEach(c => c.classList.remove('tick'));
+  document.querySelector(`#tiers [data-id="${item.class_name}"]`)?.classList.add('tick');
+  requestAnimationFrame(tick);
+}
+
+function spin() {
+  const price = PRICES[tier - 1];
+  if (spinning || balance < price) return;
+  // In the real mod the server does this part and sends back the result; the client only animates.
+  const winner = pick(pool()), corrupted = $('force').checked || Math.random() < 0.01;
+  balance -= price;
+  spinning = true;
+  landed = null;
+  document.body.classList.remove('corrupt');
+  strip = fill(LEN - 5, strip.slice(-5));
+  strip[WIN] = winner;
+  for (const n of [WIN - 1, WIN + 1]) while (strip[n] === winner || strip[n] === strip[2 * n - WIN]) strip[n] = pick(pool());
+  const el = renderStrip();
+  render();
+  const done = () => {
+    spinning = false;
+    landed = winner;
+    strip = strip.slice(WIN - 2, WIN + 3); // the winner is the middle one of the five left showing
+    renderStrip();
+    showResult(winner, corrupted);
+    render();
+  };
+  if (instant) return done();
+  el.offsetHeight; // reflow so the transition starts from 0
+  el.style.transition = `transform ${SPIN_MS}ms cubic-bezier(.12,.8,.14,1)`;
+  el.style.transform = `translateY(${-(WIN - 2) * STEP}px)`;
+  requestAnimationFrame(tick);
+  setTimeout(done, SPIN_MS + 50); // a timer, not transitionend, so a hidden tab still finishes
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button');
+  if (!t || spinning) return;
+  if (t.id === 'spin') return spin();
+  if (t.id === 'refill') balance = 9600;
+  else if (t.dataset.cat) { if (t.dataset.cat === cat) return; cat = t.dataset.cat; renderPage(); resetStrip(); }
+  else if (t.dataset.tier) { if (+t.dataset.tier === tier) return; tier = +t.dataset.tier; resetStrip(); }
+  render();
+});
+
+const fit = () => $('stage').style.transform = `translateX(-50%) scale(${Math.min(1, innerWidth / 1280, innerHeight / 800)})`;
+addEventListener('resize', fit);
+fit(); renderPage(); resetStrip(); showResult(); render();
+if (H.get('spin') === '1') spin();
+</script>
+</body>
+</html>
