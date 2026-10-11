@@ -65,12 +65,12 @@ public class RouletteShopPlugin : DeadworksPluginBase
         });
     }
 
-    // --- The normal shop is removed: it can't be opened, bought from or sold to. Spinning is the only way to get items. ---
-    // Command names from the server log of a real open / buy / sell (Checkpoint 3).
+    // --- The normal shop is removed: nothing can be bought from or sold to it. Spinning is the only way to get items. ---
+    // Command names from the server log of a real open / buy / sell (Checkpoint 3). Blocking open_item_shop doesn't stop
+    // the client showing the shop screen, and CCitadelUserMsg_ForceShopClosed doesn't close it either (tested in game):
+    // hiding the screen is up to the Panorama addon.
 
     private const string SpinHint = "Spin instead: !roulette <weapon|vitality|spirit> <800|1600|3200|6400>";
-
-    private readonly Dictionary<int, bool> _inShop = new();
 
     public override HookResult OnClientConCommand(ClientConCommandEvent e)
     {
@@ -89,11 +89,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
 
         Console.WriteLine($"[Roulette] blocked '{e.Command}' from {e.Controller?.PlayerName}");
         if (e.Controller is { } controller)
-        {
             Chat.PrintToChat(controller, message);
-            if (e.Command == "open_item_shop")
-                CloseShop(controller.Slot);
-        }
         return HookResult.Stop;
     }
 
@@ -112,23 +108,6 @@ public class RouletteShopPlugin : DeadworksPluginBase
             Console.WriteLine($"[Roulette] souls EItemPurchase {e.Amount} for {e.Pawn.Controller?.PlayerName}");
         return HookResult.Continue;
     }
-
-    // In case the shop screen opens anyway, close it as soon as the player's input says it's open.
-    public override void OnProcessUsercmds(ProcessUsercmdsEvent e)
-    {
-        foreach (var cmd in e.Usercmds)
-        {
-            if (_inShop.GetValueOrDefault(e.PlayerSlot) == cmd.InShop)
-                continue;
-            _inShop[e.PlayerSlot] = cmd.InShop;
-            Console.WriteLine($"[Roulette] slot {e.PlayerSlot} in_shop -> {cmd.InShop}");
-            if (cmd.InShop)
-                CloseShop(e.PlayerSlot);
-        }
-    }
-
-    private static void CloseShop(int slot)
-        => NetMessages.Send(new CCitadelUserMsg_ForceShopClosed(), RecipientFilter.Single(slot));
 
     private static string Snapshot(CCitadelPlayerController controller, CCitadelPlayerPawn pawn)
         => $"souls {pawn.GetCurrency(ECurrencyType.EGold)}, net worth {controller.PlayerDataGlobal.GoldNetWorth}, level {pawn.Level}";
