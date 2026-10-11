@@ -23,7 +23,8 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(DeadlockManagedDir)\plugins')">
+  <!-- Copy creates plugins\ if Deadworks hasn't yet; Deadworks only watches it if it existed when the server started. -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(DeadlockManagedDir)')">
     <ItemGroup>
       <DeployFiles Include="$(OutputPath)RouletteShop.dll;$(OutputPath)RouletteShop.pdb" />
     </ItemGroup>
