@@ -65,23 +65,55 @@ public class RouletteShopPlugin : DeadworksPluginBase
         });
     }
 
-    // --- Checkpoint 3 research (temporary): what does the normal shop send when a player opens it, buys and sells? ---
+    // --- The normal shop is removed: it can't be opened, bought from or sold to. Spinning is the only way to get items. ---
+    // Command names from the server log of a real open / buy / sell (Checkpoint 3).
+
+    private const string SpinHint = "Spin instead: !roulette <weapon|vitality|spirit> <800|1600|3200|6400>";
 
     private readonly Dictionary<int, bool> _inShop = new();
 
     public override HookResult OnClientConCommand(ClientConCommandEvent e)
     {
+        // Temporary (Checkpoint 3): log every command, to spot any other way into the shop.
         Console.WriteLine($"[Roulette] client command from {e.Controller?.PlayerName}: '{e.Command}' args [{string.Join(", ", e.Args)}]");
-        return HookResult.Continue;
+
+        var message = e.Command switch
+        {
+            "open_item_shop" => "The shop is closed. " + SpinHint,
+            "buyitem" => "Buying is disabled. " + SpinHint,
+            "sellitem" => "Selling is disabled while the roulette is on.",
+            _ => null,
+        };
+        if (message == null)
+            return HookResult.Continue;
+
+        Console.WriteLine($"[Roulette] blocked '{e.Command}' from {e.Controller?.PlayerName}");
+        if (e.Controller is { } controller)
+        {
+            Chat.PrintToChat(controller, message);
+            if (e.Command == "open_item_shop")
+                CloseShop(controller.Slot);
+        }
+        return HookResult.Stop;
     }
 
     public override HookResult OnModifyCurrency(ModifyCurrencyEvent e)
     {
-        if (e.CurrencyType == ECurrencyType.EGold && e.Source is ECurrencySource.EItemPurchase or ECurrencySource.EItemSale)
-            Console.WriteLine($"[Roulette] souls {e.Source} {e.Amount} for {e.Pawn.Controller?.PlayerName} (spendOnly {e.SpendOnly})");
+        if (e.CurrencyType != ECurrencyType.EGold)
+            return HookResult.Continue;
+
+        // Backstop if a sale gets past the command block some other way: the item goes, but no souls come back.
+        if (e.Source == ECurrencySource.EItemSale)
+        {
+            Console.WriteLine($"[Roulette] blocked a {e.Amount}-soul sale refund for {e.Pawn.Controller?.PlayerName}");
+            return HookResult.Stop;
+        }
+        if (e.Source == ECurrencySource.EItemPurchase)
+            Console.WriteLine($"[Roulette] souls EItemPurchase {e.Amount} for {e.Pawn.Controller?.PlayerName}");
         return HookResult.Continue;
     }
 
+    // In case the shop screen opens anyway, close it as soon as the player's input says it's open.
     public override void OnProcessUsercmds(ProcessUsercmdsEvent e)
     {
         foreach (var cmd in e.Usercmds)
@@ -90,8 +122,13 @@ public class RouletteShopPlugin : DeadworksPluginBase
                 continue;
             _inShop[e.PlayerSlot] = cmd.InShop;
             Console.WriteLine($"[Roulette] slot {e.PlayerSlot} in_shop -> {cmd.InShop}");
+            if (cmd.InShop)
+                CloseShop(e.PlayerSlot);
         }
     }
+
+    private static void CloseShop(int slot)
+        => NetMessages.Send(new CCitadelUserMsg_ForceShopClosed(), RecipientFilter.Single(slot));
 
     private static string Snapshot(CCitadelPlayerController controller, CCitadelPlayerPawn pawn)
         => $"souls {pawn.GetCurrency(ECurrencyType.EGold)}, net worth {controller.PlayerDataGlobal.GoldNetWorth}, level {pawn.Level}";
