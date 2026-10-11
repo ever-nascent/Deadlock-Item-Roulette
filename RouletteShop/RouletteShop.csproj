@@ -8,7 +8,7 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <!-- Deadlock's game\bin\win64\managed folder (Deadworks installed). Change it if your Steam library is elsewhere,
          or pass -p:DeadlockManagedDir=... to dotnet build. -->
-    <DeadlockManagedDir Condition="'$(DeadlockManagedDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Deadlock\game\bin\win64\managed</DeadlockManagedDir>
+    <DeadlockManagedDir Condition="'$(DeadlockManagedDir)' == ''">D:\Games\Steam\steamapps\common\Deadlock\game\bin\win64\managed</DeadlockManagedDir>
   </PropertyGroup>
 
   <!-- Private=false: Deadworks supplies both assemblies, and it tries to load every .dll in plugins/ as a plugin. -->
