@@ -23,6 +23,11 @@
     </Reference>
   </ItemGroup>
 
+  <!-- The spin pool, generated from items-full.json by fetch-deadlock-assets.mjs. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\deadlock-assets\manifest.json" LogicalName="manifest.json" />
+  </ItemGroup>
+
   <!-- Copy creates plugins\ if Deadworks hasn't yet; Deadworks only watches it if it existed when the server started. -->
   <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(DeadlockManagedDir)')">
     <ItemGroup>
