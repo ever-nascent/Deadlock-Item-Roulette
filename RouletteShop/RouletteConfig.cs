@@ -14,4 +14,10 @@ public class RouletteConfig
 
     /// <summary>Debug: every spin landing on an item with a Corrupted version gives the Corrupted one.</summary>
     public bool ForceCorrupted { get; set; }
+
+    /// <summary>
+    /// When the shop key opens the roulette, also ask the game to close its own shop screen (CCitadelUserMsg_ForceShopClosed,
+    /// sent once the server has the shop open). If the game closes it, the roulette stays up over the game instead.
+    /// </summary>
+    public bool CloseGameShop { get; set; } = true;
 }
