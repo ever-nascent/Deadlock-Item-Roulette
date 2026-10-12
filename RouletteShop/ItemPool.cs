@@ -21,12 +21,14 @@ public sealed class ItemPool
     public static readonly int[] TierPrices = [800, 1600, 3200, 6400];
 
     private readonly ILookup<(ItemCategory Category, int Tier), RouletteItem> _items;
+    private readonly Dictionary<string, RouletteItem> _byClass;
 
     private ItemPool(List<RouletteItem> items)
     {
         Count = items.Count;
         CorruptibleCount = items.Count(i => i.Corruptible);
         _items = items.ToLookup(i => (i.Category, i.Tier));
+        _byClass = items.ToDictionary(i => i.ClassName);
     }
 
     public int Count { get; }
@@ -34,6 +36,9 @@ public sealed class ItemPool
     public int CorruptibleCount { get; }
 
     public RouletteItem[] Get(ItemCategory category, int tier) => _items[(category, tier)].ToArray();
+
+    /// <summary>The pool item with this class name (upgrade_...), or null.</summary>
+    public RouletteItem? Find(string className) => _byClass.GetValueOrDefault(className);
 
     /// <summary>Item counts per category for tiers 1-4, e.g. "weapon 7/16/19/11".</summary>
     public string Summary() => string.Join(", ", Enum.GetValues<ItemCategory>().Select(c =>

@@ -33,8 +33,13 @@ public class RouletteShopPlugin : DeadworksPluginBase
         public string ResultId = "rsResult0";
         public int Seq;
         public int Souls = -1;
-        public DateTime? ShopCloseSentAt;     // when ForceShopClosed went out, to recognise the exit_item_shop it causes
     }
+
+    /// <summary>The usercmd in_shop flag each player last sent (true while the game's shop screen is open), and how many times it changed.</summary>
+    private readonly Dictionary<int, (bool InShop, int Changes)> _inShop = new();
+
+    /// <summary>How long in_shop must stay off before the sheet closes: it flickers off for a few ms with the shop open.</summary>
+    private const int ShopLeftDelayMs = 1000;
 
     /// <summary>A spin that has happened: the item is given and the souls taken.</summary>
     private sealed record SpinOutcome(RouletteItem Item, bool Corrupted, RouletteItem[] Strip);
@@ -67,7 +72,11 @@ public class RouletteShopPlugin : DeadworksPluginBase
     private void LogCorruptedSettings()
         => Console.WriteLine($"[Roulette] Corrupted: enabled {Config.CorruptedEnabled}, chance {Config.CorruptedChancePercent}%, force {Config.ForceCorrupted}");
 
-    public override void OnClientDisconnect(ClientDisconnectedEvent args) => _viewers.Remove(args.Slot);
+    public override void OnClientDisconnect(ClientDisconnectedEvent args)
+    {
+        _viewers.Remove(args.Slot);
+        _inShop.Remove(args.Slot);
+    }
 
     [Command("hello", Description = "Say hello")]
     public void CmdHello(Caller caller)
@@ -342,8 +351,10 @@ public class RouletteShopPlugin : DeadworksPluginBase
 
         ShowResult(controller, v, id => RoulettePanel.Result(id, outcome.Item, outcome.Corrupted));
 
-        v.Souls = controller.GetHeroPawn()?.GetCurrency(ECurrencyType.EGold) ?? v.Souls;
-        RoulettePanel.ShowLanding(controller.Recipients, stripId, outcome.Item, outcome.Corrupted, v.Souls, ReadyOrBroke(v));
+        var pawn = controller.GetHeroPawn();
+        v.Souls = pawn?.GetCurrency(ECurrencyType.EGold) ?? v.Souls;
+        int unowned = pawn == null ? 0 : _pool.Get(v.Category, v.Tier).Count(i => !Owns(pawn, i));
+        RoulettePanel.ShowLanding(controller.Recipients, outcome.Item, outcome.Corrupted, v.Souls, unowned, ReadyOrBroke(v));
     }
 
     /// <summary>Replaces the result card (fresh id: a removed node lingers a frame).</summary>
@@ -372,67 +383,42 @@ public class RouletteShopPlugin : DeadworksPluginBase
         }
     }
 
-    // --- The normal shop is removed: nothing can be bought from or sold to it. Spinning is the only way to get items. ---
-    // Command names from the server log of a real open / buy / sell (Checkpoint 3). Blocking open_item_shop doesn't stop
-    // the client showing the shop screen, and CCitadelUserMsg_ForceShopClosed sent at that same moment (with
-    // open_item_shop blocked) didn't close it (tested in game). So the shop key opens the roulette over it, opaque, and
-    // closing the shop (exit_item_shop) closes the roulette. With CloseGameShop the server lets open_item_shop through
-    // and sends ForceShopClosed a moment later; an exit_item_shop right after it means the shop did close, and the
-    // roulette carries on by itself (see-through backdrop, its own cursor and CLOSE button, the shop key toggles it).
+    // --- The normal shop can't sell anything: spinning is the only way to get items. ---
+    // Command names from the server log of a real open / buy / sell (Checkpoint 3). The game's shop screen stays open (the
+    // server couldn't close it: blocking open_item_shop didn't, nor did CCitadelUserMsg_ForceShopClosed sent with it),
+    // and the roulette sheet sits beside its item page (design #3, the user's choice). Clicking an item there sends
+    // buyitem, which is blocked and instead picks that item's category and price on the sheet. The sheet closes with the
+    // shop: on exit_item_shop, or when the player's usercmds stop saying in_shop (however the shop closed).
 
-    private const int ShopCloseDelayMs = 250, ShopCloseWindowMs = 1500;
-
-    private void OnShopKey(CCitadelPlayerController controller)
+    public override void OnProcessUsercmds(ProcessUsercmdsEvent args)
     {
-        int slot = controller.Slot;
-        if (_viewers.ContainsKey(slot))
-        {
-            // The shop key toggles: close the roulette (and the shop the client is opening again).
-            Close(slot);
-            if (Config.CloseGameShop)
-                Timer.Once(ShopCloseDelayMs.Milliseconds(), () => SendShopClosed(slot));
+        bool inShop = args.Usercmds[^1].InShop;
+        int slot = args.PlayerSlot;
+        if (_inShop.TryGetValue(slot, out var last) && last.InShop == inShop)
             return;
-        }
-        Open(controller, viaShopKey: true);
-        if (Config.CloseGameShop && _viewers.TryGetValue(slot, out var v))
-            Timer.Once(ShopCloseDelayMs.Milliseconds(), () =>
+        int changes = last.Changes + 1;
+        _inShop[slot] = (inShop, changes);
+        if (inShop || !_viewers.ContainsKey(slot))
+            return;
+        // The Checkpoint 3 log shows in_shop dropping for ~30 ms with the shop still open: close only if it stays off.
+        Timer.Once(ShopLeftDelayMs.Milliseconds(), () =>
+        {
+            if (_inShop.TryGetValue(slot, out var now) && now.Changes == changes && _viewers.TryGetValue(slot, out var v) && v.ViaShopKey)
             {
-                if (!_viewers.TryGetValue(slot, out var now) || now != v || !SendShopClosed(slot))
-                    return;
-                v.ShopCloseSentAt = DateTime.UtcNow;
-                Timer.Once(ShopCloseWindowMs.Milliseconds(), () =>
-                {
-                    if (v.ShopCloseSentAt != null && _viewers.TryGetValue(slot, out var later) && later == v)
-                        Console.WriteLine($"[Roulette] the game's shop did not close on ForceShopClosed (slot {slot})");
-                });
-            });
+                Console.WriteLine($"[Roulette] slot {slot} left the shop (in_shop off for {ShopLeftDelayMs} ms): closing the roulette");
+                Close(slot);
+            }
+        });
     }
 
-    private static bool SendShopClosed(int slot)
+    /// <summary>A click on an item in the game's shop: picks that item's box on the sheet. False if it isn't for the sheet.</summary>
+    private bool PickFromShop(CCitadelPlayerController controller, string? className)
     {
-        if (Players.FromSlot(slot) is not { } controller)
+        if (className == null || !_viewers.TryGetValue(controller.Slot, out var v) || _pool.Find(className) is not { } item)
             return false;
-        NetMessages.Send(new CCitadelUserMsg_ForceShopClosed(), controller.Recipients);
-        Console.WriteLine($"[Roulette] sent ForceShopClosed to {controller.PlayerName}");
+        if (v.Pending == null && (item.Category != v.Category || item.Tier != v.Tier))
+            Select(controller, item.Category, item.Tier);
         return true;
-    }
-
-    private void OnShopExit(CCitadelPlayerController controller)
-    {
-        if (!_viewers.TryGetValue(controller.Slot, out var v))
-            return;
-        if (v.ShopCloseSentAt is { } sent && (DateTime.UtcNow - sent).TotalMilliseconds < ShopCloseWindowMs)
-        {
-            // Our ForceShopClosed did it: the roulette stays, now by itself over the game.
-            Console.WriteLine($"[Roulette] the game's shop closed {(DateTime.UtcNow - sent).TotalMilliseconds:0} ms after ForceShopClosed");
-            v.ShopCloseSentAt = null;
-            v.ViaShopKey = false;
-            Render(controller, v);
-            UI.Panel(RoulettePanel.Id).RequestCursor(controller.Recipients);
-            return;
-        }
-        if (v.ViaShopKey)
-            Close(controller.Slot);
     }
 
     public override HookResult OnClientConCommand(ClientConCommandEvent e)
@@ -446,16 +432,20 @@ public class RouletteShopPlugin : DeadworksPluginBase
         switch (e.Command)
         {
             case "open_item_shop":
+                // The game's shop opens as normal; the roulette sheet opens beside it.
                 if (controller != null)
-                    OnShopKey(controller);
-                // ForceShopClosed only gets its chance with the shop open on the server too; buying and selling stay blocked.
-                return Config.CloseGameShop ? HookResult.Continue : HookResult.Stop;
+                    Open(controller, viaShopKey: true);
+                return HookResult.Continue;
             case "exit_item_shop":
-                if (controller != null)
-                    OnShopExit(controller);
+                if (controller != null && _viewers.TryGetValue(controller.Slot, out var v) && v.ViaShopKey)
+                    Close(controller.Slot);
                 return HookResult.Continue;
             case "buyitem":
-                Block(e, "Buying is disabled. Spin instead: " + SpinUsage);
+                // Args holds the command too: [buyitem, upgrade_...] (server log, Checkpoint 3).
+                if (controller != null && PickFromShop(controller, e.Args.ElementAtOrDefault(1)))
+                    Console.WriteLine($"[Roulette] blocked '{e.Command}' from {controller.PlayerName}: picked its box on the sheet");
+                else
+                    Block(e, "Buying is disabled. Spin instead: " + SpinUsage);
                 return HookResult.Stop;
             case "sellitem":
                 Block(e, "Selling is disabled while the roulette is on.");
