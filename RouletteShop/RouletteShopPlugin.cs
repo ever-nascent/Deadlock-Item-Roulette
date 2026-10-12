@@ -6,14 +6,26 @@ public class RouletteShopPlugin : DeadworksPluginBase
 {
     public override string Name => "Roulette Shop";
 
+    /// <summary>ABILITY_UPGRADE_BIT_CORRUPTED in the game's AbilityUpgradeBits_t (schema, build of Oct 09 2026).</summary>
+    private const int CorruptedBit = 128;
+
+    [PluginConfig]
+    public RouletteConfig Config { get; set; } = new();
+
     private ItemPool _pool = null!;
 
     public override void OnLoad(bool isReload)
     {
         _pool = ItemPool.Load();
         Console.WriteLine(isReload ? "Roulette Shop reloaded!" : "Roulette Shop loaded!");
-        Console.WriteLine($"[Roulette] Item pool: {_pool.Count} items ({_pool.Summary()})");
+        Console.WriteLine($"[Roulette] Item pool: {_pool.Count} items ({_pool.Summary()}), {_pool.CorruptibleCount} with a Corrupted version");
+        LogCorruptedSettings();
     }
+
+    public override void OnConfigReloaded() => LogCorruptedSettings();
+
+    private void LogCorruptedSettings()
+        => Console.WriteLine($"[Roulette] Corrupted: enabled {Config.CorruptedEnabled}, chance {Config.CorruptedChancePercent}%, force {Config.ForceCorrupted}");
 
     [Command("hello", Description = "Say hello")]
     public void CmdHello(Caller caller)
@@ -43,18 +55,31 @@ public class RouletteShopPlugin : DeadworksPluginBase
             throw new CommandException($"You already own every {category} item at {price}.");
         var item = items[Random.Shared.Next(items.Length)];
 
+        // Only items with a Corrupted version can come back Corrupted (tiers 3 and 4).
+        bool corrupted = item.Corruptible && Config.CorruptedEnabled
+                         && (Config.ForceCorrupted || Random.Shared.NextDouble() * 100 < Config.CorruptedChancePercent);
+
         var before = Snapshot(controller, pawn);
 
         // Give first and charge only if that worked, so a failed spin never costs souls.
-        if (pawn.AddItem(item.ClassName) == null)
-            throw new CommandException($"Couldn't give you {item.Name}. No souls were taken.");
+        var given = pawn.AddItem(item.ClassName)
+                    ?? throw new CommandException($"Couldn't give you {item.Name}. No souls were taken.");
+
+        // The game's own SetUpgradeBits; whether it applies the Corrupted bonuses and drawback is checked in game.
+        string corruptedNote = "";
+        if (corrupted)
+        {
+            int bitsBefore = given.UpgradeBits;
+            given.UpgradeBits = bitsBefore | CorruptedBit;
+            corruptedNote = $" CORRUPTED (upgrade bits {bitsBefore} -> {given.UpgradeBits})";
+        }
 
         // The shop's own spend path (counted as souls spent), not a raw SetCurrency write.
         pawn.ModifyCurrency(ECurrencyType.EGold, -price, ECurrencySource.EItemPurchase);
         var after = Snapshot(controller, pawn);
 
-        caller.Reply($"Roulette: you got {item.Name} ({category}, {price}).");
-        Report(caller, $"{caller.Name} spun {category} {price} -> {item.ClassName} ({items.Length} unowned in pool)");
+        caller.Reply($"Roulette: you got {(corrupted ? "CORRUPTED " : "")}{item.Name} ({category}, {price}).");
+        Report(caller, $"{caller.Name} spun {category} {price} -> {item.ClassName}{corruptedNote} ({items.Length} unowned in pool)");
         Report(caller, $"before: {before} | after: {after}");
 
         // Net worth may only update on a later tick, so look again once things have settled.

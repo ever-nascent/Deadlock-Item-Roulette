@@ -4,7 +4,8 @@ namespace RouletteShop;
 
 public enum ItemCategory { Weapon, Vitality, Spirit }
 
-public sealed record RouletteItem(string ClassName, string Name, ItemCategory Category, int Tier);
+/// <param name="Corruptible">Has a Corrupted version (corrupted_info in the item data; tiers 3 and 4).</param>
+public sealed record RouletteItem(string ClassName, string Name, ItemCategory Category, int Tier, bool Corruptible);
 
 /// <summary>
 /// The items a spin can land on. Read from the embedded manifest.json, which fetch-deadlock-assets.mjs writes from
@@ -20,10 +21,13 @@ public sealed class ItemPool
     private ItemPool(List<RouletteItem> items)
     {
         Count = items.Count;
+        CorruptibleCount = items.Count(i => i.Corruptible);
         _items = items.ToLookup(i => (i.Category, i.Tier));
     }
 
     public int Count { get; }
+
+    public int CorruptibleCount { get; }
 
     public RouletteItem[] Get(ItemCategory category, int tier) => _items[(category, tier)].ToArray();
 
@@ -44,7 +48,8 @@ public sealed class ItemPool
                 e.GetProperty("class_name").GetString()!,
                 e.GetProperty("name").GetString()!,
                 Enum.Parse<ItemCategory>(e.GetProperty("slot").GetString()!, ignoreCase: true),
-                e.GetProperty("tier").GetInt32()));
+                e.GetProperty("tier").GetInt32(),
+                e.GetProperty("corruptible").GetBoolean()));
         }
         return new ItemPool(items);
     }

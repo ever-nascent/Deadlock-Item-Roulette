@@ -27,7 +27,7 @@ const items = await Promise.all(pool.map(async i => {
   } catch (e) {
     failed.push(`${i.class_name} (${url}): ${e.message}`);
   }
-  return { class_name: i.class_name, name: i.name, slot: i.item_slot_type, tier: i.item_tier, cost: i.cost, active: i.is_active_item, imbue: !!i.imbue, icon, source: url && basename(url) };
+  return { class_name: i.class_name, name: i.name, slot: i.item_slot_type, tier: i.item_tier, cost: i.cost, active: i.is_active_item, imbue: !!i.imbue, corruptible: !!i.corrupted_info, icon, source: url && basename(url) };
 }));
 
 // Shop UI art: the catalog art dl-shop-panel uses (tabs, card backers, backgrounds), soul/corrupted icons, fonts.

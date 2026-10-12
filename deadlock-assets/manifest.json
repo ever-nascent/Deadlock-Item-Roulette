@@ -9,6 +9,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_clip_size.png",
       "source": "basic_magazine.png"
     },
@@ -20,6 +21,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_non_player_bonus.png",
       "source": "monster_rounds.png"
     },
@@ -31,6 +33,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_non_player_bonus_sacrifice.png",
       "source": "cultist_sacrifice.png"
     },
@@ -42,6 +45,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_chain_lightning.png",
       "source": "tesla_bullets.png"
     },
@@ -53,6 +57,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_capacitor.png",
       "source": "capacitor.png"
     },
@@ -64,6 +69,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_hollow_point_rounds.png",
       "source": "hollow_point.png"
     },
@@ -75,6 +81,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_pristine_emblem.png",
       "source": "opening_rounds.png"
     },
@@ -86,6 +93,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_high_velocity_mag.png",
       "source": "high_velocity_rounds.png"
     },
@@ -97,6 +105,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_lifestrike_gauntlets.png",
       "source": "melee_lifesteal.png"
     },
@@ -108,6 +117,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_melee_rebuttal.png",
       "source": "rebuttal.png"
     },
@@ -119,6 +129,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_counterspell.png",
       "source": "counterspell.png"
     },
@@ -130,6 +141,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_weighted_shots.png",
       "source": "weighted_shots.png"
     },
@@ -141,6 +153,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_close_range.png",
       "source": "close_quarters.png"
     },
@@ -152,6 +165,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_long_range.png",
       "source": "long_range.png"
     },
@@ -163,6 +177,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_slowing_bullets.png",
       "source": "slowing_bullets.png"
     },
@@ -174,6 +189,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_inhibitor.png",
       "source": "inhibitor.png"
     },
@@ -185,6 +201,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_tech_defense_shredders.png",
       "source": "spirit_shredder_bullets.png"
     },
@@ -196,6 +213,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_dps_aura.png",
       "source": "heroic_aura.png"
     },
@@ -207,6 +225,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_targeted_silence.png",
       "source": "silence_glyph.png"
     },
@@ -218,6 +237,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_proc_silence.png",
       "source": "silencer.png"
     },
@@ -229,6 +249,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_berserker.png",
       "source": "berserker.png"
     },
@@ -240,6 +261,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_fervor.png",
       "source": "frenzy.png"
     },
@@ -251,6 +273,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_siphon_bullets.png",
       "source": "siphon_bullets.png"
     },
@@ -262,6 +285,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_headshot_booster.png",
       "source": "headshot_booster.png"
     },
@@ -273,6 +297,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_headshot_booster2.png",
       "source": "weakening_headshot.png"
     },
@@ -284,6 +309,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_sharpshooter.png",
       "source": "sharp_shooter.png"
     },
@@ -295,6 +321,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_headhunter.png",
       "source": "headhunter.png"
     },
@@ -306,6 +333,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_spellslinger_headshots.png",
       "source": "spellslinger_headshots.png"
     },
@@ -317,6 +345,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_banshee_slugs.png",
       "source": "crippling_headshot.png"
     },
@@ -328,6 +357,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_crackshot.png",
       "source": "mystic_shot.png"
     },
@@ -339,6 +369,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_critshot.png",
       "source": "lucky_shot.png"
     },
@@ -350,6 +381,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_close_quarter_combat.png",
       "source": "point_blank.png"
     },
@@ -361,6 +393,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_toxic_bullets.png",
       "source": "toxic_bullets.png"
     },
@@ -372,6 +405,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_ricochet.png",
       "source": "ricochet.png"
     },
@@ -383,6 +417,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_health.png",
       "source": "extra_health.png"
     },
@@ -394,6 +429,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_vampire.png",
       "source": "bullet_lifesteal.png"
     },
@@ -405,6 +441,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_debuff_reducer.png",
       "source": "debuff_reducer.png"
     },
@@ -416,6 +453,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_reduce_debuff_duration.png",
       "source": "debuff_remover.png"
     },
@@ -427,6 +465,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_tech_purge.png",
       "source": "spirit_resilience.png"
     },
@@ -438,6 +477,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_improved_bullet_armor.png",
       "source": "bullet_resilience.png"
     },
@@ -449,6 +489,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_metal_skin.png",
       "source": "metal_skin.png"
     },
@@ -460,6 +501,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_healing_booster.png",
       "source": "healing_booster.png"
     },
@@ -471,6 +513,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_chonky.png",
       "source": "fortitude.png"
     },
@@ -482,6 +525,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_damage_recycler.png",
       "source": "leech.png"
     },
@@ -493,6 +537,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_sprint_booster.png",
       "source": "sprint_boots.png"
     },
@@ -504,6 +549,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_trophy_collector.png",
       "source": "trophy_collector.png"
     },
@@ -515,6 +561,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_cardio_calibrator.png",
       "source": "enduring_speed.png"
     },
@@ -526,6 +573,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_superior_stamina.png",
       "source": "stamina_mastery.png"
     },
@@ -537,6 +585,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_rapid_rounds.png",
       "source": "rapid_rounds.png"
     },
@@ -548,6 +597,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_improved_stamina.png",
       "source": "extra_stamina.png"
     },
@@ -559,6 +609,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_bullet_armor_reduction_aura.png",
       "source": "hunters_aura.png"
     },
@@ -570,6 +621,7 @@
       "cost": 800,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_grit.png",
       "source": "grit.png"
     },
@@ -581,6 +633,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_weapon_shielding.png",
       "source": "weapon_shielding.png"
     },
@@ -592,6 +645,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_spirit_bubble.png",
       "source": "spirit_shielding.png"
     },
@@ -603,6 +657,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_regenerating_bullet_shield.png",
       "source": "battle_vest.png"
     },
@@ -614,6 +669,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_shield.png",
       "source": "enchanters_emblem.png"
     },
@@ -625,6 +681,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_improved_spirit.png",
       "source": "extra_spirit.png"
     },
@@ -636,6 +693,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_mystic_regeneration.png",
       "source": "mystic_regen.png"
     },
@@ -647,6 +705,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_soaring_spirit.png",
       "source": "improved_spirit.png"
     },
@@ -658,6 +717,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_tech_overflow.png",
       "source": "spiritual_overflow.png"
     },
@@ -669,6 +729,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_return_fire.png",
       "source": "return_fire.png"
     },
@@ -680,6 +741,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_tech_range.png",
       "source": "greater_expansion.png"
     },
@@ -691,6 +753,7 @@
       "cost": 800,
       "active": false,
       "imbue": true,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_reach.png",
       "source": "mystic_reach.png"
     },
@@ -702,6 +765,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_extra_charge.png",
       "source": "extra_charge.png"
     },
@@ -713,6 +777,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_health_stealing_magic.png",
       "source": "spirit_lifesteal.png"
     },
@@ -724,6 +789,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_bullet_resist_shredder.png",
       "source": "bullet_resist_shredder.png"
     },
@@ -735,6 +801,7 @@
       "cost": 6400,
       "active": false,
       "imbue": true,
+      "corruptible": true,
       "icon": "icons/upgrade_mystic_reverb.png",
       "source": "mystic_reverb.png"
     },
@@ -746,6 +813,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_burst.png",
       "source": "mystic_burst.png"
     },
@@ -757,6 +825,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_magic_shock.png",
       "source": "tankbuster.png"
     },
@@ -768,6 +837,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_vulnerability.png",
       "source": "mystic_vulnerability.png"
     },
@@ -779,6 +849,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_healbane.png",
       "source": "healbane.png"
     },
@@ -790,6 +861,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_slow.png",
       "source": "mystic_slow.png"
     },
@@ -801,6 +873,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_escalating_exposure.png",
       "source": "escalating_exposure.png"
     },
@@ -812,6 +885,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_rapid_recharge.png",
       "source": "rapid_recharge.png"
     },
@@ -823,6 +897,7 @@
       "cost": 1600,
       "active": false,
       "imbue": true,
+      "corruptible": false,
       "icon": "icons/upgrade_magic_tempo.png",
       "source": "improved_cooldown.png"
     },
@@ -834,6 +909,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_cooldown_reduction.png",
       "source": "superior_cooldown.png"
     },
@@ -845,6 +921,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_transcendent_cooldown.png",
       "source": "transcendent_cooldown.png"
     },
@@ -856,6 +933,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_containment.png",
       "source": "slowing_hex.png"
     },
@@ -867,6 +945,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_spirit_sap.png",
       "source": "spirit_sap.png"
     },
@@ -878,6 +957,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_focus_lens.png",
       "source": "focus_lens.png"
     },
@@ -889,6 +969,7 @@
       "cost": 800,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_withering_whip.png",
       "source": "rusted_barrel.png"
     },
@@ -900,6 +981,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_greater_withering_whip.png",
       "source": "disarming_hex.png"
     },
@@ -911,6 +993,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_rescue_beam.png",
       "source": "rescue_beam.png"
     },
@@ -922,6 +1005,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_rupture.png",
       "source": "decay.png"
     },
@@ -933,6 +1017,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_discord.png",
       "source": "scourge.png"
     },
@@ -944,6 +1029,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_target_stun.png",
       "source": "knockdown.png"
     },
@@ -955,6 +1041,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_phantom_strike.png",
       "source": "phantom_strike.png"
     },
@@ -966,6 +1053,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_warp_stone.png",
       "source": "warp_stone.png"
     },
@@ -977,6 +1065,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_aoe_root.png",
       "source": "vortex_web.png"
     },
@@ -988,6 +1077,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_ability_refresher.png",
       "source": "refresher.png"
     },
@@ -999,6 +1089,7 @@
       "cost": 6400,
       "active": true,
       "imbue": true,
+      "corruptible": true,
       "icon": "icons/upgrade_ability_power_shard.png",
       "source": "echo_shard.png"
     },
@@ -1010,6 +1101,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_tech_damage_pulse.png",
       "source": "torment_pulse.png"
     },
@@ -1021,6 +1113,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_cheat_death.png",
       "source": "cheat_death.png"
     },
@@ -1032,6 +1125,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_cloaking_device_active.png",
       "source": "shadow_weave.png"
     },
@@ -1043,6 +1137,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_rocket_booster.png",
       "source": "majestic_leap.png"
     },
@@ -1054,6 +1149,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_health_nova.png",
       "source": "healing_nova.png"
     },
@@ -1065,6 +1161,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_restorative_locket.png",
       "source": "restorative_locket.png"
     },
@@ -1076,6 +1173,7 @@
       "cost": 800,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_health_stimpak.png",
       "source": "healing_rite.png"
     },
@@ -1087,6 +1185,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_infuser.png",
       "source": "infuser.png"
     },
@@ -1098,6 +1197,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_guardian_ward.png",
       "source": "guardian_ward.png"
     },
@@ -1109,6 +1209,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_divine_barrier.png",
       "source": "divine_barrier.png"
     },
@@ -1120,6 +1221,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_thermal_detonator.png",
       "source": "alchemical_fire.png"
     },
@@ -1131,6 +1233,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_blood_tribute.png",
       "source": "blood_tribute.png"
     },
@@ -1142,6 +1245,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_fleetfoot_boots.png",
       "source": "fleetfoot.png"
     },
@@ -1153,6 +1257,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_kinetic_sash.png",
       "source": "kinetic_dash.png"
     },
@@ -1164,6 +1269,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_arcane_surge.png",
       "source": "arcane_surge.png"
     },
@@ -1175,6 +1281,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_unstoppable.png",
       "source": "unstoppable.png"
     },
@@ -1186,6 +1293,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_colossus.png",
       "source": "colossus.png"
     },
@@ -1197,6 +1305,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_cold_front.png",
       "source": "cold_front.png"
     },
@@ -1208,6 +1317,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_arctic_blast.png",
       "source": "arctic_blast.png"
     },
@@ -1219,6 +1329,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_self_bubble.png",
       "source": "ethereal_shift.png"
     },
@@ -1230,6 +1341,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_glitch.png",
       "source": "curse.png"
     },
@@ -1241,6 +1353,7 @@
       "cost": 1600,
       "active": false,
       "imbue": true,
+      "corruptible": false,
       "icon": "icons/upgrade_arcane_extension.png",
       "source": "duration_extender.png"
     },
@@ -1252,6 +1365,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_imbued_duration_extender.png",
       "source": "superior_duration.png"
     },
@@ -1263,6 +1377,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_glass_cannon.png",
       "source": "glass_cannon.png"
     },
@@ -1274,6 +1389,7 @@
       "cost": 3200,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_fury_trance.png",
       "source": "fury_trance.png"
     },
@@ -1285,6 +1401,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_surging_power.png",
       "source": "vampiric_burst.png"
     },
@@ -1296,6 +1413,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_boxing_glove.png",
       "source": "lifestrike.png"
     },
@@ -1307,6 +1425,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_acolytes_glove.png",
       "source": "spirit_strike.png"
     },
@@ -1318,6 +1437,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_spirit_snatch.png",
       "source": "spirit_snatch.png"
     },
@@ -1329,6 +1449,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_melee_charge.png",
       "source": "melee_charge.png"
     },
@@ -1340,6 +1461,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_crushing_fists.png",
       "source": "crushing_fists.png"
     },
@@ -1351,6 +1473,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_diviners_kevlar.png",
       "source": "diviners_kevlar.png"
     },
@@ -1362,6 +1485,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_resonant_healing.png",
       "source": "radiant_regeneration.png"
     },
@@ -1373,6 +1497,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_boundless_spirit.png",
       "source": "boundless_spirit.png"
     },
@@ -1384,6 +1509,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_burst_fire.png",
       "source": "burst_fire.png"
     },
@@ -1395,6 +1521,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_endurance.png",
       "source": "extra_regen.png"
     },
@@ -1406,6 +1533,7 @@
       "cost": 3200,
       "active": false,
       "imbue": true,
+      "corruptible": true,
       "icon": "icons/upgrade_magic_storm.png",
       "source": "surge_of_power.png"
     },
@@ -1417,6 +1545,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_suppressor.png",
       "source": "suppressor.png"
     },
@@ -1428,6 +1557,7 @@
       "cost": 1600,
       "active": false,
       "imbue": true,
+      "corruptible": false,
       "icon": "icons/upgrade_quick_silver.png",
       "source": "quicksilver_reload.png"
     },
@@ -1439,6 +1569,7 @@
       "cost": 6400,
       "active": false,
       "imbue": true,
+      "corruptible": true,
       "icon": "icons/upgrade_ethereal_bullets.png",
       "source": "mercurial_magnum.png"
     },
@@ -1450,6 +1581,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_intensifying_clip.png",
       "source": "intensifying_magazine.png"
     },
@@ -1461,6 +1593,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_reinforcing_casings.png",
       "source": "escalating_resilience.png"
     },
@@ -1472,6 +1605,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_blitz_bullets.png",
       "source": "swift_striker.png"
     },
@@ -1483,6 +1617,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_veil_walker.png",
       "source": "veil_walker.png"
     },
@@ -1494,6 +1629,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_vex_barrier.png",
       "source": "reactive_barrier.png"
     },
@@ -1505,6 +1641,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_auto_cleanse.png",
       "source": "indomitable.png"
     },
@@ -1516,6 +1653,7 @@
       "cost": 800,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_medic_bullets.png",
       "source": "restorative_shot.png"
     },
@@ -1527,6 +1665,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_titan_round.png",
       "source": "titanic_magazine.png"
     },
@@ -1538,6 +1677,7 @@
       "cost": 1600,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_split_shot.png",
       "source": "split_shot.png"
     },
@@ -1549,6 +1689,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_active_reload.png",
       "source": "active_reload.png"
     },
@@ -1560,6 +1701,7 @@
       "cost": 6400,
       "active": true,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_magic_carpet.png",
       "source": "magic_carpet.png"
     },
@@ -1571,6 +1713,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_spirit_burn.png",
       "source": "spirit_burn.png"
     },
@@ -1582,6 +1725,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_ultimate_burst.png",
       "source": "lightning_scroll.png"
     },
@@ -1593,6 +1737,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_absorbing_armor.png",
       "source": "witchmail.png"
     },
@@ -1604,6 +1749,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_healbuff.png",
       "source": "healing_tempo.png"
     },
@@ -1615,6 +1761,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_aprounds.png",
       "source": "armor_piercing_rounds.png"
     },
@@ -1626,6 +1773,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_deflecting_armor.png",
       "source": "plated_armor.png"
     },
@@ -1637,6 +1785,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_spellbreaker.png",
       "source": "spellbreaker.png"
     },
@@ -1648,6 +1797,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_juggernaut.png",
       "source": "juggernaut.png"
     },
@@ -1659,6 +1809,7 @@
       "cost": 6400,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_enchanted_holsters.png",
       "source": "spell_slinger.png"
     },
@@ -1670,6 +1821,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_weapon_backstabber.png",
       "source": "backstabber.png"
     },
@@ -1681,6 +1833,7 @@
       "cost": 3200,
       "active": false,
       "imbue": false,
+      "corruptible": true,
       "icon": "icons/upgrade_express_shot.png",
       "source": "express_shot.png"
     },
@@ -1692,6 +1845,7 @@
       "cost": 3200,
       "active": false,
       "imbue": true,
+      "corruptible": true,
       "icon": "icons/upgrade_bulletshredimbue.png",
       "source": "alchemical_seal.png"
     },
@@ -1703,6 +1857,7 @@
       "cost": 1600,
       "active": false,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_rechargingbullets.png",
       "source": "recharging_rounds.png"
     },
@@ -1714,6 +1869,7 @@
       "cost": 800,
       "active": true,
       "imbue": false,
+      "corruptible": false,
       "icon": "icons/upgrade_goose_egg.png",
       "source": "goose_egg.png"
     }
