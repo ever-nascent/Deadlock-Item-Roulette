@@ -70,10 +70,11 @@ public static class RoulettePanel
             ("background-color", "#0b0d11"), ("box-shadow", "0px 0px 40px #000000cc"));
         panel.Add(Tabs(v.Category), Page(v, pal, price));
 
-        // Full-screen backdrop over the game's own shop; the hover style is there so it takes the mouse (hittest).
+        // Opaque full-screen backdrop, so none of the game's own shop shows through; the hover style is there so it takes
+        // the mouse (hittest).
         return UI.Container("rsRoot")
-            .WithStyles(("width", "100%"), ("height", "100%"), ("background-color", "#05070ae6"))
-            .WithHoverStyle("background-color", "#05070ae6")
+            .WithStyles(("width", "100%"), ("height", "100%"), ("background-color", "#05070a"))
+            .WithHoverStyle("background-color", "#05070a")
             .Add(panel);
     }
 
