@@ -11,6 +11,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_clip_size.png",
+      "game_icon": "file://{images}/items/weapon/basic_magazine.psd",
       "source": "basic_magazine.png"
     },
     {
@@ -23,6 +24,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_non_player_bonus.png",
+      "game_icon": "file://{images}/items/weapon/monster_rounds.psd",
       "source": "monster_rounds.png"
     },
     {
@@ -35,6 +37,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_non_player_bonus_sacrifice.png",
+      "game_icon": "file://{images}/items/weapon/cultist_sacrifice.psd",
       "source": "cultist_sacrifice.png"
     },
     {
@@ -47,6 +50,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_chain_lightning.png",
+      "game_icon": "file://{images}/items/weapon/tesla_bullets.psd",
       "source": "tesla_bullets.png"
     },
     {
@@ -59,6 +63,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_capacitor.png",
+      "game_icon": "file://{images}/items/weapon/capacitor.psd",
       "source": "capacitor.png"
     },
     {
@@ -71,6 +76,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_hollow_point_rounds.png",
+      "game_icon": "file://{images}/items/weapon/hollow_point.psd",
       "source": "hollow_point.png"
     },
     {
@@ -83,6 +89,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_pristine_emblem.png",
+      "game_icon": "file://{images}/items/weapon/opening_rounds.psd",
       "source": "opening_rounds.png"
     },
     {
@@ -95,6 +102,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_high_velocity_mag.png",
+      "game_icon": "file://{images}/items/weapon/high_velocity_rounds.psd",
       "source": "high_velocity_rounds.png"
     },
     {
@@ -107,6 +115,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_lifestrike_gauntlets.png",
+      "game_icon": "file://{images}/items/vitality/melee_lifesteal.psd",
       "source": "melee_lifesteal.png"
     },
     {
@@ -119,6 +128,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_melee_rebuttal.png",
+      "game_icon": "file://{images}/items/vitality/rebuttal.psd",
       "source": "rebuttal.png"
     },
     {
@@ -131,6 +141,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_counterspell.png",
+      "game_icon": "file://{images}/items/vitality/counterspell.psd",
       "source": "counterspell.png"
     },
     {
@@ -143,6 +154,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_weighted_shots.png",
+      "game_icon": "file://{images}/items/weapon/weighted_shots.psd",
       "source": "weighted_shots.png"
     },
     {
@@ -155,6 +167,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_close_range.png",
+      "game_icon": "file://{images}/items/weapon/close_quarters.psd",
       "source": "close_quarters.png"
     },
     {
@@ -167,6 +180,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_long_range.png",
+      "game_icon": "file://{images}/items/weapon/long_range.psd",
       "source": "long_range.png"
     },
     {
@@ -179,6 +193,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_slowing_bullets.png",
+      "game_icon": "file://{images}/items/weapon/slowing_bullets.psd",
       "source": "slowing_bullets.png"
     },
     {
@@ -191,6 +206,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_inhibitor.png",
+      "game_icon": "file://{images}/items/vitality/inhibitor.psd",
       "source": "inhibitor.png"
     },
     {
@@ -203,6 +219,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_tech_defense_shredders.png",
+      "game_icon": "file://{images}/items/weapon/spirit_shredder_bullets.psd",
       "source": "spirit_shredder_bullets.png"
     },
     {
@@ -215,6 +232,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_dps_aura.png",
+      "game_icon": "file://{images}/items/weapon/heroic_aura.psd",
       "source": "heroic_aura.png"
     },
     {
@@ -227,6 +245,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_targeted_silence.png",
+      "game_icon": "file://{images}/items/spirit/silence_glyph.psd",
       "source": "silence_glyph.png"
     },
     {
@@ -239,6 +258,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_proc_silence.png",
+      "game_icon": "file://{images}/items/weapon/silencer.psd",
       "source": "silencer.png"
     },
     {
@@ -251,6 +271,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_berserker.png",
+      "game_icon": "file://{images}/items/weapon/berserker.psd",
       "source": "berserker.png"
     },
     {
@@ -263,6 +284,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_fervor.png",
+      "game_icon": "file://{images}/items/weapon/frenzy.psd",
       "source": "frenzy.png"
     },
     {
@@ -275,6 +297,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_siphon_bullets.png",
+      "game_icon": "file://{images}/items/vitality/siphon_bullets.psd",
       "source": "siphon_bullets.png"
     },
     {
@@ -287,6 +310,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_headshot_booster.png",
+      "game_icon": "file://{images}/items/weapon/headshot_booster.psd",
       "source": "headshot_booster.png"
     },
     {
@@ -299,6 +323,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_headshot_booster2.png",
+      "game_icon": "file://{images}/items/weapon/weakening_headshot.psd",
       "source": "weakening_headshot.png"
     },
     {
@@ -311,6 +336,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_sharpshooter.png",
+      "game_icon": "file://{images}/items/weapon/sharp_shooter.psd",
       "source": "sharp_shooter.png"
     },
     {
@@ -323,6 +349,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_headhunter.png",
+      "game_icon": "file://{images}/items/weapon/headhunter.psd",
       "source": "headhunter.png"
     },
     {
@@ -335,6 +362,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_spellslinger_headshots.png",
+      "game_icon": "file://{images}/items/weapon/spellslinger_headshots.psd",
       "source": "spellslinger_headshots.png"
     },
     {
@@ -347,6 +375,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_banshee_slugs.png",
+      "game_icon": "file://{images}/items/weapon/crippling_headshot.psd",
       "source": "crippling_headshot.png"
     },
     {
@@ -359,6 +388,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_crackshot.png",
+      "game_icon": "file://{images}/items/weapon/mystic_shot.psd",
       "source": "mystic_shot.png"
     },
     {
@@ -371,6 +401,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_critshot.png",
+      "game_icon": "file://{images}/items/weapon/lucky_shot.psd",
       "source": "lucky_shot.png"
     },
     {
@@ -383,6 +414,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_close_quarter_combat.png",
+      "game_icon": "file://{images}/items/weapon/point_blank.psd",
       "source": "point_blank.png"
     },
     {
@@ -395,6 +427,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_toxic_bullets.png",
+      "game_icon": "file://{images}/items/weapon/toxic_bullets.psd",
       "source": "toxic_bullets.png"
     },
     {
@@ -407,6 +440,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_ricochet.png",
+      "game_icon": "file://{images}/items/weapon/ricochet.psd",
       "source": "ricochet.png"
     },
     {
@@ -419,6 +453,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_health.png",
+      "game_icon": "file://{images}/items/vitality/extra_health.psd",
       "source": "extra_health.png"
     },
     {
@@ -431,6 +466,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_vampire.png",
+      "game_icon": "file://{images}/items/vitality/bullet_lifesteal.psd",
       "source": "bullet_lifesteal.png"
     },
     {
@@ -443,6 +479,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_debuff_reducer.png",
+      "game_icon": "file://{images}/items/vitality/debuff_reducer.psd",
       "source": "debuff_reducer.png"
     },
     {
@@ -455,6 +492,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_reduce_debuff_duration.png",
+      "game_icon": "file://{images}/items/vitality/debuff_remover.psd",
       "source": "debuff_remover.png"
     },
     {
@@ -467,6 +505,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_tech_purge.png",
+      "game_icon": "file://{images}/items/vitality/spirit_resilience.psd",
       "source": "spirit_resilience.png"
     },
     {
@@ -479,6 +518,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_improved_bullet_armor.png",
+      "game_icon": "file://{images}/items/vitality/bullet_resilience.psd",
       "source": "bullet_resilience.png"
     },
     {
@@ -491,6 +531,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_metal_skin.png",
+      "game_icon": "file://{images}/items/vitality/metal_skin.psd",
       "source": "metal_skin.png"
     },
     {
@@ -503,6 +544,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_healing_booster.png",
+      "game_icon": "file://{images}/items/vitality/healing_booster.psd",
       "source": "healing_booster.png"
     },
     {
@@ -515,6 +557,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_chonky.png",
+      "game_icon": "file://{images}/items/vitality/fortitude.psd",
       "source": "fortitude.png"
     },
     {
@@ -527,6 +570,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_damage_recycler.png",
+      "game_icon": "file://{images}/items/vitality/leech.psd",
       "source": "leech.png"
     },
     {
@@ -539,6 +583,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_sprint_booster.png",
+      "game_icon": "file://{images}/items/vitality/sprint_boots.psd",
       "source": "sprint_boots.png"
     },
     {
@@ -551,6 +596,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_trophy_collector.png",
+      "game_icon": "file://{images}/items/vitality/trophy_collector.psd",
       "source": "trophy_collector.png"
     },
     {
@@ -563,6 +609,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_cardio_calibrator.png",
+      "game_icon": "file://{images}/items/vitality/enduring_speed.psd",
       "source": "enduring_speed.png"
     },
     {
@@ -575,6 +622,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_superior_stamina.png",
+      "game_icon": "file://{images}/items/vitality/stamina_mastery.psd",
       "source": "stamina_mastery.png"
     },
     {
@@ -587,6 +635,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_rapid_rounds.png",
+      "game_icon": "file://{images}/items/weapon/rapid_rounds.psd",
       "source": "rapid_rounds.png"
     },
     {
@@ -599,6 +648,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_improved_stamina.png",
+      "game_icon": "file://{images}/items/vitality/extra_stamina.psd",
       "source": "extra_stamina.png"
     },
     {
@@ -611,6 +661,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_bullet_armor_reduction_aura.png",
+      "game_icon": "file://{images}/items/weapon/hunters_aura.psd",
       "source": "hunters_aura.png"
     },
     {
@@ -623,6 +674,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_grit.png",
+      "game_icon": "file://{images}/items/vitality/grit.psd",
       "source": "grit.png"
     },
     {
@@ -635,6 +687,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_weapon_shielding.png",
+      "game_icon": "file://{images}/items/vitality/weapon_shielding.psd",
       "source": "weapon_shielding.png"
     },
     {
@@ -647,6 +700,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_spirit_bubble.png",
+      "game_icon": "file://{images}/items/vitality/spirit_shielding.psd",
       "source": "spirit_shielding.png"
     },
     {
@@ -659,6 +713,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_regenerating_bullet_shield.png",
+      "game_icon": "file://{images}/items/vitality/battle_vest.psd",
       "source": "battle_vest.png"
     },
     {
@@ -671,6 +726,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_magic_shield.png",
+      "game_icon": "file://{images}/items/vitality/enchanters_emblem.psd",
       "source": "enchanters_emblem.png"
     },
     {
@@ -683,6 +739,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_improved_spirit.png",
+      "game_icon": "file://{images}/items/spirit/extra_spirit.psd",
       "source": "extra_spirit.png"
     },
     {
@@ -695,6 +752,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_mystic_regeneration.png",
+      "game_icon": "file://{images}/items/spirit/mystic_regen.psd",
       "source": "mystic_regen.png"
     },
     {
@@ -707,6 +765,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_soaring_spirit.png",
+      "game_icon": "file://{images}/items/spirit/improved_spirit.psd",
       "source": "improved_spirit.png"
     },
     {
@@ -719,6 +778,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_tech_overflow.png",
+      "game_icon": "file://{images}/items/weapon/spiritual_overflow.psd",
       "source": "spiritual_overflow.png"
     },
     {
@@ -731,6 +791,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_return_fire.png",
+      "game_icon": "file://{images}/items/vitality/return_fire.psd",
       "source": "return_fire.png"
     },
     {
@@ -743,6 +804,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_tech_range.png",
+      "game_icon": "file://{images}/items/spirit/greater_expansion.psd",
       "source": "greater_expansion.png"
     },
     {
@@ -755,6 +817,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": false,
       "icon": "icons/upgrade_magic_reach.png",
+      "game_icon": "file://{images}/items/spirit/mystic_reach.psd",
       "source": "mystic_reach.png"
     },
     {
@@ -767,6 +830,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_extra_charge.png",
+      "game_icon": "file://{images}/items/spirit/extra_charge.psd",
       "source": "extra_charge.png"
     },
     {
@@ -779,6 +843,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_health_stealing_magic.png",
+      "game_icon": "file://{images}/items/vitality/spirit_lifesteal.psd",
       "source": "spirit_lifesteal.png"
     },
     {
@@ -791,6 +856,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_bullet_resist_shredder.png",
+      "game_icon": "file://{images}/items/spirit/bullet_resist_shredder.psd",
       "source": "bullet_resist_shredder.png"
     },
     {
@@ -803,6 +869,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": true,
       "icon": "icons/upgrade_mystic_reverb.png",
+      "game_icon": "file://{images}/items/spirit/mystic_reverb.psd",
       "source": "mystic_reverb.png"
     },
     {
@@ -815,6 +882,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_magic_burst.png",
+      "game_icon": "file://{images}/items/spirit/mystic_burst.psd",
       "source": "mystic_burst.png"
     },
     {
@@ -827,6 +895,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_magic_shock.png",
+      "game_icon": "file://{images}/items/spirit/tankbuster.psd",
       "source": "tankbuster.png"
     },
     {
@@ -839,6 +908,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_magic_vulnerability.png",
+      "game_icon": "file://{images}/items/spirit/mystic_vulnerability.psd",
       "source": "mystic_vulnerability.png"
     },
     {
@@ -851,6 +921,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_healbane.png",
+      "game_icon": "file://{images}/items/vitality/healbane.psd",
       "source": "healbane.png"
     },
     {
@@ -863,6 +934,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_magic_slow.png",
+      "game_icon": "file://{images}/items/spirit/mystic_slow.psd",
       "source": "mystic_slow.png"
     },
     {
@@ -875,6 +947,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_escalating_exposure.png",
+      "game_icon": "file://{images}/items/spirit/escalating_exposure.psd",
       "source": "escalating_exposure.png"
     },
     {
@@ -887,6 +960,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_rapid_recharge.png",
+      "game_icon": "file://{images}/items/spirit/rapid_recharge.psd",
       "source": "rapid_recharge.png"
     },
     {
@@ -899,6 +973,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": false,
       "icon": "icons/upgrade_magic_tempo.png",
+      "game_icon": "file://{images}/items/spirit/improved_cooldown.psd",
       "source": "improved_cooldown.png"
     },
     {
@@ -911,6 +986,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_cooldown_reduction.png",
+      "game_icon": "file://{images}/items/spirit/superior_cooldown.psd",
       "source": "superior_cooldown.png"
     },
     {
@@ -923,6 +999,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_transcendent_cooldown.png",
+      "game_icon": "file://{images}/items/spirit/transcendent_cooldown.psd",
       "source": "transcendent_cooldown.png"
     },
     {
@@ -935,6 +1012,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_containment.png",
+      "game_icon": "file://{images}/items/spirit/slowing_hex.psd",
       "source": "slowing_hex.png"
     },
     {
@@ -947,6 +1025,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_spirit_sap.png",
+      "game_icon": "file://{images}/items/spirit/spirit_sap.psd",
       "source": "spirit_sap.png"
     },
     {
@@ -959,6 +1038,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_focus_lens.png",
+      "game_icon": "file://{images}/items/spirit/focus_lens.psd",
       "source": "focus_lens.png"
     },
     {
@@ -971,6 +1051,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_withering_whip.png",
+      "game_icon": "file://{images}/items/spirit/rusted_barrel.psd",
       "source": "rusted_barrel.png"
     },
     {
@@ -983,6 +1064,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_greater_withering_whip.png",
+      "game_icon": "file://{images}/items/spirit/disarming_hex.psd",
       "source": "disarming_hex.png"
     },
     {
@@ -995,6 +1077,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_rescue_beam.png",
+      "game_icon": "file://{images}/items/vitality/rescue_beam.psd",
       "source": "rescue_beam.png"
     },
     {
@@ -1007,6 +1090,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_rupture.png",
+      "game_icon": "file://{images}/items/spirit/decay.psd",
       "source": "decay.png"
     },
     {
@@ -1019,6 +1103,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_discord.png",
+      "game_icon": "file://{images}/items/spirit/scourge.psd",
       "source": "scourge.png"
     },
     {
@@ -1031,6 +1116,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_target_stun.png",
+      "game_icon": "file://{images}/items/spirit/knockdown.psd",
       "source": "knockdown.png"
     },
     {
@@ -1043,6 +1129,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_phantom_strike.png",
+      "game_icon": "file://{images}/items/vitality/phantom_strike.psd",
       "source": "phantom_strike.png"
     },
     {
@@ -1055,6 +1142,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_warp_stone.png",
+      "game_icon": "file://{images}/items/vitality/warp_stone.psd",
       "source": "warp_stone.png"
     },
     {
@@ -1067,6 +1155,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_aoe_root.png",
+      "game_icon": "file://{images}/items/spirit/vortex_web.psd",
       "source": "vortex_web.png"
     },
     {
@@ -1079,6 +1168,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_ability_refresher.png",
+      "game_icon": "file://{images}/items/spirit/refresher.psd",
       "source": "refresher.png"
     },
     {
@@ -1091,6 +1181,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": true,
       "icon": "icons/upgrade_ability_power_shard.png",
+      "game_icon": "file://{images}/items/spirit/echo_shard.psd",
       "source": "echo_shard.png"
     },
     {
@@ -1103,6 +1194,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_tech_damage_pulse.png",
+      "game_icon": "file://{images}/items/spirit/torment_pulse.psd",
       "source": "torment_pulse.png"
     },
     {
@@ -1115,6 +1207,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_cheat_death.png",
+      "game_icon": "file://{images}/items/vitality/cheat_death.psd",
       "source": "cheat_death.png"
     },
     {
@@ -1127,6 +1220,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_cloaking_device_active.png",
+      "game_icon": "file://{images}/items/weapon/shadow_weave.psd",
       "source": "shadow_weave.png"
     },
     {
@@ -1139,6 +1233,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_rocket_booster.png",
+      "game_icon": "file://{images}/items/vitality/majestic_leap.psd",
       "source": "majestic_leap.png"
     },
     {
@@ -1151,6 +1246,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_health_nova.png",
+      "game_icon": "file://{images}/items/vitality/healing_nova.psd",
       "source": "healing_nova.png"
     },
     {
@@ -1163,6 +1259,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_restorative_locket.png",
+      "game_icon": "file://{images}/items/vitality/restorative_locket.psd",
       "source": "restorative_locket.png"
     },
     {
@@ -1175,6 +1272,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_health_stimpak.png",
+      "game_icon": "file://{images}/items/vitality/healing_rite.psd",
       "source": "healing_rite.png"
     },
     {
@@ -1187,6 +1285,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_infuser.png",
+      "game_icon": "file://{images}/items/vitality/infuser.psd",
       "source": "infuser.png"
     },
     {
@@ -1199,6 +1298,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_guardian_ward.png",
+      "game_icon": "file://{images}/items/vitality/guardian_ward.psd",
       "source": "guardian_ward.png"
     },
     {
@@ -1211,6 +1311,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_divine_barrier.png",
+      "game_icon": "file://{images}/items/vitality/divine_barrier.psd",
       "source": "divine_barrier.png"
     },
     {
@@ -1223,6 +1324,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_thermal_detonator.png",
+      "game_icon": "file://{images}/items/weapon/alchemical_fire.psd",
       "source": "alchemical_fire.png"
     },
     {
@@ -1235,6 +1337,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_blood_tribute.png",
+      "game_icon": "file://{images}/items/weapon/blood_tribute.psd",
       "source": "blood_tribute.png"
     },
     {
@@ -1247,6 +1350,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_fleetfoot_boots.png",
+      "game_icon": "file://{images}/items/weapon/fleetfoot.psd",
       "source": "fleetfoot.png"
     },
     {
@@ -1259,6 +1363,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_kinetic_sash.png",
+      "game_icon": "file://{images}/items/weapon/kinetic_dash.psd",
       "source": "kinetic_dash.png"
     },
     {
@@ -1271,6 +1376,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_arcane_surge.png",
+      "game_icon": "file://{images}/items/spirit/arcane_surge.psd",
       "source": "arcane_surge.png"
     },
     {
@@ -1283,6 +1389,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_unstoppable.png",
+      "game_icon": "file://{images}/items/vitality/unstoppable.psd",
       "source": "unstoppable.png"
     },
     {
@@ -1295,6 +1402,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_colossus.png",
+      "game_icon": "file://{images}/items/vitality/colossus.psd",
       "source": "colossus.png"
     },
     {
@@ -1307,6 +1415,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_cold_front.png",
+      "game_icon": "file://{images}/items/spirit/cold_front.psd",
       "source": "cold_front.png"
     },
     {
@@ -1319,6 +1428,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_arctic_blast.png",
+      "game_icon": "file://{images}/items/spirit/arctic_blast.psd",
       "source": "arctic_blast.png"
     },
     {
@@ -1331,6 +1441,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_self_bubble.png",
+      "game_icon": "file://{images}/items/spirit/ethereal_shift.psd",
       "source": "ethereal_shift.png"
     },
     {
@@ -1343,6 +1454,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_glitch.png",
+      "game_icon": "file://{images}/items/spirit/curse.psd",
       "source": "curse.png"
     },
     {
@@ -1355,6 +1467,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": false,
       "icon": "icons/upgrade_arcane_extension.png",
+      "game_icon": "file://{images}/items/spirit/duration_extender.psd",
       "source": "duration_extender.png"
     },
     {
@@ -1367,6 +1480,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_imbued_duration_extender.png",
+      "game_icon": "file://{images}/items/spirit/superior_duration.psd",
       "source": "superior_duration.png"
     },
     {
@@ -1379,6 +1493,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_glass_cannon.png",
+      "game_icon": "file://{images}/items/weapon/glass_cannon.psd",
       "source": "glass_cannon.png"
     },
     {
@@ -1391,6 +1506,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_fury_trance.png",
+      "game_icon": "file://{images}/items/vitality/fury_trance.psd",
       "source": "fury_trance.png"
     },
     {
@@ -1403,6 +1519,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_surging_power.png",
+      "game_icon": "file://{images}/items/vitality/vampiric_burst.psd",
       "source": "vampiric_burst.png"
     },
     {
@@ -1415,6 +1532,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_boxing_glove.png",
+      "game_icon": "file://{images}/items/vitality/lifestrike.psd",
       "source": "lifestrike.png"
     },
     {
@@ -1427,6 +1545,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_acolytes_glove.png",
+      "game_icon": "file://{images}/items/spirit/spirit_strike.psd",
       "source": "spirit_strike.png"
     },
     {
@@ -1439,6 +1558,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_spirit_snatch.png",
+      "game_icon": "file://{images}/items/spirit/spirit_snatch.psd",
       "source": "spirit_snatch.png"
     },
     {
@@ -1451,6 +1571,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_melee_charge.png",
+      "game_icon": "file://{images}/items/weapon/melee_charge.psd",
       "source": "melee_charge.png"
     },
     {
@@ -1463,6 +1584,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_crushing_fists.png",
+      "game_icon": "file://{images}/items/weapon/crushing_fists.psd",
       "source": "crushing_fists.png"
     },
     {
@@ -1475,6 +1597,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_diviners_kevlar.png",
+      "game_icon": "file://{images}/items/vitality/diviners_kevlar.psd",
       "source": "diviners_kevlar.png"
     },
     {
@@ -1487,6 +1610,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_resonant_healing.png",
+      "game_icon": "file://{images}/items/spirit/radiant_regeneration.psd",
       "source": "radiant_regeneration.png"
     },
     {
@@ -1499,6 +1623,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_boundless_spirit.png",
+      "game_icon": "file://{images}/items/spirit/boundless_spirit.psd",
       "source": "boundless_spirit.png"
     },
     {
@@ -1511,6 +1636,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_burst_fire.png",
+      "game_icon": "file://{images}/items/weapon/burst_fire.psd",
       "source": "burst_fire.png"
     },
     {
@@ -1523,6 +1649,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_endurance.png",
+      "game_icon": "file://{images}/items/vitality/extra_regen.psd",
       "source": "extra_regen.png"
     },
     {
@@ -1535,6 +1662,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": true,
       "icon": "icons/upgrade_magic_storm.png",
+      "game_icon": "file://{images}/items/spirit/surge_of_power.psd",
       "source": "surge_of_power.png"
     },
     {
@@ -1547,6 +1675,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_suppressor.png",
+      "game_icon": "file://{images}/items/spirit/suppressor.psd",
       "source": "suppressor.png"
     },
     {
@@ -1559,6 +1688,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": false,
       "icon": "icons/upgrade_quick_silver.png",
+      "game_icon": "file://{images}/items/spirit/quicksilver_reload.psd",
       "source": "quicksilver_reload.png"
     },
     {
@@ -1571,6 +1701,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": true,
       "icon": "icons/upgrade_ethereal_bullets.png",
+      "game_icon": "file://{images}/items/spirit/mercurial_magnum.psd",
       "source": "mercurial_magnum.png"
     },
     {
@@ -1583,6 +1714,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_intensifying_clip.png",
+      "game_icon": "file://{images}/items/weapon/intensifying_magazine.psd",
       "source": "intensifying_magazine.png"
     },
     {
@@ -1595,6 +1727,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_reinforcing_casings.png",
+      "game_icon": "file://{images}/items/weapon/escalating_resilience.psd",
       "source": "escalating_resilience.png"
     },
     {
@@ -1607,6 +1740,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_blitz_bullets.png",
+      "game_icon": "file://{images}/items/weapon/swift_striker.psd",
       "source": "swift_striker.png"
     },
     {
@@ -1619,6 +1753,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_veil_walker.png",
+      "game_icon": "file://{images}/items/vitality/veil_walker.psd",
       "source": "veil_walker.png"
     },
     {
@@ -1631,6 +1766,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_vex_barrier.png",
+      "game_icon": "file://{images}/items/vitality/reactive_barrier.psd",
       "source": "reactive_barrier.png"
     },
     {
@@ -1643,6 +1779,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_auto_cleanse.png",
+      "game_icon": "file://{images}/items/vitality/indomitable.psd",
       "source": "indomitable.png"
     },
     {
@@ -1655,6 +1792,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_medic_bullets.png",
+      "game_icon": "file://{images}/items/weapon/restorative_shot.psd",
       "source": "restorative_shot.png"
     },
     {
@@ -1667,6 +1805,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_titan_round.png",
+      "game_icon": "file://{images}/items/weapon/titanic_magazine.psd",
       "source": "titanic_magazine.png"
     },
     {
@@ -1679,6 +1818,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_split_shot.png",
+      "game_icon": "file://{images}/items/weapon/split_shot.psd",
       "source": "split_shot.png"
     },
     {
@@ -1691,6 +1831,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_active_reload.png",
+      "game_icon": "file://{images}/items/weapon/active_reload.psd",
       "source": "active_reload.png"
     },
     {
@@ -1703,6 +1844,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_magic_carpet.png",
+      "game_icon": "file://{images}/items/spirit/magic_carpet.psd",
       "source": "magic_carpet.png"
     },
     {
@@ -1715,6 +1857,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_spirit_burn.png",
+      "game_icon": "file://{images}/items/spirit/spirit_burn.psd",
       "source": "spirit_burn.png"
     },
     {
@@ -1727,6 +1870,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_ultimate_burst.png",
+      "game_icon": "file://{images}/items/spirit/lightning_scroll.psd",
       "source": "lightning_scroll.png"
     },
     {
@@ -1739,6 +1883,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_absorbing_armor.png",
+      "game_icon": "file://{images}/items/vitality/witchmail.psd",
       "source": "witchmail.png"
     },
     {
@@ -1751,6 +1896,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_healbuff.png",
+      "game_icon": "file://{images}/items/vitality/healing_tempo.psd",
       "source": "healing_tempo.png"
     },
     {
@@ -1763,6 +1909,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_aprounds.png",
+      "game_icon": "file://{images}/items/weapon/armor_piercing_rounds.psd",
       "source": "armor_piercing_rounds.png"
     },
     {
@@ -1775,6 +1922,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_deflecting_armor.png",
+      "game_icon": "file://{images}/items/vitality/plated_armor.psd",
       "source": "plated_armor.png"
     },
     {
@@ -1787,6 +1935,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_spellbreaker.png",
+      "game_icon": "file://{images}/items/vitality/spellbreaker.psd",
       "source": "spellbreaker.png"
     },
     {
@@ -1799,6 +1948,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_juggernaut.png",
+      "game_icon": "file://{images}/items/vitality/juggernaut.psd",
       "source": "juggernaut.png"
     },
     {
@@ -1811,6 +1961,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_enchanted_holsters.png",
+      "game_icon": "file://{images}/items/weapon/spell_slinger.psd",
       "source": "spell_slinger.png"
     },
     {
@@ -1823,6 +1974,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_weapon_backstabber.png",
+      "game_icon": "file://{images}/items/weapon/backstabber.psd",
       "source": "backstabber.png"
     },
     {
@@ -1835,6 +1987,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": true,
       "icon": "icons/upgrade_express_shot.png",
+      "game_icon": "file://{images}/items/weapon/express_shot.psd",
       "source": "express_shot.png"
     },
     {
@@ -1847,6 +2000,7 @@ window.MANIFEST = {
       "imbue": true,
       "corruptible": true,
       "icon": "icons/upgrade_bulletshredimbue.png",
+      "game_icon": "file://{images}/items/weapon/alchemical_seal.psd",
       "source": "alchemical_seal.png"
     },
     {
@@ -1859,6 +2013,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_rechargingbullets.png",
+      "game_icon": "file://{images}/items/weapon/recharging_rounds.psd",
       "source": "recharging_rounds.png"
     },
     {
@@ -1871,6 +2026,7 @@ window.MANIFEST = {
       "imbue": false,
       "corruptible": false,
       "icon": "icons/upgrade_goose_egg.png",
+      "game_icon": "file://{images}/items/spirit/goose_egg.psd",
       "source": "goose_egg.png"
     }
   ],

@@ -5,7 +5,11 @@ namespace RouletteShop;
 public enum ItemCategory { Weapon, Vitality, Spirit }
 
 /// <param name="Corruptible">Has a Corrupted version (corrupted_info in the item data; tiers 3 and 4).</param>
-public sealed record RouletteItem(string ClassName, string Name, ItemCategory Category, int Tier, bool Corruptible);
+/// <param name="GameIcon">The game's own shop icon, e.g. file://{images}/items/weapon/basic_magazine.psd.</param>
+/// <param name="Active">An active item (the shop draws its icon round).</param>
+/// <param name="Imbue">Has to be imbued into an ability.</param>
+public sealed record RouletteItem(string ClassName, string Name, ItemCategory Category, int Tier, bool Corruptible,
+                                  string GameIcon, bool Active, bool Imbue);
 
 /// <summary>
 /// The items a spin can land on. Read from the embedded manifest.json, which fetch-deadlock-assets.mjs writes from
@@ -49,7 +53,10 @@ public sealed class ItemPool
                 e.GetProperty("name").GetString()!,
                 Enum.Parse<ItemCategory>(e.GetProperty("slot").GetString()!, ignoreCase: true),
                 e.GetProperty("tier").GetInt32(),
-                e.GetProperty("corruptible").GetBoolean()));
+                e.GetProperty("corruptible").GetBoolean(),
+                e.GetProperty("game_icon").GetString()!,
+                e.GetProperty("active").GetBoolean(),
+                e.GetProperty("imbue").GetBoolean()));
         }
         return new ItemPool(items);
     }

@@ -37,6 +37,7 @@ Two parts:
 1\. \*\*Deadworks plugin (C#, .NET)\*\*: item pool, roll, soul check and deduction, giving items, corrupted roll, sell blocking, and the server side of the UI.
 
 2\. \*\*Panorama addon (VPK)\*\*: the roulette panel layout (XML/CSS/JS). Players need the Deadworks launcher and the addon mounted. The server decides the result; the client only animates it.
+   \*\*Changed (full build):\*\* the panel is built on the server with Deadworks' UI nodes (`RouletteShop/RoulettePanel.cs`), the way the Deadworks TicTacToe example builds its board ("players need nothing installed"): no addon VPK to compile, pack, host or download. Players still need the Deadworks launcher (https://deadworks.net, "Download Client"), which installs the client bootstrap that renders server-built panels. The shop key opens the roulette panel over the game's shop screen, and closing the shop (`exit\_item\_shop`) closes it; `!roulette` with no arguments opens it from chat (with a CLOSE button). Players without the launcher are told to spin from chat.
 
 
 
@@ -78,6 +79,11 @@ Deadlock's in-game UI is Valve Panorama. Browser web components (such as @deadlo
    Findings (Checkpoint 4): only tier 3 and 4 items have a Corrupted version (`corrupted\_info` in the item data: 90 of the 156 pool items, every tier 3 and 4 one), so 800 and 1,600 spins can never be Corrupted. The game marks a Corrupted item with `ABILITY\_UPGRADE\_BIT\_CORRUPTED = 128` in `AbilityUpgradeBits\_t` (the item's `m\_nUpgradeInfo`; schema from https://s2v.app/SchemaExplorer, build of Oct 09 2026); the drawback is the modifier `CCitadel\_Modifier\_CorruptedPenalty`. The plugin gives the item with `AddItem`, then sets the bit through `ability.UpgradeBits`, which calls the game's own `SetUpgradeBits`. UNVERIFIED until tested in game: does that apply the Corrupted bonuses and drawback? Related server convars (cheat): `citadel\_item\_purchases\_force\_corrupted`, `citadel\_corrupted\_penalty\_seed`, `citadel\_corrupted\_items\_force\_variance` (variance is off in sandbox/hideout).
 
 4\. Which game image path serves item icons to a Panorama panel, so the mod can use the game's own art without bundling copies. (Hero portraits come from game data, e.g. `Heroes.X.GetHeroData()?.IconImageSmall`.)
+   \*\*Answered:\*\* each item's `m\_strShopIconLarge` in the game's `scripts/abilities.vdata` (SteamDatabase/GameTracking-Deadlock), e.g. `file://{images}/items/weapon/basic\_magazine.psd`. It equals the deadlock-api `shop\_image` path with `.psd` for all 156 pool items, so the asset script writes it to the manifest as `game\_icon`. Shop art (card backers, tab icons, soul icon, corrupted frame) uses the `s2r://panorama/images/...vtex` paths the game's own shop stylesheets use.
+
+7\. The roulette panel (Checkpoint 5), still to see in game: does it draw over the game's shop screen and take its clicks; does closing the shop close it; does the reel slide (CSS transition on `transform`); do the game fonts (`block`, `sans`) and art look like the mockup. Verified here: the server's UI frames go through Deadworks' real UI channel, and Deadworks' real client script (`dw\_bootstrap.js`, v0.5.6 and newest) builds the expected panel from them in a Node run with a stand-in for Panorama (50 checks), and clicks come back as `dw\_ui roulette|...` events.
+
+8\. The Broker (Corrupted item shop) is not blocked yet: its trade command is unknown. The plugin logs shop-like commands, so a Broker trade in game will show its name.
 
 5\. Does `AddItem` refuse when inventory slots are full? What happens with active items (max 4)?
    Known: `AddItem` gives a duplicate of an item the player already owns (Checkpoint 2), so the roll skips owned items.
@@ -114,13 +120,13 @@ A 1280x760 screen. Header: "ROULETTE SHOP" and the player's soul balance. Left c
 
 2\. Item pool generated from `items-full.json`; `!roulette weapon 800` picks a random 800-soul weapon item, checks and deducts souls, and calls `AddItem`; print balance before and after, and confirm net worth/level did not drop (UNVERIFIED #1). \*\*Done.\*\*
 
-3\. Sell blocking (UNVERIFIED #2): find a real hook or implement the polling fallback; prove a roulette item cannot be sold for souls. With the normal shop removed, also block buying from it.
+3\. Sell blocking (UNVERIFIED #2): find a real hook or implement the polling fallback; prove a roulette item cannot be sold for souls. With the normal shop removed, also block buying from it. Buying confirmed blocked in game; selling to confirm.
 
-4\. Corrupted (UNVERIFIED #3): implement the 1% roll behind a config flag, with a debug setting that forces it so it can be tested.
+4\. Corrupted (UNVERIFIED #3): implement the 1% roll behind a config flag, with a debug setting that forces it so it can be tested. Implemented; to confirm in game.
 
-5\. Panorama addon: a minimal panel that opens and sends a click back to the server; then the full layout; item pool list; spin animation with the server-chosen result.
+5\. Panorama addon: a minimal panel that opens and sends a click back to the server; then the full layout; item pool list; spin animation with the server-chosen result. Built as a server-side panel (see Architecture); to confirm in game (UNVERIFIED #7).
 
-6\. Icons: compile into the VPK; handle `AddonStatusChanged` for players without the addon (fall back to a plain panel or chat command).
+6\. Icons: compile into the VPK; handle `AddonStatusChanged` for players without the addon (fall back to a plain panel or chat command). Done differently: the game's own icon paths need no compiling (UNVERIFIED #4), and players without the launcher (`UI.HasClientBootstrap`) get the chat command.
 
 7\. Test on the user's server with two players.
 
