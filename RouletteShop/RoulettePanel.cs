@@ -7,7 +7,8 @@ namespace RouletteShop;
 /// The roulette panel, built on the server the way the Deadworks TicTacToe example builds its board: players need only the
 /// Deadworks client bootstrap, no addon. It is the roulette sheet of mockups/catalog.html (design #3, approved by the user):
 /// one sheet that sits beside the game's own shop, which stays open. Masthead, category and price pickers (the server
-/// can't see the game's tabs, so clicking an item in the game's shop or these buttons picks the box), a vertical reel,
+/// can't see the game's tabs, so clicking an item in the game's shop or these buttons picks the box; a fourth button is
+/// the wildcard box, any category), a vertical reel,
 /// the soul count, the result, the SPIN button and the fine print. Art and fonts are the game's own: every path is in the
 /// game's pak01 (pak01_dir.txt) or used by its shop stylesheets, and "Retail Demo" / "Radiance" are font families its
 /// stylesheets name.
@@ -22,12 +23,13 @@ public static class RoulettePanel
     // Its size is the mockup's sheet (346x748) scaled to the page's height.
     public const int SheetWidth = 444, SheetHeight = 960, SheetTop = 20, SheetRightFromCenter = 370;
 
-    // Reel geometry: five cards on show, the middle one wins (mockup STEP and WIN, at this scale).
+    // Reel geometry: five cards on show, the middle one wins (mockup STEP and WIN, at this scale). The spin is about 2 s
+    // in all (the user's choice): TurnDelayMs for the strip to arrive, then SpinMs of turning.
     public const int CardWidth = 78, CardHeight = 122, CardGap = 4, Step = CardHeight + CardGap;
-    public const int StripLength = 30, Winner = 27;
+    public const int StripLength = 20, Winner = 17;
     private const int WindowHeight = 5 * CardHeight + 4 * CardGap;
-    public const int SpinMs = 4000;
-    public const string SpinDuration = "4s";
+    public const int SpinMs = 1500;
+    public const string SpinDuration = "1.5s";
 
     /// <summary>
     /// Wait before turning a new strip: the transition needs the strip on the client first, and the strip (the biggest
@@ -36,6 +38,7 @@ public static class RoulettePanel
     public const int TurnDelayMs = 500;
 
     private const string Ink = "#1a1510", Black = "#100d0a", Cream = "#eadfc6", Mint = "#9affd6", Red = "#b3261a", HitCorrupted = "#ff5a40";
+    private const string Gold = "#9a6a00", HitJackpot = "#ffd23f";
     private const string Display = "Retail Demo", Body = "Radiance";
 
     private const string SoulIcon = "s2r://panorama/images/hud/icons/icon_soul.vsvg";
@@ -44,21 +47,26 @@ public static class RoulettePanel
     private const string SheetPaper = "s2r://panorama/images/shop/catalog/catalog_shop_filter_bg_psd.vtex";
     private const string SlipPaper = "s2r://panorama/images/shop/catalog/cards/shopitem_papertexture01_psd.vtex";
 
-    /// <summary>Per-category colours (mockups/catalog.html [data-cat]); PaperX picks the category's band of the sheet paper.</summary>
+    /// <summary>
+    /// Per-category colours (mockups/catalog.html [data-cat]); PaperX picks the category's band of the sheet paper. A null
+    /// category is the wildcard box: paper colours, on the weapon band.
+    /// </summary>
     private sealed record Palette(string Tab, string Line, string Acc, string Deep, string T4Name, int PaperX);
 
-    private static Palette Colors(ItemCategory c) => c switch
+    private static Palette Colors(ItemCategory? c) => c switch
     {
         ItemCategory.Weapon => new("#e4b20c", "#b9772a", "#d99a3a", "#7c4610", "#e4c5a1", -19),
         ItemCategory.Vitality => new("#a5ce3c", "#4c7a48", "#a9d84a", "#2c5a26", "#c2e7cd", -952),
-        _ => new("#b866de", "#66508c", "#c878f0", "#5d3190", "#e3d4f2", -488),
+        ItemCategory.Spirit => new("#b866de", "#66508c", "#c878f0", "#5d3190", "#e3d4f2", -488),
+        _ => new("#e2d3b0", "#6b5a40", "#c9a96a", "#4a3b26", "#e4c5a1", -19),
     };
 
-    private static string Slug(ItemCategory c) => c.ToString().ToLowerInvariant();
+    private static string Slug(ItemCategory? c) => c?.ToString().ToLowerInvariant() ?? "any";
 
     private static string CardBacker(RouletteItem i) => $"s2r://panorama/images/shop/catalog/cards/card_backer_{Slug(i.Category)}_t{i.Tier}_psd.vtex";
 
-    private static string TabIcon(ItemCategory c) => $"s2r://panorama/images/shop/catalog/catalog_shop_tab_icon_{Slug(c)}_psd.vtex";
+    /// <summary>The game's tab icons; the wildcard box gets its "all items" tab icon.</summary>
+    private static string TabIcon(ItemCategory? c) => $"s2r://panorama/images/shop/catalog/catalog_shop_tab_icon_{(c == null ? "all" : Slug(c))}_psd.vtex";
 
     public static string Souls(int souls) => souls.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
 
@@ -74,10 +82,10 @@ public static class RoulettePanel
 
     private static T Centered<T>(this T n) where T : UINode => n.WithStyles(("horizontal-align", "center"), ("vertical-align", "center"));
 
-    /// <summary>What one player's panel shows.</summary>
+    /// <summary>What one player's panel shows. Category null is the wildcard box; Wildcard says whether it is offered.</summary>
     public sealed record View(
-        ItemCategory Category, int Tier, int Souls, RouletteItem[] Pool, ISet<string> Owned, RouletteItem[] Reel,
-        bool ViaShopKey, double CorruptedChancePercent, RouletteItem? Landed, bool LandedCorrupted);
+        ItemCategory? Category, int Tier, int Souls, RouletteItem[] Pool, ISet<string> Owned, RouletteItem[] Reel,
+        bool ViaShopKey, bool Wildcard, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot);
 
     // ─── the sheet ────────────────────────────────────────────────────────────
 
@@ -88,7 +96,7 @@ public static class RoulettePanel
     {
         var pal = Colors(v.Category);
         int unowned = v.Pool.Count(i => !v.Owned.Contains(i.ClassName));
-        bool hitCorrupted = v.Landed != null && v.LandedCorrupted;
+        string hit = v.Landed == null ? Mint : HitColor(v.LandedCorrupted, v.LandedJackpot);
 
         // Centred, then pushed left by its right margin (alignment centres the margin box, as the game's own #Shop
         // relies on): the sheet's right edge lands SheetRightFromCenter left of the middle of the screen.
@@ -101,14 +109,14 @@ public static class RoulettePanel
                         ("background-repeat", "no-repeat"), ("box-shadow", "0px 6px 18px #00000099"))
             .WithHoverStyle("opacity", "1")
             .Add(Mast(pal, closable: !v.ViaShopKey),
-                 Categories(v.Category),
+                 Categories(v.Category, v.Wildcard),
                  Prices(v.Tier, pal),
-                 Reel(v, hitCorrupted),
+                 Reel(v, hit),
                  SoulsRow(v.Souls),
                  UI.Container("rsResultBox").At(Side, 307, SideWidth, 411).WithStyles(("background-color", "#e7dcc3"),
                          ("background-image", $"url(\"{SlipPaper}\")"), ("background-size", "100% 100%"), ("background-img-opacity", "0.5"),
                          ("box-shadow", "2px 3px 0px #0000004d"))
-                     .Add(v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted) : Placeholder("rsResult0")),
+                     .Add(v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot) : Placeholder("rsResult0")),
                  UI.Label("rsDraw", DrawText(unowned)).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5)
                      .WithStyles(("text-align", "center"), ("text-overflow", "shrink"), ("white-space", "nowrap")),
                  SpinButton(v, pal),
@@ -116,6 +124,9 @@ public static class RoulettePanel
     }
 
     private static string DrawText(int unowned) => unowned > 0 ? $"RANDOM PICK · 1 OF {unowned}" : "YOU OWN THIS WHOLE BOX";
+
+    /// <summary>The ring and pointers round the winning card: red for Corrupted, gold for a jackpot.</summary>
+    private static string HitColor(bool corrupted, bool jackpot) => corrupted ? HitCorrupted : jackpot ? HitJackpot : Mint;
 
     private static UINode Mast(Palette pal, bool closable)
     {
@@ -136,21 +147,25 @@ public static class RoulettePanel
 
     // ─── pickers: the category (the game's tab colours and icons) and the price (black tapes, as on the page) ───
 
-    private static UINode Categories(ItemCategory selected)
+    private static UINode Categories(ItemCategory? selected, bool wildcard)
     {
         var row = UI.Horizontal("rsTabs").At(18, 117, 408, 46);
-        var all = Enum.GetValues<ItemCategory>();
-        foreach (var c in all)
+        var boxes = Enum.GetValues<ItemCategory>().Cast<ItemCategory?>().ToList();
+        if (wildcard)
+            boxes.Add(null);
+        const int gap = 8;
+        int width = (408 - gap * (boxes.Count - 1)) / boxes.Count;
+        foreach (var c in boxes)
         {
             bool on = c == selected;
-            row.Add(UI.Button("rsTab" + c, "").OnClick("cat", Slug(c))
-                .WithStyles(("width", "130px"), ("height", "46px"), ("margin-right", c == all[^1] ? "0px" : "9px"), ("border-radius", "6px"),
+            row.Add(UI.Button("rsTab" + (c?.ToString() ?? "Any"), "").OnClick("cat", Slug(c))
+                .WithStyles(("width", Px(width)), ("height", "46px"), ("margin-right", c == boxes[^1] ? "0px" : Px(gap)), ("border-radius", "6px"),
                             ("background-color", Colors(c).Tab), ("opacity", on ? "1" : "0.55"))
                 .WithStyles(on ? [("border", $"3px solid {Black}")] : [])
                 .WithHoverStyle("opacity", on ? "1" : "0.85")
-                .Add(UI.Horizontal().Centered().Add(
-                    UI.Image("", TabIcon(c)).WithStyles(("width", "30px"), ("height", "30px"), ("vertical-align", "center")),
-                    UI.Label("", Slug(c)).Font(Display, 17, Ink, 1).WithStyles(("margin-left", "6px"), ("vertical-align", "center")))));
+                .Add(UI.Vertical().Centered().Add(
+                    UI.Image("", TabIcon(c)).WithStyles(("width", "24px"), ("height", "24px"), ("horizontal-align", "center")),
+                    UI.Label("", Slug(c)).Font(Display, 12, Ink, 1).WithStyles(("horizontal-align", "center"), ("margin-top", "1px")))));
         }
         return row;
     }
@@ -221,9 +236,8 @@ public static class RoulettePanel
 
     // ─── the reel: a black tape, five cards on show, the middle one ringed between two pointers ───
 
-    private static UINode Reel(View v, bool hitCorrupted)
+    private static UINode Reel(View v, string hit)
     {
-        string hit = hitCorrupted ? HitCorrupted : Mint;
         int middle = 13 + 2 * Step, ring = middle - 6;
         return UI.Container("rsReel").At(18, MachineTop, 104, MachineHeight).WithStyles(("background-color", Black), ("border-radius", "3px"),
                 ("overflow", "clip"), ("box-shadow", "2px 3px 0px #0000004d"))
@@ -282,7 +296,7 @@ public static class RoulettePanel
         UI.Label("", body).WithStyles(("width", "100%"), ("text-align", "center"), ("font-family", Body), ("font-weight", "semi-bold"),
             ("font-size", "18px"), ("line-height", "23px"), ("color", Ink))));
 
-    public static UINode Result(string id, RouletteItem item, bool corrupted)
+    public static UINode Result(string id, RouletteItem item, bool corrupted, bool jackpot = false)
     {
         var pal = Colors(item.Category);
         var body = ResultBody().Add(
@@ -296,13 +310,29 @@ public static class RoulettePanel
                     UI.Image("", SoulIcon).WithStyles(("width", "12px"), ("height", "23px"), ("vertical-align", "center"), ("margin-right", "5px"),
                                                       ("wash-color", Mint)),
                     UI.Label("", Souls(ItemPool.TierPrices[item.Tier - 1])).Font(Display, 23, Mint).WithStyle("vertical-align", "center"))));
-        if (corrupted)
-            body.Add(UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "13px"), ("padding", "6px 11px 4px 11px"),
-                                                ("border", $"3px solid {Red}"), ("border-radius", "4px"), ("transform", "rotateZ(-4deg)")).Add(
-                UI.Image("", CorruptedIcon).WithStyles(("width", "24px"), ("height", "24px"), ("margin-right", "8px"), ("wash-color", Red),
-                                                       ("vertical-align", "center")),
-                UI.Label("", "CORRUPTED").Font(Display, 22, Red, 2).WithStyle("vertical-align", "center")));
+        // Rubber stamps: CORRUPTED, and JACKPOT for an item from the tier above; smaller and shorter when there are both.
+        if (corrupted || jackpot)
+        {
+            bool both = corrupted && jackpot;
+            double size = both ? 14 : 22;
+            var stamps = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "13px"));
+            if (corrupted)
+                stamps.Add(Stamp(Red, size, "CORRUPTED", CorruptedIcon));
+            if (jackpot)
+                stamps.Add(Stamp(Gold, size, both ? "JACKPOT" : "JACKPOT · TIER UP", null).WithStyle("margin-left", both ? "8px" : "0px"));
+            body.Add(stamps);
+        }
         return ResultFrame(id, "YOU GOT", body);
+    }
+
+    private static UIContainer Stamp(string color, double size, string text, string? icon)
+    {
+        var stamp = UI.Horizontal().WithStyles(("padding", "6px 11px 4px 11px"), ("border", $"3px solid {color}"), ("border-radius", "4px"),
+                                               ("transform", "rotateZ(-4deg)"));
+        if (icon != null)
+            stamp.Add(UI.Image("", icon).WithStyles(("width", Px(size + 2)), ("height", Px(size + 2)), ("margin-right", "8px"), ("wash-color", color),
+                                                    ("vertical-align", "center")));
+        return stamp.Add(UI.Label("", text).Font(Display, size, color, 2).WithStyle("vertical-align", "center"));
     }
 
     public enum SpinState { Ready, Busy, Broke }
@@ -334,7 +364,7 @@ public static class RoulettePanel
         _ => "#7d1a10",
     };
 
-    private static (string, string)[] SpinStyle(SpinState s, ItemCategory c) => s switch
+    private static (string, string)[] SpinStyle(SpinState s, ItemCategory? c) => s switch
     {
         SpinState.Ready => [("background-color", Colors(c).Tab)],
         SpinState.Busy => [("background-color", "#9d927f")],
@@ -358,12 +388,11 @@ public static class RoulettePanel
     private static UINode Footer(View v, Palette pal)
     {
         var footer = UI.Vertical().At(18, 901, 408, 46);
-        foreach (string line in new[] { "Selling is disabled while Roulette Shop is on",
-                                        $"{v.CorruptedChancePercent:0.##}% of 3,200 and 6,400 spins come back Corrupted" })
+        foreach (var (id, line) in new[] { ("", "Selling is disabled while Roulette Shop is on"), ("rsOdds", v.OddsLine) })
             footer.Add(UI.Horizontal().WithStyles(("width", "100%"), ("height", "23px")).Add(
                 UI.Container().WithStyles(("width", "7px"), ("height", "7px"), ("vertical-align", "center"), ("margin-left", "2px"),
                                           ("background-color", pal.Deep), ("transform", "rotateZ(45deg)")),
-                UI.Label("", line).WithStyles(("width", "fill-parent-flow(1.0)"), ("vertical-align", "center"), ("margin-left", "9px"),
+                UI.Label(id, line).WithStyles(("width", "fill-parent-flow(1.0)"), ("vertical-align", "center"), ("margin-left", "9px"),
                     ("font-family", Body), ("font-weight", "bold"), ("font-size", "15px"), ("color", Ink), ("text-overflow", "shrink"),
                     ("white-space", "nowrap"))));
         return footer;
@@ -374,7 +403,7 @@ public static class RoulettePanel
     private static UIPanel Panel => UI.Panel(Id);
 
     /// <summary>Swaps in a spin strip (a fresh id: a removed node lingers a frame) and greys the spin button.</summary>
-    public static void StartSpin(RecipientFilter to, string oldStripId, string stripId, RouletteItem[] strip, ItemCategory category)
+    public static void StartSpin(RecipientFilter to, string oldStripId, string stripId, RouletteItem[] strip, ItemCategory? category)
     {
         Panel.RemoveChild(to, oldStripId);
         Panel.AppendChild(to, "rsWindow", Strip(stripId, strip));
@@ -392,19 +421,26 @@ public static class RoulettePanel
         Panel.AppendChild(to, "rsResultBox", result);
     }
 
-    /// <summary>After the reel stops: the ring turns red for a Corrupted item; souls, the odds and the button update.</summary>
-    public static void ShowLanding(RecipientFilter to, RouletteItem landed, bool corrupted, int souls, int unowned, SpinState state)
+    /// <summary>
+    /// After the reel stops: the ring turns red for a Corrupted item (gold for a jackpot); souls, the odds lines and the
+    /// button (in the box's colour) update.
+    /// </summary>
+    public static void ShowLanding(RecipientFilter to, ItemCategory? box, bool corrupted, bool jackpot, int souls, int unowned, string oddsLine,
+                                   SpinState state)
     {
-        var update = Panel.Build().Set("rsSouls", Souls(souls)).Set("rsDraw", DrawText(unowned));
-        if (corrupted)
-            update.SetStyle("rsRing", "border", $"3px solid {HitCorrupted}")
-                  .SetStyle("rsPtrL", "background-color", HitCorrupted)
-                  .SetStyle("rsPtrR", "background-color", HitCorrupted);
-        SetSpinButton(update, landed.Category, state).SendTo(to);
+        var update = Panel.Build().Set("rsSouls", Souls(souls)).Set("rsDraw", DrawText(unowned)).Set("rsOdds", oddsLine);
+        if (corrupted || jackpot)
+        {
+            string hit = HitColor(corrupted, jackpot);
+            update.SetStyle("rsRing", "border", $"3px solid {hit}")
+                  .SetStyle("rsPtrL", "background-color", hit)
+                  .SetStyle("rsPtrR", "background-color", hit);
+        }
+        SetSpinButton(update, box, state).SendTo(to);
     }
 
     /// <summary>The soul count, and the spin button unless a spin is turning.</summary>
-    public static void UpdateSouls(RecipientFilter to, int souls, ItemCategory category, SpinState? state)
+    public static void UpdateSouls(RecipientFilter to, int souls, ItemCategory? category, SpinState? state)
     {
         var update = Panel.Build().Set("rsSouls", Souls(souls));
         if (state is { } s)
@@ -412,7 +448,7 @@ public static class RoulettePanel
         update.SendTo(to);
     }
 
-    private static UIUpdate SetSpinButton(UIUpdate update, ItemCategory category, SpinState state)
+    private static UIUpdate SetSpinButton(UIUpdate update, ItemCategory? category, SpinState state)
     {
         update.Set("rsSpinText", SpinText(state))
               .SetStyle("rsSpinCost", "visibility", state == SpinState.Ready ? "visible" : "collapse")

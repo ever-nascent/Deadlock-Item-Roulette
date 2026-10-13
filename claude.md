@@ -12,6 +12,8 @@ Turn the Curiosity Shop into a roulette machine, for a server the user hosts.
 
 \- 1% of spins come back \*\*corrupted\*\* (Deadlock's Corrupted item variant).
 
+\- Extras the user picked after the design #3 build (each a config switch in `RouletteConfig.cs`): a spin of about 2 s; the game's own UI sounds; a \*\*jackpot\*\* (`JackpotChancePercent`, default 3%: the item comes from the next tier up for the same price); \*\*Corrupted pity\*\* (`CorruptedPitySpins`, default 10: after that many spins on Corrupted-capable items without one, the next one is Corrupted; counted per player, reset on disconnect); a \*\*wildcard box\*\* (`WildcardBox`: any category at the chosen price, `!roulette any 1600`).
+
 \- \*\*Selling is disabled\*\* while the mod is on (otherwise spins can be sold back for profit).
 
 \- \*\*The normal shop is removed.\*\* The user, after Checkpoint 2: "i want the shop to be re-designed by the roulette ui altogether, the shop should not exist anymore". Changed later (the server can't close the game's shop screen): "can we use the 3rd shop design instead? it just adds something to the existing shop area which means we dont have to get rid of it or add a black screen". The game's shop stays on screen, but nothing can be bought from it or sold to it; the roulette sheet sits beside it.
@@ -114,7 +116,8 @@ The game's shop (`citadel\_hud\_hero\_shop.css`) puts its 1200-wide item page, w
 
 \- Masthead "ROULETTE SHOP / ONE SPIN · ONE ITEM · NO REFUNDS" (an X button when opened from chat, where no shop closes it).
 \- Category and price pickers. The mockup picks with the game's tabs and price boxes, but the server can't see those, so: clicking an item in the game's shop picks its box, and these buttons do too (the user's choice: "Click item + sheet buttons").
-\- A vertical reel of 5 game item cards, the middle one ringed between two pointers (red when it lands Corrupted). On a spin a 30-card strip slides 4 s and stops on the server's pick.
+\- A vertical reel of 5 game item cards, the middle one ringed between two pointers (red when it lands Corrupted, gold for a jackpot). On a spin a 20-card strip slides 1.5 s (after 0.5 s for it to reach the client) and stops on the server's pick.
+\- Sounds (`Sounds` in the config), the game's own from `soundevents/ui.vsndevts`, played to the spinning player with `controller.PlaySound`: `UI.Notify.ItemPurchase` on SPIN, `UI.ItemDraft.RevolverSpin` while the reel turns, `UI.ItemDraft.Appear.<Weapon|Vitality|Spirit>` on landing (`.Rare` for a jackpot, `.Legendary` for Corrupted), `UI.Settings.Error` when a spin can't happen, `UI.Shop.Mod.Activate[.<category>]` on the sheet's buttons. Unverified in game: that a server-sent sound plays while the shop is open.
 \- YOUR SOULS, the result ("YOU GOT", the card, name, category and price, a red CORRUPTED stamp), "RANDOM PICK · 1 OF N" (N = items not owned), the SPIN button in the category's colour with the price ("NOT ENOUGH SOULS" when the player can't afford it), and the fine print (selling disabled; 1% of 3,200 and 6,400 spins come back Corrupted).
 
 

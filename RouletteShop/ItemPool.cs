@@ -35,7 +35,10 @@ public sealed class ItemPool
 
     public int CorruptibleCount { get; }
 
-    public RouletteItem[] Get(ItemCategory category, int tier) => _items[(category, tier)].ToArray();
+    /// <summary>The items in one box: a category (or, with null, every category: the wildcard box) at one tier.</summary>
+    public RouletteItem[] Get(ItemCategory? category, int tier) => category is { } c
+        ? _items[(c, tier)].ToArray()
+        : Enum.GetValues<ItemCategory>().SelectMany(c => _items[(c, tier)]).ToArray();
 
     /// <summary>The pool item with this class name (upgrade_...), or null.</summary>
     public RouletteItem? Find(string className) => _byClass.GetValueOrDefault(className);
