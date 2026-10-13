@@ -18,6 +18,14 @@ Turn the Curiosity Shop into a roulette machine, for a server the user hosts.
 
 \- \*\*Rates mid-game\*\*: `roulette\_rate [corrupted|legendary|jackpot|pity|build] [value]` (`/roulette\_rate`, `!roulette\_rate`, `dw\_roulette\_rate`), permission `roulette.admin` (the user chose "Admins only"; grant it from the server console with `perm\_grant <player> roulette.admin`). Changes last until `dw\_reloadconfig RouletteShopPlugin` or a restart, and are announced in chat.
 
+\- \*\*More extras\*\* (the user picked them from a list, "What else could be added at this point?"), each a config switch, code in `RouletteShop/RouletteShopPlugin.Extras.cs`:
+  - Spin only at a shop (`SpinOnlyAtShop`): the hero's `m\_bInItemShopZone` (CCitadelPlayerPawn, set by the game's CTriggerItemShop zones), so spinning follows the game's buying rule; the SPIN button reads GO TO A SHOP elsewhere. Unverified: that the base shop counts.
+  - Purchase backstop (`BlockOtherPurchases`): an `EItemPurchase` soul charge the roulette didn't make (quickbuy auto-buy, say) is stopped in `OnModifyCurrency`, and an item that arrives within 2 s of it (`ability\_added` game event, `AbilityAddedEvent`) is removed. Unverified: what the game does when the charge is stopped.
+  - Imbue: an imbue item lands with keys for abilities 1-4 on the slip (`CanBeImbuedBy` greys out the ones that won't take it); a key or `!roulette\_imbue <1-4>` calls `pawn.ImbueItem`.
+  - Chat shout-outs (`ShoutOuts`) for Corrupted, Legendary and jackpot landings, and double-or-nothing wins.
+  - Free spins (`FreeSpinKillStreak`, 3): every 3 kills without dying (`player\_death`, `PlayerDeathEvent`) the next spin is free; SPIN reads FREE SPIN.
+  - Lucky hour (`LuckyHourEveryMinutes` 10, `LuckyHourMinutes` 2, `LuckyHourMultiplier` 2): Corrupted and Legendary chances multiplied, announced in chat and on the masthead; `roulette\_rate lucky <minutes>` starts one (0 ends it).
+  - Double or nothing (`DoubleOrNothingWinPercent` 50) and reroll (`RerollCostPercent` 50) buttons on the slip after a spin.
 \- Extras the user picked after the design #3 build (each a config switch in `RouletteConfig.cs`): a spin of about 2 s; the game's own UI sounds; a \*\*jackpot\*\* (`JackpotChancePercent`, default 3%: the item comes from the next tier up for the same price); \*\*Corrupted pity\*\* (`CorruptedPitySpins`, default 10: after that many spins on Corrupted-capable items without one, the next one is Corrupted; counted per player, reset on disconnect); a \*\*wildcard box\*\* (`WildcardBox`: any category at the chosen price, `!roulette any 1600`).
 
 \- \*\*Selling is disabled\*\* while the mod is on (otherwise spins can be sold back for profit).

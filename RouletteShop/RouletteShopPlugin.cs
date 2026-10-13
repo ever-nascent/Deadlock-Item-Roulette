@@ -4,7 +4,7 @@ using DeadworksManaged.Api.UI;
 
 namespace RouletteShop;
 
-public class RouletteShopPlugin : DeadworksPluginBase
+public partial class RouletteShopPlugin : DeadworksPluginBase
 {
     public override string Name => "Roulette Shop";
 
@@ -45,11 +45,15 @@ public class RouletteShopPlugin : DeadworksPluginBase
         public RouletteItem? Landed;
         public bool LandedCorrupted;
         public bool LandedJackpot;
+        public bool LandedDoubled;            // the landed item came from a double or nothing
+        public int? ImbuedSlot;               // the ability the landed item was imbued into
         public SpinOutcome? Pending;          // given and charged, reel still turning
         public string StripId = "rsStrip0";
         public string ResultId = "rsResult0";
         public int Seq;
         public int Souls = -1;
+        public RoulettePanel.SpinState? Button;   // what the SPIN button last showed
+        public int FreeShown;
     }
 
     /// <summary>The usercmd in_shop flag each player last sent (true while the game's shop screen is open), and how many times it changed.</summary>
@@ -92,9 +96,18 @@ public class RouletteShopPlugin : DeadworksPluginBase
                     Select(e.Caller, v.Category, t, Sfx.Click(v.Category));
             })
             .On("spin", e => PanelSpin(e.Caller))
+            .On("double", e => OnDouble(e.Caller))
+            .On("reroll", e => OnReroll(e.Caller))
+            .On("imbue", e =>
+            {
+                try { Imbue(e.Caller, int.TryParse(e.ArgAt(0), out var n) ? n : 0); }
+                catch (CommandException ex) { Chat.PrintToChat(e.Caller, "Roulette: " + ex.Message); }
+            })
             .On("close", e => Close(e.Caller.Slot));
         UI.ClientResync += OnClientResync;
         Timer.Every(1.Seconds(), RefreshSouls);
+        ScheduleLucky();
+        Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);
     }
 
@@ -109,6 +122,8 @@ public class RouletteShopPlugin : DeadworksPluginBase
     public override void OnConfigReloaded()
     {
         LogSettings();
+        if (_luckyUntil == null)
+            ScheduleLucky();
         RefreshSheets();
     }
 
@@ -131,6 +146,10 @@ public class RouletteShopPlugin : DeadworksPluginBase
                           + $"pity after {Config.CorruptedPitySpins} spins");
         Console.WriteLine($"[Roulette] Legendary {Config.LegendaryChancePercent}%, jackpot {Config.JackpotChancePercent}%, build items {Config.BuildWeight}x, "
                           + $"wildcard box {Config.WildcardBox}, sounds {Config.Sounds}");
+        Console.WriteLine($"[Roulette] Spin only at a shop {Config.SpinOnlyAtShop}, block other purchases {Config.BlockOtherPurchases}, "
+                          + $"shout-outs {Config.ShoutOuts}, free spin every {Config.FreeSpinKillStreak} kills, lucky hour every "
+                          + $"{Config.LuckyHourEveryMinutes} min for {Config.LuckyHourMinutes} min ({Config.LuckyHourMultiplier}x), "
+                          + $"double or nothing {Config.DoubleOrNothingWinPercent}%, reroll {Config.RerollCostPercent}% of the price");
     }
 
     public override void OnClientDisconnect(ClientDisconnectedEvent args)
@@ -139,6 +158,12 @@ public class RouletteShopPlugin : DeadworksPluginBase
         _inShop.Remove(args.Slot);
         _pityMisses.Remove(args.Slot);
         _builds.Remove(args.Slot);
+        _streaks.Remove(args.Slot);
+        _freeSpins.Remove(args.Slot);
+        _lastImbue.Remove(args.Slot);
+        _strays.Remove(args.Slot);
+        _granted.Remove(args.Slot);
+        _blockedPurchase.Remove(args.Slot);
     }
 
     [Command("hello", Description = "Say hello")]
@@ -177,16 +202,23 @@ public class RouletteShopPlugin : DeadworksPluginBase
         if (category == null || price == null)
             throw new CommandException("Usage: " + SpinUsage);
 
-        var spin = Spin(controller, cat, tier);
+        bool free = _freeSpins.GetValueOrDefault(controller.Slot) > 0;
+        var spin = Spin(controller, cat, tier, charge: free ? 0 : null);
+        if (free)
+            _freeSpins[controller.Slot]--;
         PlayLanding(controller, spin);
+        if (spin.Item.Imbue)
+            _lastImbue[controller.Slot] = spin.Item.ClassName;
         caller.Reply($"Roulette: you got {(spin.Corrupted ? "CORRUPTED " : "")}{(spin.Item.Legendary ? "LEGENDARY " : "")}{spin.Item.Name}"
-                     + $"{(spin.Jackpot ? " (JACKPOT: one tier up)" : "")} ({BoxName(cat)}, {price}).");
+                     + $"{(spin.Jackpot ? " (JACKPOT: one tier up)" : "")} ({BoxName(cat)}, {(free ? "free spin" : price.ToString())})."
+                     + (spin.Item.Imbue ? " Imbue it with !roulette_imbue <1-4>." : ""));
+        ShoutOut(controller, spin.Item, spin.Corrupted, spin.Jackpot);
         if (_viewers.TryGetValue(controller.Slot, out var v) && v.Pending == null)
             Render(controller, v);
     }
 
     [Command("roulette_rate", Description = "Show or change the roulette's odds until the config is reloaded: "
-                                            + "roulette_rate [corrupted|legendary|jackpot|pity|build] [value]", Permission = "roulette.admin")]
+                                            + "roulette_rate [corrupted|legendary|jackpot|pity|build|lucky] [value]", Permission = "roulette.admin")]
     public void CmdRate(Caller caller, string? name = null, double? value = null)
     {
         if (name == null)
@@ -195,7 +227,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
             return;
         }
         if (value is not { } x)
-            throw new CommandException("Usage: roulette_rate <corrupted|legendary|jackpot|pity|build> <value>");
+            throw new CommandException("Usage: roulette_rate <corrupted|legendary|jackpot|pity|build|lucky> <value>");
         static double Percent(double x) => x is >= 0 and <= 100 ? x : throw new CommandException("A chance is 0 to 100 (percent).");
         switch (name.ToLowerInvariant())
         {
@@ -208,8 +240,16 @@ public class RouletteShopPlugin : DeadworksPluginBase
             case "build":
                 Config.BuildWeight = x >= 1 ? x : throw new CommandException("The build weight is 1 (no difference) or more.");
                 break;
+            case "lucky":
+                // A lucky hour now, for x minutes (0 ends one).
+                if (x > 0)
+                    StartLucky(x);
+                else if (_luckyUntil != null)
+                    EndLucky();
+                Console.WriteLine($"[Roulette] {caller.Name} set lucky to {x}");
+                return;
             default:
-                throw new CommandException("Rates: corrupted, legendary, jackpot, pity, build.");
+                throw new CommandException("Rates: corrupted, legendary, jackpot, pity, build, lucky (minutes).");
         }
         Console.WriteLine($"[Roulette] {caller.Name} set {name} to {x}");
         Chat.PrintToChatAll("Roulette: " + RatesSummary());
@@ -218,25 +258,29 @@ public class RouletteShopPlugin : DeadworksPluginBase
 
     private string RatesSummary()
         => $"Corrupted {Config.CorruptedChancePercent:0.##}% (pity {Config.CorruptedPitySpins}), Legendary {Config.LegendaryChancePercent:0.##}%, "
-           + $"jackpot {Config.JackpotChancePercent:0.##}%, build items {Config.BuildWeight:0.##}x";
+           + $"jackpot {Config.JackpotChancePercent:0.##}%, build items {Config.BuildWeight:0.##}x"
+           + (Lucky ? $", LUCKY HOUR ({Config.LuckyHourMultiplier:0.#}x Corrupted and Legendary)" : "");
 
     /// <summary>
     /// The whole server-side spin: checks souls, rolls an item the player doesn't own (items in their build likelier; now
     /// and then a Legendary, or one from the tier above: the jackpot; maybe Corrupted), gives it, then takes the flat tier
-    /// price. A null category is the wildcard box.
-    /// Throws <see cref="CommandException"/> with a message for the player when it can't.
+    /// price (or <paramref name="charge"/>: 0 for a free spin, the fee for a reroll, which never lands <paramref name="exclude"/>).
+    /// A null category is the wildcard box. Throws <see cref="CommandException"/> with a message for the player when it can't.
     /// </summary>
-    private SpinOutcome Spin(CCitadelPlayerController controller, ItemCategory? category, int tier, RouletteItem[]? reel = null)
+    private SpinOutcome Spin(CCitadelPlayerController controller, ItemCategory? category, int tier, RouletteItem[]? reel = null,
+                             int? charge = null, RouletteItem? exclude = null)
     {
         var pawn = controller.GetHeroPawn() ?? throw new CommandException("You need a hero to spin.");
-        int price = ItemPool.TierPrices[tier - 1];
+        if (!AtShop(pawn))
+            throw new CommandException("Spin at a shop: walk into a shop zone first, like buying.");
+        int price = charge ?? ItemPool.TierPrices[tier - 1];
         int souls = pawn.GetCurrency(ECurrencyType.EGold);
         if (souls < price)
-            throw new CommandException($"Not enough souls: you have {souls}, a spin costs {price}.");
+            throw new CommandException($"Not enough souls: you have {souls}, {(exclude != null ? "a reroll" : "a spin")} costs {price}.");
 
         // AddItem gives duplicates, which the normal shop never does, so only roll items the player doesn't have.
         var pool = _pool.Get(category, tier);
-        var candidates = pool.Where(i => !Owns(pawn, i)).ToArray();
+        var candidates = pool.Where(i => !Owns(pawn, i) && i != exclude).ToArray();
         if (candidates.Length == 0)
             throw new CommandException(category == null ? $"You already own every item at {price}." : $"You already own every {category} item at {price}.");
 
@@ -247,11 +291,11 @@ public class RouletteShopPlugin : DeadworksPluginBase
         // Brawl only and may refuse them: then the spin carries on with a normal item.
         RouletteItem? item = null;
         CCitadelBaseAbility? given = null;
-        if (Random.Shared.NextDouble() * 100 < Config.LegendaryChancePercent
-            && _pool.Legendaries(category).Where(i => !Owns(pawn, i)).ToArray() is { Length: > 0 } legends)
+        if (Random.Shared.NextDouble() * 100 < LegendaryChance
+            && _pool.Legendaries(category).Where(i => !Owns(pawn, i) && i != exclude).ToArray() is { Length: > 0 } legends)
         {
             var legend = Pick(legends, build);
-            given = pawn.AddItem(legend.ClassName);
+            given = Granting(() => pawn.AddItem(legend.ClassName));
             if (given != null)
                 item = legend;
             else
@@ -262,7 +306,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
         bool jackpot = false;
         if (item == null && tier < ItemPool.TierPrices.Length && Random.Shared.NextDouble() * 100 < Config.JackpotChancePercent)
         {
-            var up = _pool.Get(category, tier + 1).Where(i => !Owns(pawn, i)).ToArray();
+            var up = _pool.Get(category, tier + 1).Where(i => !Owns(pawn, i) && i != exclude).ToArray();
             if (up.Length > 0)
             {
                 candidates = up;
@@ -276,13 +320,14 @@ public class RouletteShopPlugin : DeadworksPluginBase
         int slot = controller.Slot;
         int misses = _pityMisses.GetValueOrDefault(slot);
         bool canCorrupt = item.Corruptible && Config.CorruptedEnabled;
-        bool corrupted = canCorrupt && (Config.ForceCorrupted || Random.Shared.NextDouble() * 100 < Config.CorruptedChancePercent);
+        bool corrupted = canCorrupt && (Config.ForceCorrupted || Random.Shared.NextDouble() * 100 < CorruptedChance);
         bool pity = canCorrupt && !corrupted && Config.CorruptedPitySpins > 0 && misses + 1 >= Config.CorruptedPitySpins;
         corrupted |= pity;
 
         // Give first and charge only if that worked, so a failed spin never costs souls.
-        given ??= pawn.AddItem(item.ClassName)
+        given ??= Granting(() => pawn.AddItem(item.ClassName))
                   ?? throw new CommandException($"Couldn't give you {item.Name}. No souls were taken.");
+        NoteGranted(slot, item.ClassName);
 
         // The game's own SetUpgradeBits; whether it applies the Corrupted bonuses and drawback is checked in game.
         string corruptedNote = "";
@@ -294,11 +339,13 @@ public class RouletteShopPlugin : DeadworksPluginBase
         }
 
         // The shop's own spend path (counted as souls spent), not a raw SetCurrency write.
-        pawn.ModifyCurrency(ECurrencyType.EGold, -price, ECurrencySource.EItemPurchase);
+        if (price > 0)
+            Granting(() => pawn.ModifyCurrency(ECurrencyType.EGold, -price, ECurrencySource.EItemPurchase));
         if (canCorrupt)
             _pityMisses[slot] = corrupted ? 0 : misses + 1;
 
-        Console.WriteLine($"[Roulette] {controller.PlayerName} spun {BoxName(category)} {price} -> {item.ClassName}{corruptedNote}"
+        Console.WriteLine($"[Roulette] {controller.PlayerName} {(exclude != null ? $"rerolled {exclude.ClassName}," : "spun")} {BoxName(category)} {ItemPool.TierPrices[tier - 1]}"
+                          + $"{(charge == 0 ? " (free spin)" : charge != null ? $" (paid {charge})" : "")} -> {item.ClassName}{corruptedNote}"
                           + $"{(pity ? " (pity)" : "")}{(jackpot ? " JACKPOT (tier up)" : "")}{(item.Legendary ? " LEGENDARY" : "")}"
                           + $"{(build.Contains(item.Id) ? " (in their build)" : "")} ({candidates.Length} unowned in pool)");
         Console.WriteLine($"[Roulette] before: {before} | after: {Snapshot(controller, pawn)}");
@@ -377,8 +424,8 @@ public class RouletteShopPlugin : DeadworksPluginBase
     private string RatesLine()
     {
         var parts = new List<string>();
-        if (Config.LegendaryChancePercent > 0)
-            parts.Add($"{Config.LegendaryChancePercent:0.##}% Legendary");
+        if (LegendaryChance > 0)
+            parts.Add($"{LegendaryChance:0.##}% Legendary");
         if (Config.JackpotChancePercent > 0)
             parts.Add($"{Config.JackpotChancePercent:0.##}% jackpot (tier up)");
         return parts.Count == 0 ? "Selling is disabled while Roulette Shop is on" : "No selling · " + string.Join(" · ", parts);
@@ -389,7 +436,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
     {
         if (!Config.CorruptedEnabled)
             return "Corrupted spins are off";
-        string odds = $"{Config.CorruptedChancePercent:0.##}% Corrupted at 3,200 and 6,400";
+        string odds = $"{CorruptedChance:0.##}% Corrupted at 3,200 and 6,400";
         if (Config.CorruptedPitySpins <= 0)
             return odds;
         int left = Math.Max(1, Config.CorruptedPitySpins - _pityMisses.GetValueOrDefault(slot));
@@ -505,9 +552,12 @@ public class RouletteShopPlugin : DeadworksPluginBase
         v.ResultId = "rsResult0";
         v.Seq = 0;
 
+        v.Button = ButtonState(controller, v);
+        v.FreeShown = _freeSpins.GetValueOrDefault(controller.Slot);
         var view = new RoulettePanel.View(v.Category, v.Tier, v.Souls, v.Reel, v.ViaShopKey, Config.WildcardBox,
                                           DrawLine(controller, v.Category, v.Tier), RatesLine(), OddsLine(controller.Slot),
-                                          v.Landed, v.LandedCorrupted, v.LandedJackpot);
+                                          v.Landed, v.LandedCorrupted, v.LandedJackpot, v.Button.Value, v.FreeShown, Lucky,
+                                          Landing(controller, v));
         UI.Panel(RoulettePanel.Id).BuildLayout(controller.Recipients, RoulettePanel.Layout(view));
     }
 
@@ -517,6 +567,8 @@ public class RouletteShopPlugin : DeadworksPluginBase
         v.Landed = outcome.Item;
         v.LandedCorrupted = outcome.Corrupted;
         v.LandedJackpot = outcome.Jackpot;
+        v.LandedDoubled = false;
+        v.ImbuedSlot = null;
         v.Reel = outcome.Strip[(RoulettePanel.Winner - 2)..(RoulettePanel.Winner + 3)];
     }
 
@@ -534,12 +586,17 @@ public class RouletteShopPlugin : DeadworksPluginBase
         Render(controller, v);
     }
 
-    private void PanelSpin(CCitadelPlayerController controller)
+    /// <summary>
+    /// A spin from the sheet: a free one if a kill streak earned it, or a <paramref name="reroll"/> of the last item for
+    /// <paramref name="fee"/> (the item goes back once the new one is given).
+    /// </summary>
+    private void PanelSpin(CCitadelPlayerController controller, RouletteItem? reroll = null, int fee = 0)
     {
         int slot = controller.Slot;
         if (!_viewers.TryGetValue(slot, out var v) || v.Pending != null)
             return;
         var to = controller.Recipients;
+        bool free = reroll == null && _freeSpins.GetValueOrDefault(slot) > 0;
 
         // Start from a clean panel when the last result is still on show (it un-dims the pool and marks the new owned item).
         if (v.Landed != null)
@@ -551,7 +608,7 @@ public class RouletteShopPlugin : DeadworksPluginBase
         SpinOutcome outcome;
         try
         {
-            outcome = Spin(controller, v.Category, v.Tier, v.Reel);
+            outcome = Spin(controller, v.Category, v.Tier, v.Reel, reroll != null ? fee : free ? 0 : null, reroll);
         }
         catch (CommandException ex)
         {
@@ -559,6 +616,10 @@ public class RouletteShopPlugin : DeadworksPluginBase
             ShowResult(controller, v, id => RoulettePanel.Message(id, "Can't spin", ex.Message));
             return;
         }
+        if (free)
+            _freeSpins[slot]--;
+        if (reroll != null && controller.GetHeroPawn() is { } pawn)
+            Granting(() => pawn.RemoveItem(reroll.ClassName));
         v.Pending = outcome;
         Play(controller, Sfx.Purchase);
 
@@ -584,13 +645,18 @@ public class RouletteShopPlugin : DeadworksPluginBase
             || Players.FromSlot(slot) is not { } controller)
             return;
         Settle(v, outcome);
+        if (outcome.Item.Imbue)
+            _lastImbue[slot] = outcome.Item.ClassName;
 
-        ShowResult(controller, v, id => RoulettePanel.Result(id, outcome.Item, outcome.Corrupted, outcome.Jackpot));
+        ShowLandedResult(controller, v);
         PlayLanding(controller, outcome);
+        ShoutOut(controller, outcome.Item, outcome.Corrupted, outcome.Jackpot);
 
         v.Souls = controller.GetHeroPawn()?.GetCurrency(ECurrencyType.EGold) ?? v.Souls;
+        v.Button = ButtonState(controller, v);
+        v.FreeShown = _freeSpins.GetValueOrDefault(slot);
         RoulettePanel.ShowLanding(controller.Recipients, v.Category, outcome.Item, outcome.Corrupted, outcome.Jackpot, v.Souls,
-                                  DrawLine(controller, v.Category, v.Tier), OddsLine(slot), ReadyOrBroke(v));
+                                  DrawLine(controller, v.Category, v.Tier), OddsLine(slot), v.Button.Value, v.FreeShown);
     }
 
     /// <summary>Replaces the result card (fresh id: a removed node lingers a frame).</summary>
@@ -601,21 +667,35 @@ public class RouletteShopPlugin : DeadworksPluginBase
         v.ResultId = id;
     }
 
-    private static RoulettePanel.SpinState ReadyOrBroke(Viewer v)
-        => v.Souls < ItemPool.TierPrices[v.Tier - 1] ? RoulettePanel.SpinState.Broke : RoulettePanel.SpinState.Ready;
+    /// <summary>What the SPIN button says: turning, away from a shop, a free spin waiting, short of souls, or ready.</summary>
+    private RoulettePanel.SpinState ButtonState(CCitadelPlayerController controller, Viewer v)
+    {
+        if (v.Pending != null)
+            return RoulettePanel.SpinState.Busy;
+        if (controller.GetHeroPawn() is not { } pawn)
+            return RoulettePanel.SpinState.Broke;
+        if (!AtShop(pawn))
+            return RoulettePanel.SpinState.Away;
+        if (_freeSpins.GetValueOrDefault(controller.Slot) > 0)
+            return RoulettePanel.SpinState.Free;
+        return pawn.GetCurrency(ECurrencyType.EGold) < ItemPool.TierPrices[v.Tier - 1] ? RoulettePanel.SpinState.Broke : RoulettePanel.SpinState.Ready;
+    }
 
-    /// <summary>Keeps the open panels' soul count (and the spin button) up to date while players earn souls.</summary>
+    /// <summary>Keeps the open panels' soul count and SPIN button up to date (souls earned, a shop zone entered, a free spin earned).</summary>
     private void RefreshSouls()
     {
         foreach (var (slot, v) in _viewers)
         {
             if (Players.FromSlot(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
                 continue;
-            int souls = pawn.GetCurrency(ECurrencyType.EGold);
-            if (souls == v.Souls)
+            int souls = pawn.GetCurrency(ECurrencyType.EGold), free = _freeSpins.GetValueOrDefault(slot);
+            var state = ButtonState(controller, v);
+            if (souls == v.Souls && state == v.Button && free == v.FreeShown)
                 continue;
             v.Souls = souls;
-            RoulettePanel.UpdateSouls(controller.Recipients, souls, v.Category, v.Pending == null ? ReadyOrBroke(v) : null);
+            v.Button = state;
+            v.FreeShown = free;
+            RoulettePanel.UpdateSouls(controller.Recipients, souls, v.Category, v.Pending == null ? state : null, free);
         }
     }
 
@@ -710,7 +790,17 @@ public class RouletteShopPlugin : DeadworksPluginBase
             return HookResult.Stop;
         }
         if (e.Source == ECurrencySource.EItemPurchase)
-            Console.WriteLine($"[Roulette] souls EItemPurchase {e.Amount} for {e.Pawn.Controller?.PlayerName}");
+        {
+            if (_granting)
+                return HookResult.Continue;
+            // A purchase that got past the buy block (quickbuy auto-buy, say): no souls, and its item is taken back.
+            Console.WriteLine($"[Roulette] souls EItemPurchase {e.Amount} for {e.Pawn.Controller?.PlayerName}, not from a spin");
+            if (Config.BlockOtherPurchases && e.Pawn.Controller is { } buyer)
+            {
+                PurchaseBlocked(buyer.Slot);
+                return HookResult.Stop;
+            }
+        }
         return HookResult.Continue;
     }
 }

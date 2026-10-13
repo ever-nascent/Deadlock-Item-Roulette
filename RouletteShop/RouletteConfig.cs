@@ -42,4 +42,34 @@ public class RouletteConfig
 
     /// <summary>Whether the roulette plays the game's UI sounds (to the spinning player only).</summary>
     public bool Sounds { get; set; } = true;
+
+    /// <summary>Spinning works only in a shop zone, like buying (the hero's m_bInItemShopZone). The sheet still opens anywhere.</summary>
+    public bool SpinOnlyAtShop { get; set; } = true;
+
+    /// <summary>
+    /// Backstop for purchases that get past the buy block (quickbuy auto-buy, say): their soul charge is stopped and the item
+    /// they gave is taken back.
+    /// </summary>
+    public bool BlockOtherPurchases { get; set; } = true;
+
+    /// <summary>Everyone sees a chat line when someone lands a Corrupted, Legendary or jackpot item.</summary>
+    public bool ShoutOuts { get; set; } = true;
+
+    /// <summary>Kills in a row (without dying) that earn a free spin at the chosen price. 0 turns it off.</summary>
+    public int FreeSpinKillStreak { get; set; } = 3;
+
+    /// <summary>Lucky hour: about every this many minutes, Corrupted and Legendary chances are multiplied. 0 turns it off.</summary>
+    public double LuckyHourEveryMinutes { get; set; } = 10;
+
+    /// <summary>How long a lucky hour lasts, in minutes.</summary>
+    public double LuckyHourMinutes { get; set; } = 2;
+
+    /// <summary>What a lucky hour multiplies the Corrupted and Legendary chances by.</summary>
+    public double LuckyHourMultiplier { get; set; } = 2;
+
+    /// <summary>Double or nothing after a spin: the chance, in percent, that the item becomes one from the tier above (else it's gone). 0 turns it off.</summary>
+    public double DoubleOrNothingWinPercent { get; set; } = 50;
+
+    /// <summary>A reroll (give back the last spin's item and spin again) costs this percent of the spin price. 0 turns it off.</summary>
+    public double RerollCostPercent { get; set; } = 50;
 }

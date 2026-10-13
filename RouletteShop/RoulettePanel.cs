@@ -115,7 +115,14 @@ public static class RoulettePanel
     /// </summary>
     public sealed record View(
         ItemCategory? Category, int Tier, int Souls, RouletteItem[] Reel, bool ViaShopKey, bool Wildcard,
-        string DrawLine, string RatesLine, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot);
+        string DrawLine, string RatesLine, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot,
+        SpinState Button, int FreeSpins, bool Lucky, Landing? LandedAs = null);
+
+    /// <summary>
+    /// What can be done with the item a spin just gave: bet it (double or nothing), reroll it for RerollCost souls, imbue it
+    /// (ImbueSlots: which of abilities 1-4 take it; ImbuedSlot once done). Doubled: it came from a double or nothing.
+    /// </summary>
+    public sealed record Landing(bool Double, int RerollCost, bool[]? ImbueSlots, int? ImbuedSlot, bool Doubled = false);
 
     // ─── the sheet ────────────────────────────────────────────────────────────
 
@@ -138,7 +145,7 @@ public static class RoulettePanel
                         ("background-repeat", "no-repeat"), ("box-shadow", "0px 6px 18px #00000099"))
             .WithHoverStyle("opacity", "1")
             .Add(Layer(SheetWidth, SheetHeight, PrintOverlay, 0.55),   // first, so it sits under everything (and their clicks)
-                 Mast(v.Category, closable: !v.ViaShopKey),
+                 Mast(v.Category, closable: !v.ViaShopKey, v.Lucky),
                  Categories(v.Category, v.Wildcard),
                  Prices(v.Tier),
                  Reel(v, hit),
@@ -148,7 +155,7 @@ public static class RoulettePanel
                          ("box-shadow", "2px 4px 6px #00000066"), ("transform", "rotateZ(-0.6deg)"))
                      .Add(Layer(SideWidth, 411, SlipPaper, 0.45),
                           Layer(SideWidth, 411, PaperWear(1)),
-                          v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot) : Placeholder("rsResult0")),
+                          v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot, v.LandedAs) : Placeholder("rsResult0")),
                  UI.Label("rsDraw", v.DrawLine).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5).Worn()
                      .WithStyles(("text-align", "center"), ("text-overflow", "shrink"), ("white-space", "nowrap")),
                  SpinButton(v),
@@ -160,15 +167,18 @@ public static class RoulettePanel
         => corrupted ? HitCorrupted : legendary ? HitLegendary : jackpot ? HitJackpot : Mint;
 
     /// <summary>The masthead: slate, the category's brush stroke across it, the name in worn cream ink.</summary>
-    private static UINode Mast(ItemCategory? category, bool closable)
+    public static string MastLine(bool lucky) => lucky ? "LUCKY HOUR · BETTER RARE ODDS" : "ONE SPIN · ONE ITEM · NO REFUNDS";
+
+    private static UINode Mast(ItemCategory? category, bool closable, bool lucky)
     {
         var mast = UI.Container("rsMast").At(18, 20, 408, 85).WithStyles(("background-color", Black), ("background-image", $"url(\"{Slate}\")"),
                 ("background-size", "cover"), ("box-shadow", "2px 3px 0px #00000059")).Add(
             Layer(408, 85, Brush(category), 0.95),
             UI.Label("", "ROULETTE SHOP").At(0, 13, 408, 39).Font(Display, 38, Cream, 1).Worn()
                 .WithStyles(("text-align", "center"), ("line-height", "39px"), ("text-shadow", "2px 3px 0px #000000cc")),
-            UI.Label("", "ONE SPIN · ONE ITEM · NO REFUNDS").At(0, 58, 408, 15).Font(Body, 14, Cream, 3).Worn()
-                .WithStyles(("text-align", "center"), ("line-height", "15px"), ("opacity", "0.85")));
+            UI.Label("rsMastLine", MastLine(lucky)).At(0, 58, 408, 15).Font(Body, 14, lucky ? HitJackpot : Cream, 3).Worn()
+                .WithStyles(("text-align", "center"), ("line-height", "15px"), ("opacity", lucky ? "1" : "0.85"), ("text-overflow", "shrink"),
+                            ("white-space", "nowrap")));
         // Opened from chat there is no shop to close it, so it gets a button of its own.
         if (closable)
             mast.Add(UI.Button("rsClose", "").OnClick("close").At(370, 8, 30, 30)
@@ -358,7 +368,7 @@ public static class RoulettePanel
         UI.Label("", body).WithStyles(("width", "100%"), ("text-align", "center"), ("font-family", Body), ("font-weight", "semi-bold"),
             ("font-size", "18px"), ("line-height", "23px"), ("color", Ink))));
 
-    public static UINode Result(string id, RouletteItem item, bool corrupted, bool jackpot = false)
+    public static UINode Result(string id, RouletteItem item, bool corrupted, bool jackpot = false, Landing? landing = null)
     {
         var pal = Colors(item.Category);
         // The price on worn tape: the item's shop price, or (tier 5 has no price here) its tier.
@@ -368,58 +378,112 @@ public static class RoulettePanel
         else
             tape.Add(Price("", Souls(ItemPool.TierPrices[item.Tier - 1]), 23));
 
-        // The card, on the shop's holographic Legendary sticker for a Legendary, with its UPGRADE ribbon for a jackpot.
-        var card = Card("", item, 112, corrupted, wear: 3).WithStyles(("horizontal-align", "center"), ("vertical-align", "center"),
-                                                                     ("transform", "rotateZ(-3deg)"), ("box-shadow", "0px 6px 14px #00000073"));
+        // The card (smaller when there are buttons under it), on the shop's holographic Legendary sticker for a
+        // Legendary, with its UPGRADE ribbon for a jackpot, and the rubber stamps across its foot.
+        bool actions = landing is { } l && (l.Double || l.RerollCost > 0 || l.ImbueSlots != null || l.ImbuedSlot != null);
+        double cw = actions ? 100 : 112, ch = Math.Round(cw * 128 / 82);
+        var card = Card("", item, cw, corrupted, wear: 3).WithStyles(("horizontal-align", "center"), ("vertical-align", "top"),
+                                                                    ("margin-top", "4px"), ("transform", "rotateZ(-3deg)"),
+                                                                    ("box-shadow", "0px 6px 14px #00000073"));
         if (jackpot)
-            card.Add(UI.Image("", UpgradeSticker).At(112 - 56, 0, 56, 54));
-        var holder = UI.Container().WithStyles(("width", "200px"), ("height", "187px"), ("horizontal-align", "center"), ("margin-bottom", "4px"));
+            card.Add(UI.Image("", UpgradeSticker).At(cw - 50, 0, 50, 48));
+        var holder = UI.Container().WithStyles(("width", "240px"), ("height", Px(ch + 14)), ("horizontal-align", "center"));
         if (item.Legendary)
-            holder.Add(UI.Image("", HoloDisc).WithStyles(("width", "186px"), ("height", "186px"), ("horizontal-align", "center"),
+            holder.Add(UI.Image("", HoloDisc).WithStyles(("width", Px(ch + 8)), ("height", Px(ch + 8)), ("horizontal-align", "center"),
                                                          ("vertical-align", "center"), ("opacity", "0.9")));
         holder.Add(card);
+        var stamps = new List<UIContainer>();
+        if (item.Legendary)
+            stamps.Add(Stamp(Amber, 18, "LEGENDARY", null));
+        if (corrupted)
+            stamps.Add(Stamp(Red, 15, "CORRUPTED", CorruptedIcon));
+        if (jackpot)
+            stamps.Add(Stamp(Gold, 15, "JACKPOT", null));
+        if (landing?.Doubled == true)
+            stamps.Add(Stamp(Gold, 15, "DOUBLED", null));
+        if (stamps.Count > 0)
+        {
+            var row = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("vertical-align", "bottom"));
+            for (int k = 0; k < stamps.Count; k++)
+                row.Add(stamps[k].WithStyle("margin-left", k == 0 ? "0px" : "6px"));
+            holder.Add(row);
+        }
+
         var body = ResultBody().Add(
             holder,
-            ItemName(item.Name),
-            UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "11px")).Add(
+            ItemName(item.Name).WithStyle("margin-top", "4px"),
+            UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "8px")).Add(
                 UI.Label("", Slug(item.Category)).Font(Display, 19, pal.Deep, 1).Worn().WithStyle("vertical-align", "center"),
                 tape));
-        // Rubber stamps: CORRUPTED, and JACKPOT for an item from the tier above; smaller and shorter when there are both.
-        // A Legendary (never Corrupted, never a jackpot) gets its own.
-        if (item.Legendary)
-            body.Add(UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "13px"))
-                .Add(Stamp(Amber, 22, "LEGENDARY", null)));
-        else if (corrupted || jackpot)
+        if (landing is { } a)
         {
-            bool both = corrupted && jackpot;
-            double size = both ? 14 : 22;
-            var stamps = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "13px"));
-            if (corrupted)
-                stamps.Add(Stamp(Red, size, "CORRUPTED", CorruptedIcon));
-            if (jackpot)
-                stamps.Add(Stamp(Gold, size, both ? "JACKPOT" : "JACKPOT · TIER UP", null).WithStyle("margin-left", both ? "8px" : "0px"));
-            body.Add(stamps);
+            if (a.Double || a.RerollCost > 0)
+            {
+                var bets = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "10px"));
+                if (a.Double)
+                    bets.Add(ActionButton("rsDouble", "double", null, "DOUBLE OR NOTHING", 136));
+                if (a.RerollCost > 0)
+                    bets.Add(ActionButton("rsReroll", "reroll", null, $"REROLL {Souls(a.RerollCost)}", 112).WithStyle("margin-left", a.Double ? "8px" : "0px"));
+                body.Add(bets);
+            }
+            if (a.ImbuedSlot is { } done)
+                body.Add(UI.Label("", $"IMBUED INTO ABILITY {done}").Font(Body, 14, Ink, 2).Worn()
+                    .WithStyles(("horizontal-align", "center"), ("margin-top", "10px")));
+            else if (a.ImbueSlots is { } slots)
+            {
+                var imbue = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "8px")).Add(
+                    UI.Label("", "IMBUE INTO").Font(Body, 13, Ink, 2).Worn().WithStyles(("vertical-align", "center"), ("margin-right", "8px")));
+                for (int k = 0; k < slots.Length; k++)
+                    imbue.Add(ImbueKey(k + 1, slots[k]));
+                body.Add(imbue);
+            }
         }
         return ResultFrame(id, "YOU GOT", body);
+    }
+
+    /// <summary>A small button on the slip: worn tape, cream worn type.</summary>
+    private static UINode ActionButton(string id, string evt, string? arg, string text, double width)
+    {
+        var button = UI.Button(id, "").WithStyles(("width", Px(width)), ("height", "32px"), ("background-image", $"url(\"{WornTape}\")"),
+                                                  ("background-size", "100% 100%"), ("transform", "rotateZ(-1deg)"))
+            .WithHoverStyle("brightness", "1.25");
+        if (arg == null)
+            button.OnClick(evt);
+        else
+            button.OnClick(evt, arg);
+        return button.Add(UI.Label("", text).Font(Display, 13, Cream, 1).Centered().Worn()
+            .WithStyles(("text-overflow", "shrink"), ("white-space", "nowrap")));
+    }
+
+    /// <summary>One of the four ability keys for imbuing: a paper key, greyed out for an ability that won't take the item.</summary>
+    private static UINode ImbueKey(int n, bool takes)
+    {
+        var face = UI.Label("", n.ToString()).Font(Display, 17, Ink).Centered();
+        (string, string)[] look = [("width", "30px"), ("height", "30px"), ("margin-left", "4px"), ("vertical-align", "center"),
+                                   ("background-color", Cream), ("border", $"2px solid {Ink}"), ("border-radius", "3px")];
+        return takes
+            ? UI.Button($"rsImbue{n}", "").OnClick("imbue", n.ToString()).WithStyles(look).WithHoverStyle("brightness", "1.15").Add(face)
+            : UI.Container($"rsImbue{n}").WithStyles(look).WithStyle("opacity", "0.3").Add(face);
     }
 
     /// <summary>A rubber stamp in worn ink.</summary>
     private static UIContainer Stamp(string color, double size, string text, string? icon)
     {
-        var stamp = UI.Horizontal().WithStyles(("padding", "6px 11px 4px 11px"), ("border", $"3px solid {color}"), ("border-radius", "4px"),
-                                               ("transform", "rotateZ(-4deg)")).Worn();
+        var stamp = UI.Horizontal().WithStyles(("padding", "5px 9px 3px 9px"), ("border", $"3px solid {color}"), ("border-radius", "4px"),
+                                               ("background-color", "#e7dcc3e6"), ("transform", "rotateZ(-6deg)")).Worn();
         if (icon != null)
             stamp.Add(UI.Image("", icon).WithStyles(("width", Px(size + 2)), ("height", Px(size + 2)), ("margin-right", "8px"), ("wash-color", color),
                                                     ("vertical-align", "center")));
         return stamp.Add(UI.Label("", text).Font(Display, size, color, 2).WithStyle("vertical-align", "center"));
     }
 
-    public enum SpinState { Ready, Busy, Broke }
+    /// <summary>The SPIN button: Away = not in a shop zone (when spinning needs one), Free = a free spin is waiting.</summary>
+    public enum SpinState { Ready, Busy, Broke, Away, Free }
 
     /// <summary>SPIN: slate with the category's brush stroke, the word in worn cream, and the tier's own price sticker.</summary>
     private static UINode SpinButton(View v)
     {
-        var state = v.Souls < ItemPool.TierPrices[v.Tier - 1] ? SpinState.Broke : SpinState.Ready;
+        var state = v.Button;
         return UI.Button("rsSpin", "").OnClick("spin").At(Side, 762, SideWidth, 123)
             .WithStyles(("background-color", Black), ("background-image", $"url(\"{Slate}\")"), ("background-size", "cover"),
                         ("border-radius", "4px"), ("box-shadow", "0px 6px 0px #0c0906"))
@@ -427,7 +491,7 @@ public static class RoulettePanel
             .Add(Layer(SideWidth, 123, Brush(v.Category), id: "rsSpinBrush").WithStyles(SpinBrushStyle(state)),
                  UI.Container("rsSpinFrame").At(5, 5, SideWidth - 10, 113).WithStyles(("border", $"2px solid {FrameColor(state)}"), ("border-radius", "3px")),
                  UI.Horizontal().Centered().Add(
-                     UI.Label("rsSpinText", SpinText(state)).Font(Display, 50, Cream, 2).Worn()
+                     UI.Label("rsSpinText", SpinText(state, v.FreeSpins)).Font(Display, 50, Cream, 2).Worn()
                          .WithStyles(("vertical-align", "center"), ("text-shadow", "2px 3px 0px #000000cc"))
                          .WithStyles(SpinTextStyle(state)),
                      UI.Image("rsSpinCost", PriceTag(v.Tier)).WithStyles(("width", "104px"), ("height", "64px"), ("margin-left", "10px"),
@@ -438,6 +502,8 @@ public static class RoulettePanel
     private static string FrameColor(SpinState s) => s switch
     {
         SpinState.Ready => "#eadfc64d",
+        SpinState.Free => "#9affd6b3",
+        SpinState.Away => "#eadfc626",
         SpinState.Busy => "#eadfc626",
         _ => "#ff8a7a80",
     };
@@ -445,15 +511,17 @@ public static class RoulettePanel
     /// <summary>The brush stroke: full colour when ready, drained while turning or when the player can't pay.</summary>
     private static (string, string)[] SpinBrushStyle(SpinState s) => s switch
     {
-        SpinState.Ready => [("saturation", "1"), ("opacity", "1")],
+        SpinState.Ready or SpinState.Free => [("saturation", "1"), ("opacity", "1")],
         SpinState.Busy => [("saturation", "0.3"), ("opacity", "0.6")],
         _ => [("saturation", "0"), ("opacity", "0.35")],
     };
 
-    private static string SpinText(SpinState s) => s switch
+    private static string SpinText(SpinState s, int free) => s switch
     {
         SpinState.Ready => "SPIN",
         SpinState.Busy => "SPINNING...",
+        SpinState.Away => "GO TO A SHOP",
+        SpinState.Free => free > 1 ? $"FREE SPIN X{free}" : "FREE SPIN",
         _ => "NOT ENOUGH SOULS",
     };
 
@@ -461,6 +529,8 @@ public static class RoulettePanel
     {
         SpinState.Ready => [("font-size", "50px"), ("color", Cream)],
         SpinState.Busy => [("font-size", "30px"), ("color", Cream)],
+        SpinState.Away => [("font-size", "30px"), ("color", Cream)],
+        SpinState.Free => [("font-size", "38px"), ("color", Mint)],
         _ => [("font-size", "25px"), ("color", "#ff8a7a")],
     };
 
@@ -486,7 +556,7 @@ public static class RoulettePanel
     {
         Panel.RemoveChild(to, oldStripId);
         Panel.AppendChild(to, "rsWindow", Strip(stripId, strip));
-        SetSpinButton(Panel.Build(), category, SpinState.Busy).SendTo(to);
+        SetSpinButton(Panel.Build(), category, SpinState.Busy, 0).SendTo(to);
     }
 
     /// <summary>Turns the reel until <see cref="Winner"/> sits between the pointers. Needs the strip to exist on the client first.</summary>
@@ -505,7 +575,7 @@ public static class RoulettePanel
     /// odds lines and the button (in the box's colour) update.
     /// </summary>
     public static void ShowLanding(RecipientFilter to, ItemCategory? box, RouletteItem landed, bool corrupted, bool jackpot, int souls,
-                                   string drawLine, string oddsLine, SpinState state)
+                                   string drawLine, string oddsLine, SpinState state, int freeSpins)
     {
         var update = Panel.Build().Set("rsSouls", Souls(souls)).Set("rsDraw", drawLine).Set("rsOdds", oddsLine);
         if (corrupted || jackpot || landed.Legendary)
@@ -515,21 +585,26 @@ public static class RoulettePanel
                   .SetStyle("rsPtrL", "background-color", hit)
                   .SetStyle("rsPtrR", "background-color", hit);
         }
-        SetSpinButton(update, box, state).SendTo(to);
+        SetSpinButton(update, box, state, freeSpins).SendTo(to);
     }
 
     /// <summary>The soul count, and the spin button unless a spin is turning.</summary>
-    public static void UpdateSouls(RecipientFilter to, int souls, ItemCategory? category, SpinState? state)
+    public static void UpdateSouls(RecipientFilter to, int souls, ItemCategory? category, SpinState? state, int freeSpins)
     {
         var update = Panel.Build().Set("rsSouls", Souls(souls));
         if (state is { } s)
-            SetSpinButton(update, category, s);
+            SetSpinButton(update, category, s, freeSpins);
         update.SendTo(to);
     }
 
-    private static UIUpdate SetSpinButton(UIUpdate update, ItemCategory? category, SpinState state)
+    /// <summary>The draw line and the odds lines (after a bet, or when a lucky hour starts or ends).</summary>
+    public static void UpdateLines(RecipientFilter to, string drawLine, string ratesLine, string oddsLine, bool lucky)
+        => Panel.Build().Set("rsDraw", drawLine).Set("rsRates", ratesLine).Set("rsOdds", oddsLine).Set("rsMastLine", MastLine(lucky))
+            .SetStyle("rsMastLine", "color", lucky ? HitJackpot : Cream).SendTo(to);
+
+    private static UIUpdate SetSpinButton(UIUpdate update, ItemCategory? category, SpinState state, int freeSpins)
     {
-        update.Set("rsSpinText", SpinText(state))
+        update.Set("rsSpinText", SpinText(state, freeSpins))
               .SetStyle("rsSpinCost", "visibility", state == SpinState.Ready ? "visible" : "collapse")
               .SetStyle("rsSpinFrame", "border", $"2px solid {FrameColor(state)}");
         foreach (var (name, value) in SpinBrushStyle(state))
