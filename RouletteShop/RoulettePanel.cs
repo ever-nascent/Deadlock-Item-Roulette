@@ -11,7 +11,9 @@ namespace RouletteShop;
 /// the wildcard box, any category), a vertical reel,
 /// the soul count, the result, the SPIN button and the fine print. Art and fonts are the game's own: every path is in the
 /// game's pak01 (pak01_dir.txt) or used by its shop stylesheets, and "Retail Demo" / "Radiance" are font families its
-/// stylesheets name.
+/// stylesheets name. Textures as the shop uses them: its price stickers (pricetag_tierN, citadel_shop_mods_filtered.css),
+/// its printed category labels and brush-stroke headers, paper wear on every card (citadel_shop_mod_view.css), worn tape,
+/// slate, and the speckled ink of its text (opacity-mask text_speckle_mask_main).
 /// </summary>
 public static class RoulettePanel
 {
@@ -42,11 +44,29 @@ public static class RoulettePanel
     private const string Amber = "#c2600a", HitLegendary = "#ff9b2f", LegendaryTag = "#c27a12";
     private const string Display = "Retail Demo", Body = "Radiance";
 
-    private const string SoulIcon = "s2r://panorama/images/hud/icons/icon_soul.vsvg";
-    private const string CorruptedIcon = "s2r://panorama/images/hud/icons/icon_corrupted_souls.vsvg";
-    private const string CorruptedFrame = "s2r://panorama/images/shop/corrupted_items/item_frame_corrupted_psd.vtex";
-    private const string SheetPaper = "s2r://panorama/images/shop/catalog/catalog_shop_filter_bg_psd.vtex";
-    private const string SlipPaper = "s2r://panorama/images/shop/catalog/cards/shopitem_papertexture01_psd.vtex";
+    private const string Img = "s2r://panorama/images/";
+    private const string CorruptedIcon = Img + "hud/icons/icon_corrupted_souls.vsvg";
+    private const string CorruptedFrame = Img + "shop/corrupted_items/item_frame_corrupted_psd.vtex";
+    private const string SheetPaper = Img + "shop/catalog/catalog_shop_filter_bg_psd.vtex";
+    private const string SlipPaper = Img + "shop/catalog/cards/shopitem_papertexture01_psd.vtex";
+    private const string PrintOverlay = Img + "shop/print_screen_overlay_psd.vtex";
+    private const string Slate = Img + "main_menu/slate_texture_png.vtex";
+    private const string Speckle = Img + "main_menu/text_speckle_mask_main_psd.vtex";
+    private const string WornTape = Img + "shop/catalog/filters/filter_nav_backer_psd.vtex";
+    private const string CategoryLabels = Img + "shop/catalog/filters/shop_filtered_tree_header_full_psd.vtex";
+    private const string PriceGlyph = Img + "shop/catalog/price_currency_psd.vtex";
+    private const string UpgradeSticker = Img + "shop/catalog/sticker_discount_psd.vtex";
+    private const string HoloDisc = Img + "shop/catalog/pricetag_legendary_psd.vtex";
+    private const string BlankCard = Img + "shop/card_backer_psd.vtex";
+
+    /// <summary>The shop's price sticker for a tier (each one has its price printed on it).</summary>
+    private static string PriceTag(int tier) => $"{Img}shop/catalog/pricetag_tier{tier}_psd.vtex";
+
+    /// <summary>One of the shop's four paper-wear overlays for its item cards.</summary>
+    private static string PaperWear(int n) => $"{Img}shop/catalog/cards/shopitem_paperwear0{1 + n % 4}_psd.vtex";
+
+    /// <summary>The shop's brush-stroke header for a category (its tooltip headers); the wildcard box gets the Corrupted one.</summary>
+    private static string Brush(ItemCategory? c) => $"{Img}shop/catalog/catalog_tooltip_header_{(c == null ? "weapon_corrupted" : Slug(c))}_psd.vtex";
 
     /// <summary>
     /// Per-category colours (mockups/catalog.html [data-cat]); PaperX picks the category's band of the sheet paper. A null
@@ -68,9 +88,6 @@ public static class RoulettePanel
     private static string CardBacker(RouletteItem i) =>
         $"s2r://panorama/images/shop/catalog/cards/card_backer_{Slug(i.Category)}_t{Math.Min(i.Tier, 4)}_psd.vtex";
 
-    /// <summary>The game's tab icons; the wildcard box gets its "all items" tab icon.</summary>
-    private static string TabIcon(ItemCategory? c) => $"s2r://panorama/images/shop/catalog/catalog_shop_tab_icon_{(c == null ? "all" : Slug(c))}_psd.vtex";
-
     public static string Souls(int souls) => souls.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
 
     private static string Px(double v) => $"{Math.Round(v)}px";
@@ -84,6 +101,13 @@ public static class RoulettePanel
                         ("letter-spacing", $"{spacing:0.#}px"), ("text-transform", "uppercase"));
 
     private static T Centered<T>(this T n) where T : UINode => n.WithStyles(("horizontal-align", "center"), ("vertical-align", "center"));
+
+    /// <summary>The game's speckled, worn-ink print on text and stamps (its own opacity-mask).</summary>
+    private static T Worn<T>(this T n) where T : UINode => n.WithStyle("opacity-mask", $"url(\"{Speckle}\") 1");
+
+    /// <summary>A layer filling its parent with an image, stretched.</summary>
+    private static UIContainer Layer(double w, double h, string image, double opacity = 1, string id = "") => UI.Container(id).At(0, 0, w, h).WithStyles(
+        ("background-image", $"url(\"{image}\")"), ("background-size", "100% 100%"), ("opacity", $"{opacity:0.##}"));
 
     /// <summary>
     /// What one player's panel shows. Category null is the wildcard box; Wildcard says whether it is offered. DrawLine is
@@ -113,18 +137,21 @@ public static class RoulettePanel
                         ("background-size", "1452px 2182px"), ("background-position", $"{pal.PaperX}px 0px"),
                         ("background-repeat", "no-repeat"), ("box-shadow", "0px 6px 18px #00000099"))
             .WithHoverStyle("opacity", "1")
-            .Add(Mast(pal, closable: !v.ViaShopKey),
+            .Add(Layer(SheetWidth, SheetHeight, PrintOverlay, 0.55),   // first, so it sits under everything (and their clicks)
+                 Mast(v.Category, closable: !v.ViaShopKey),
                  Categories(v.Category, v.Wildcard),
-                 Prices(v.Tier, pal),
+                 Prices(v.Tier),
                  Reel(v, hit),
                  SoulsRow(v.Souls),
-                 UI.Container("rsResultBox").At(Side, 307, SideWidth, 411).WithStyles(("background-color", "#e7dcc3"),
-                         ("background-image", $"url(\"{SlipPaper}\")"), ("background-size", "100% 100%"), ("background-img-opacity", "0.5"),
-                         ("box-shadow", "2px 3px 0px #0000004d"))
-                     .Add(v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot) : Placeholder("rsResult0")),
-                 UI.Label("rsDraw", v.DrawLine).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5)
+                 // The result slip: shop card paper with the cards' wear on its edges, pinned slightly askew.
+                 UI.Container("rsResultBox").At(Side, 307, SideWidth, 411).WithStyles(("background-color", "#dccdac"),
+                         ("box-shadow", "2px 4px 6px #00000066"), ("transform", "rotateZ(-0.6deg)"))
+                     .Add(Layer(SideWidth, 411, SlipPaper, 0.45),
+                          Layer(SideWidth, 411, PaperWear(1)),
+                          v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot) : Placeholder("rsResult0")),
+                 UI.Label("rsDraw", v.DrawLine).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5).Worn()
                      .WithStyles(("text-align", "center"), ("text-overflow", "shrink"), ("white-space", "nowrap")),
-                 SpinButton(v, pal),
+                 SpinButton(v),
                  Footer(v, pal));
     }
 
@@ -132,81 +159,95 @@ public static class RoulettePanel
     private static string HitColor(bool corrupted, bool jackpot, bool legendary)
         => corrupted ? HitCorrupted : legendary ? HitLegendary : jackpot ? HitJackpot : Mint;
 
-    private static UINode Mast(Palette pal, bool closable)
+    /// <summary>The masthead: slate, the category's brush stroke across it, the name in worn cream ink.</summary>
+    private static UINode Mast(ItemCategory? category, bool closable)
     {
-        var mast = UI.Container("rsMast").At(18, 20, 408, 85).WithStyle("background-color", Black).Add(
-            UI.Container().At(5, 5, 398, 75).WithStyle("border", $"2px solid {pal.Acc}"),
-            UI.Label("", "ROULETTE SHOP").At(0, 15, 408, 37).Font(Display, 36, Cream, 1)
-                .WithStyles(("text-align", "center"), ("line-height", "37px"), ("text-shadow", $"2px 2px 0px {pal.Line}")),
-            UI.Label("", "ONE SPIN · ONE ITEM · NO REFUNDS").At(0, 57, 408, 15).Font(Body, 15, pal.Acc, 3)
-                .WithStyles(("text-align", "center"), ("line-height", "15px")));
+        var mast = UI.Container("rsMast").At(18, 20, 408, 85).WithStyles(("background-color", Black), ("background-image", $"url(\"{Slate}\")"),
+                ("background-size", "cover"), ("box-shadow", "2px 3px 0px #00000059")).Add(
+            Layer(408, 85, Brush(category), 0.95),
+            UI.Label("", "ROULETTE SHOP").At(0, 13, 408, 39).Font(Display, 38, Cream, 1).Worn()
+                .WithStyles(("text-align", "center"), ("line-height", "39px"), ("text-shadow", "2px 3px 0px #000000cc")),
+            UI.Label("", "ONE SPIN · ONE ITEM · NO REFUNDS").At(0, 58, 408, 15).Font(Body, 14, Cream, 3).Worn()
+                .WithStyles(("text-align", "center"), ("line-height", "15px"), ("opacity", "0.85")));
         // Opened from chat there is no shop to close it, so it gets a button of its own.
         if (closable)
-            mast.Add(UI.Button("rsClose", "").OnClick("close").At(368, 10, 30, 30)
-                .WithStyles(("background-color", pal.Acc), ("border-radius", "4px"))
+            mast.Add(UI.Button("rsClose", "").OnClick("close").At(370, 8, 30, 30)
+                .WithStyles(("background-color", Cream), ("border-radius", "3px"), ("transform", "rotateZ(4deg)"))
                 .WithHoverStyle("brightness", "1.2")
-                .Add(UI.Label("", "X").Font(Display, 20, Ink).Centered()));
+                .Add(UI.Label("", "X").Font(Display, 20, Ink).Centered().Worn()));
         return mast;
     }
 
-    // ─── pickers: the category (the game's tab colours and icons) and the price (black tapes, as on the page) ───
+    // ─── pickers: the shop's printed category labels, and its price stickers ───
+
+    /// <summary>
+    /// Where each category's printed label ("WEAPON  Stock up!", "Spirit  Big deal!", "Vitality  Feel good!") sits in the
+    /// shop's label strip (shop_filtered_tree_header_full, 2160x183): its left edge; each is about 700x173.
+    /// </summary>
+    private static int LabelX(ItemCategory c) => c switch { ItemCategory.Weapon => 14, ItemCategory.Spirit => 736, _ => 1450 };
+
+    private const double LabelWidth = 700, LabelHeight = 173, StripWidth = 2160, StripHeight = 183, LabelTop = 5;
 
     private static UINode Categories(ItemCategory? selected, bool wildcard)
     {
         var row = UI.Horizontal("rsTabs").At(18, 117, 408, 46);
-        var boxes = Enum.GetValues<ItemCategory>().Cast<ItemCategory?>().ToList();
-        if (wildcard)
-            boxes.Add(null);
-        const int gap = 8;
-        int width = (408 - gap * (boxes.Count - 1)) / boxes.Count;
-        foreach (var c in boxes)
+        var all = Enum.GetValues<ItemCategory>();
+        const int gap = 6, any = 54;
+        double width = wildcard ? (408 - any - gap * 3) / 3.0 : (408 - gap * 2) / 3.0;
+        double height = Math.Round(width * LabelHeight / LabelWidth), scale = width / LabelWidth;
+        foreach (var c in all)
         {
             bool on = c == selected;
-            row.Add(UI.Button("rsTab" + (c?.ToString() ?? "Any"), "").OnClick("cat", Slug(c))
-                .WithStyles(("width", Px(width)), ("height", "46px"), ("margin-right", c == boxes[^1] ? "0px" : Px(gap)), ("border-radius", "6px"),
-                            ("background-color", Colors(c).Tab), ("opacity", on ? "1" : "0.55"))
-                .WithStyles(on ? [("border", $"3px solid {Black}")] : [])
-                .WithHoverStyle("opacity", on ? "1" : "0.85")
-                .Add(UI.Vertical().Centered().Add(
-                    UI.Image("", TabIcon(c)).WithStyles(("width", "24px"), ("height", "24px"), ("horizontal-align", "center")),
-                    UI.Label("", Slug(c)).Font(Display, 12, Ink, 1).WithStyles(("horizontal-align", "center"), ("margin-top", "1px")))));
+            // The label, cropped out of the strip with background-size and -position.
+            row.Add(UI.Button("rsTab" + c, "").OnClick("cat", Slug(c))
+                .WithStyles(("width", Px(width)), ("height", Px(height)), ("vertical-align", "center"), ("margin-right", Px(gap)),
+                            ("background-image", $"url(\"{CategoryLabels}\")"), ("background-repeat", "no-repeat"),
+                            ("background-size", $"{StripWidth * scale:0.#}px {StripHeight * scale:0.#}px"),
+                            ("background-position", $"{-LabelX(c) * scale:0.#}px {-LabelTop * scale:0.#}px"),
+                            ("saturation", on ? "1" : "0.2"), ("opacity", on ? "1" : "0.75"),
+                            ("transform", on ? "scale3d(1.1, 1.1, 1) rotateZ(-2deg)" : "none"))
+                .WithStyles(on ? [("box-shadow", "0px 3px 5px #00000080")] : [])
+                .WithHoverStyle("saturation", "0.8"));
+        }
+        if (wildcard)
+        {
+            bool on = selected == null;
+            row.Add(UI.Button("rsTabAny", "").OnClick("cat", "any")
+                .WithStyles(("width", Px(any)), ("height", Px(height)), ("vertical-align", "center"), ("background-color", "#e9dcc3"),
+                            ("border", $"2px solid {Ink}"), ("opacity", on ? "1" : "0.75"),
+                            ("transform", on ? "scale3d(1.1, 1.1, 1) rotateZ(2deg)" : "rotateZ(2deg)"))
+                .WithStyles(on ? [("box-shadow", "0px 3px 5px #00000080")] : [])
+                .WithHoverStyle("opacity", "0.95")
+                .Add(UI.Label("", "ANY").Font(Display, 16, Ink, 1).Centered().Worn()));
         }
         return row;
     }
 
-    private static UINode Prices(int selected, Palette pal)
+    /// <summary>The tilt the shop gives each tier's price sticker (citadel_shop_mods_filtered.css .CostSticker).</summary>
+    private static string StickerTilt(int tier) => tier switch { 1 => "-2deg", 2 => "5deg", 3 => "-3deg", _ => "0deg" };
+
+    /// <summary>The four price buttons: the shop's own price stickers, the chosen one full colour and lifted.</summary>
+    private static UINode Prices(int selected)
     {
-        var row = UI.Horizontal("rsPrices").At(18, 175, 408, 52);
+        var row = UI.Horizontal("rsPrices").At(18, 173, 408, 64);
         for (int k = 1; k <= ItemPool.TierPrices.Length; k++)
         {
             bool on = k == selected;
             row.Add(UI.Button("rsPrice" + k, "").OnClick("tier", k.ToString())
-                .WithStyles(("width", "93px"), ("height", "42px"), ("margin-top", "5px"), ("margin-right", k < ItemPool.TierPrices.Length ? "12px" : "0px"),
-                            ("transform", on ? "translateY(-3px) scale3d(1.08, 1.08, 1)" : "scale3d(0.94, 0.94, 1)"))
-                .WithHoverStyle("brightness", on ? "1" : "1.15")
-                .Add(Tape(k, ItemPool.TierPrices[k - 1].ToString(), on ? 28 : 25, on ? Mint : "#64a58c", pal)));
+                .WithStyles(("width", "93px"), ("height", "60px"), ("margin-top", "2px"), ("margin-right", k < ItemPool.TierPrices.Length ? "12px" : "0px"),
+                            ("transform", on ? $"scale3d(1.12, 1.12, 1) rotateZ({StickerTilt(k)})" : $"scale3d(0.9, 0.9, 1) rotateZ({StickerTilt(k)})"),
+                            ("saturation", on ? "1" : "0.15"), ("brightness", on ? "1" : "0.85"))
+                .WithHoverStyle("saturation", "0.8")
+                .Add(UI.Image("", PriceTag(k)).WithStyles(("width", "100%"), ("height", "100%"),
+                    ("img-shadow", on ? "0px 3px 5px #000000aa" : "0px 1px 2px #00000066"))));
         }
         return row;
     }
 
-    /// <summary>A price label: black tape, mint number, plain to ornate by tier (the shop page's tier labels).</summary>
-    private static UINode Tape(int tier, string text, double size, string color, Palette pal)
-    {
-        var tape = UI.Container().WithStyles(("width", "100%"), ("height", "100%"), ("background-color", Black), ("transform", "rotateZ(-5deg)"));
-        tape.WithStyles(tier switch
-        {
-            1 => [("border-radius", "2px")],
-            2 => [("border-radius", "5px"), ("border", "1px solid #7d776c")],
-            3 => [("border-radius", "7px"), ("border", "2px solid #cfc7b6bf")],
-            _ => [("border-radius", "4px"), ("border-bottom", $"3px solid {pal.Acc}")],
-        });
-        return tape.Add(UI.Label("", text).Font(Display, size, color).Centered()
-            .WithStyles(("text-shadow", "0px 1px 3px #000000b3"), ("text-transform", "none")));
-    }
-
     // ─── item card, after the real shop's (backer by category and tier, icon 64%, name plate 36%) ───
 
-    public static UIContainer Card(string id, RouletteItem i, double w, bool corrupted = false)
+    /// <summary>An item card like the shop's: backer, icon, name plate, and one of its paper-wear overlays (<paramref name="wear"/>).</summary>
+    public static UIContainer Card(string id, RouletteItem i, double w, bool corrupted = false, int wear = 0)
     {
         double h = Math.Round(w * 128.0 / 82), icon = Math.Round(h * 0.640625), font = 13.0 * w / 73;
         double name = font * (i.Name.Length <= 14 ? 1 : i.Name.Length <= 19 ? 0.923 : i.Name.Length <= 22 ? 0.846 : 0.769);
@@ -242,9 +283,9 @@ public static class RoulettePanel
                 ("font-family", Display), ("font-weight", "bold"), ("font-size", Px(font * 0.615)), ("letter-spacing", "1px"),
                 ("text-align", "center"), ("border-radius", "3px")));
         }
+        card.Add(Layer(w, h, PaperWear(wear)));
         if (corrupted)
-            card.Add(UI.Container().At(0, 0, w, h).WithStyles(("background-image", $"url(\"{CorruptedFrame}\")"),
-                                                              ("background-size", "100% 100%")));
+            card.Add(Layer(w, h, CorruptedFrame));
         return card;
     }
 
@@ -254,7 +295,7 @@ public static class RoulettePanel
     {
         int middle = 13 + 2 * Step, ring = middle - 6;
         return UI.Container("rsReel").At(18, MachineTop, 104, MachineHeight).WithStyles(("background-color", Black), ("border-radius", "3px"),
-                ("overflow", "clip"), ("box-shadow", "2px 3px 0px #0000004d"))
+                ("background-image", $"url(\"{Slate}\")"), ("background-size", "cover"), ("overflow", "clip"), ("box-shadow", "2px 3px 0px #0000004d"))
             .Add(UI.Container().At(0, 0, 104, MachineHeight).WithStyles(("border", "2px solid #eadfc629"), ("border-radius", "3px")),
                  UI.Container("rsWindow").At(13, 13, CardWidth, WindowHeight).WithStyle("overflow", "clip")
                      .Add(Strip("rsStrip0", v.Reel)),
@@ -271,36 +312,43 @@ public static class RoulettePanel
     {
         var strip = UI.Vertical(id).WithStyles(("width", Px(CardWidth)), ("height", Px(cards.Count * Step)), ("transform", "translateY(0px)"));
         for (int k = 0; k < cards.Count; k++)
-            strip.Add(Card($"{id}c{k}", cards[k], CardWidth).WithStyle("margin-bottom", Px(CardGap)));
+            strip.Add(Card($"{id}c{k}", cards[k], CardWidth, wear: k).WithStyle("margin-bottom", Px(CardGap)));
         return strip;
     }
 
     // ─── souls, the result, SPIN, the fine print ──────────────────────────────
 
+    /// <summary>A strip of the shop's worn dark tape (its filter bar backer), tilted.</summary>
+    private static UIContainer Tape(double height, string tilt) => UI.Horizontal().WithStyles(("vertical-align", "center"), ("height", Px(height)),
+        ("background-image", $"url(\"{WornTape}\")"), ("background-size", "100% 100%"), ("transform", $"rotateZ({tilt})"));
+
+    /// <summary>The shop's price glyph (§, mint) next to a mint number.</summary>
+    private static UINode Price(string id, string text, double size) => UI.Horizontal().WithStyle("vertical-align", "center").Add(
+        UI.Image("", PriceGlyph).WithStyles(("width", Px(size * 0.5)), ("height", Px(size * 0.92)), ("vertical-align", "center"), ("margin-right", "4px")),
+        UI.Label(id, text).Font(Display, size, Mint).Worn().WithStyles(("vertical-align", "center"), ("text-shadow", "0px 1px 3px #000000b3")));
+
     private static UINode SoulsRow(int souls) => UI.Horizontal().At(Side, MachineTop, SideWidth, 56).Add(
-        UI.Horizontal().WithStyles(("vertical-align", "center"), ("height", "46px"), ("margin-left", "4px"), ("padding", "0px 14px 0px 12px"),
-                                   ("background-color", Black), ("border-radius", "3px"), ("transform", "rotateZ(-5deg)")).Add(
-            UI.Image("", SoulIcon).WithStyles(("width", "17px"), ("height", "33px"), ("vertical-align", "center"), ("margin-right", "6px"),
-                                              ("wash-color", Mint)),
-            UI.Label("rsSouls", Souls(souls)).Font(Display, 35, Mint).WithStyles(("vertical-align", "center"), ("text-shadow", "0px 1px 3px #000000b3"))),
-        UI.Label("", "YOUR\nSOULS").Font(Body, 15, Ink, 2.5).WithStyles(("vertical-align", "center"), ("margin-left", "14px"), ("line-height", "18px")));
+        Tape(48, "-3deg").WithStyles(("margin-left", "2px"), ("padding", "0px 16px 0px 14px")).Add(Price("rsSouls", Souls(souls), 34)),
+        UI.Label("", "YOUR\nSOULS").Font(Body, 15, Ink, 2.5).Worn().WithStyles(("vertical-align", "center"), ("margin-left", "12px"), ("line-height", "18px")));
 
     /// <summary>The result's frame: a heading over a ruled line, the body centred below it.</summary>
     private static UINode ResultFrame(string id, string heading, UINode body) => UI.Vertical(id)
         .WithStyles(("width", "100%"), ("height", "100%"), ("padding", "14px 15px 15px 15px")).Add(
-            UI.Label("", heading).Font(Body, 17, Ink, 4).WithStyles(("width", "100%"), ("text-align", "center"), ("padding-bottom", "8px"),
-                                                                   ("border-bottom", $"2px solid {Ink}")),
+            UI.Label("", heading).Font(Body, 17, Ink, 4).Worn().WithStyles(("width", "100%"), ("text-align", "center"), ("padding-bottom", "8px"),
+                                                                           ("border-bottom", $"2px solid {Ink}")),
             UI.Container().WithStyles(("width", "100%"), ("height", "fill-parent-flow(1.0)")).Add(body));
 
     private static UIContainer ResultBody() => UI.Vertical().WithStyles(("width", "100%"), ("vertical-align", "center"));
 
-    private static UINode ItemName(string text) => UI.Label("", text).Font(Display, 27, Ink)
+    private static UINode ItemName(string text) => UI.Label("", text).Font(Display, 27, Ink).Worn()
         .WithStyles(("width", "100%"), ("text-align", "center"), ("text-transform", "none"), ("text-overflow", "shrink"), ("white-space", "nowrap"));
 
     public static UINode Placeholder(string id) => ResultFrame(id, "NO SPIN YET", ResultBody().Add(
-        UI.Label("", "?").Font(Display, 64, "#1a151066").WithStyles(("width", "112px"), ("height", "175px"), ("horizontal-align", "center"),
-            ("margin-bottom", "14px"), ("border", "2px solid #1a151080"), ("border-radius", "8px"), ("text-align", "center"),
-            ("padding-top", "50px"), ("transform", "rotateZ(-3deg)")),
+        UI.Container().WithStyles(("width", "112px"), ("height", "175px"), ("horizontal-align", "center"), ("margin-bottom", "14px"),
+                ("background-image", $"url(\"{BlankCard}\")"), ("background-size", "100% 100%"), ("border-radius", "6px"),
+                ("transform", "rotateZ(-3deg)"), ("box-shadow", "0px 4px 10px #00000059"))
+            .Add(Layer(112, 175, PaperWear(2)),
+                 UI.Label("", "?").Font(Display, 64, Cream).Centered().Worn().WithStyle("text-shadow", "2px 2px 0px #000000aa")),
         ItemName("Pick a box"),
         UI.Label("", "Click an item in the shop, or pick a category and a price above, then spin.").WithStyles(("width", "100%"),
             ("margin-top", "8px"), ("text-align", "center"), ("font-family", Body), ("font-weight", "semi-bold"), ("font-size", "18px"),
@@ -313,21 +361,28 @@ public static class RoulettePanel
     public static UINode Result(string id, RouletteItem item, bool corrupted, bool jackpot = false)
     {
         var pal = Colors(item.Category);
-        // The price tape: the item's shop price, or (tier 5 has no price here) its tier.
-        var tape = UI.Horizontal().WithStyles(("margin-left", "11px"), ("vertical-align", "center"), ("padding", "4px 9px 2px 7px"),
-                                              ("background-color", Black), ("border-radius", "3px"), ("transform", "rotateZ(-5deg)"));
+        // The price on worn tape: the item's shop price, or (tier 5 has no price here) its tier.
+        var tape = Tape(36, "-4deg").WithStyles(("margin-left", "11px"), ("padding", "0px 12px 0px 10px"));
         if (item.Legendary)
-            tape.Add(UI.Label("", "TIER 5").Font(Display, 21, HitLegendary, 1).WithStyle("vertical-align", "center"));
+            tape.Add(UI.Label("", "TIER 5").Font(Display, 21, HitLegendary, 1).Worn().WithStyle("vertical-align", "center"));
         else
-            tape.Add(UI.Image("", SoulIcon).WithStyles(("width", "12px"), ("height", "23px"), ("vertical-align", "center"), ("margin-right", "5px"),
-                                                       ("wash-color", Mint)),
-                     UI.Label("", Souls(ItemPool.TierPrices[item.Tier - 1])).Font(Display, 23, Mint).WithStyle("vertical-align", "center"));
+            tape.Add(Price("", Souls(ItemPool.TierPrices[item.Tier - 1]), 23));
+
+        // The card, on the shop's holographic Legendary sticker for a Legendary, with its UPGRADE ribbon for a jackpot.
+        var card = Card("", item, 112, corrupted, wear: 3).WithStyles(("horizontal-align", "center"), ("vertical-align", "center"),
+                                                                     ("transform", "rotateZ(-3deg)"), ("box-shadow", "0px 6px 14px #00000073"));
+        if (jackpot)
+            card.Add(UI.Image("", UpgradeSticker).At(112 - 56, 0, 56, 54));
+        var holder = UI.Container().WithStyles(("width", "200px"), ("height", "187px"), ("horizontal-align", "center"), ("margin-bottom", "4px"));
+        if (item.Legendary)
+            holder.Add(UI.Image("", HoloDisc).WithStyles(("width", "186px"), ("height", "186px"), ("horizontal-align", "center"),
+                                                         ("vertical-align", "center"), ("opacity", "0.9")));
+        holder.Add(card);
         var body = ResultBody().Add(
-            Card("", item, 112, corrupted).WithStyles(("horizontal-align", "center"), ("margin-bottom", "14px"), ("transform", "rotateZ(-3deg)"),
-                                                      ("box-shadow", "0px 6px 14px #00000073")),
+            holder,
             ItemName(item.Name),
             UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "11px")).Add(
-                UI.Label("", Slug(item.Category)).Font(Display, 19, pal.Deep, 1).WithStyle("vertical-align", "center"),
+                UI.Label("", Slug(item.Category)).Font(Display, 19, pal.Deep, 1).Worn().WithStyle("vertical-align", "center"),
                 tape));
         // Rubber stamps: CORRUPTED, and JACKPOT for an item from the tier above; smaller and shorter when there are both.
         // A Legendary (never Corrupted, never a jackpot) gets its own.
@@ -348,10 +403,11 @@ public static class RoulettePanel
         return ResultFrame(id, "YOU GOT", body);
     }
 
+    /// <summary>A rubber stamp in worn ink.</summary>
     private static UIContainer Stamp(string color, double size, string text, string? icon)
     {
         var stamp = UI.Horizontal().WithStyles(("padding", "6px 11px 4px 11px"), ("border", $"3px solid {color}"), ("border-radius", "4px"),
-                                               ("transform", "rotateZ(-4deg)"));
+                                               ("transform", "rotateZ(-4deg)")).Worn();
         if (icon != null)
             stamp.Add(UI.Image("", icon).WithStyles(("width", Px(size + 2)), ("height", Px(size + 2)), ("margin-right", "8px"), ("wash-color", color),
                                                     ("vertical-align", "center")));
@@ -360,38 +416,38 @@ public static class RoulettePanel
 
     public enum SpinState { Ready, Busy, Broke }
 
-    /// <summary>SPIN: a block in the category's tab colour, the price on a black tape.</summary>
-    private static UINode SpinButton(View v, Palette pal)
+    /// <summary>SPIN: slate with the category's brush stroke, the word in worn cream, and the tier's own price sticker.</summary>
+    private static UINode SpinButton(View v)
     {
         var state = v.Souls < ItemPool.TierPrices[v.Tier - 1] ? SpinState.Broke : SpinState.Ready;
         return UI.Button("rsSpin", "").OnClick("spin").At(Side, 762, SideWidth, 123)
-            .WithStyles(("border-radius", "5px"), ("box-shadow", "0px 6px 0px #0c0906"))
-            .WithStyles(SpinStyle(state, v.Category))
-            .Add(UI.Container("rsSpinFrame").At(4, 4, SideWidth - 8, 115).WithStyles(("border", $"2px solid {FrameColor(state)}"), ("border-radius", "3px")),
+            .WithStyles(("background-color", Black), ("background-image", $"url(\"{Slate}\")"), ("background-size", "cover"),
+                        ("border-radius", "4px"), ("box-shadow", "0px 6px 0px #0c0906"))
+            .WithHoverStyle("brightness", "1.12")
+            .Add(Layer(SideWidth, 123, Brush(v.Category), id: "rsSpinBrush").WithStyles(SpinBrushStyle(state)),
+                 UI.Container("rsSpinFrame").At(5, 5, SideWidth - 10, 113).WithStyles(("border", $"2px solid {FrameColor(state)}"), ("border-radius", "3px")),
                  UI.Horizontal().Centered().Add(
-                     UI.Label("rsSpinText", SpinText(state)).Font(Display, 46, Ink, 2).WithStyle("vertical-align", "center")
+                     UI.Label("rsSpinText", SpinText(state)).Font(Display, 50, Cream, 2).Worn()
+                         .WithStyles(("vertical-align", "center"), ("text-shadow", "2px 3px 0px #000000cc"))
                          .WithStyles(SpinTextStyle(state)),
-                     UI.Horizontal("rsSpinCost").WithStyles(("margin-left", "14px"), ("vertical-align", "center"), ("padding", "5px 10px 3px 8px"),
-                                                            ("background-color", Black), ("border-radius", "3px"), ("transform", "rotateZ(-5deg)"),
-                                                            ("visibility", state == SpinState.Ready ? "visible" : "collapse")).Add(
-                         UI.Image("", SoulIcon).WithStyles(("width", "15px"), ("height", "29px"), ("vertical-align", "center"),
-                                                           ("margin-right", "5px"), ("wash-color", Mint)),
-                         UI.Label("", Souls(ItemPool.TierPrices[v.Tier - 1])).Font(Display, 29, Mint).WithStyles(
-                             ("vertical-align", "center"), ("text-shadow", "0px 1px 3px #000000b3")))));
+                     UI.Image("rsSpinCost", PriceTag(v.Tier)).WithStyles(("width", "104px"), ("height", "64px"), ("margin-left", "10px"),
+                         ("vertical-align", "center"), ("transform", $"rotateZ({StickerTilt(v.Tier)})"), ("img-shadow", "0px 3px 5px #000000aa"),
+                         ("visibility", state == SpinState.Ready ? "visible" : "collapse"))));
     }
 
     private static string FrameColor(SpinState s) => s switch
     {
-        SpinState.Ready => "#1a1510cc",
-        SpinState.Busy => "#1a151080",
-        _ => "#7d1a10",
+        SpinState.Ready => "#eadfc64d",
+        SpinState.Busy => "#eadfc626",
+        _ => "#ff8a7a80",
     };
 
-    private static (string, string)[] SpinStyle(SpinState s, ItemCategory? c) => s switch
+    /// <summary>The brush stroke: full colour when ready, drained while turning or when the player can't pay.</summary>
+    private static (string, string)[] SpinBrushStyle(SpinState s) => s switch
     {
-        SpinState.Ready => [("background-color", Colors(c).Tab)],
-        SpinState.Busy => [("background-color", "#9d927f")],
-        _ => [("background-color", "#b3a78f")],
+        SpinState.Ready => [("saturation", "1"), ("opacity", "1")],
+        SpinState.Busy => [("saturation", "0.3"), ("opacity", "0.6")],
+        _ => [("saturation", "0"), ("opacity", "0.35")],
     };
 
     private static string SpinText(SpinState s) => s switch
@@ -403,9 +459,9 @@ public static class RoulettePanel
 
     private static (string, string)[] SpinTextStyle(SpinState s) => s switch
     {
-        SpinState.Ready => [("font-size", "46px"), ("color", Ink)],
-        SpinState.Busy => [("font-size", "28px"), ("color", Ink)],
-        _ => [("font-size", "25px"), ("color", "#7d1a10")],
+        SpinState.Ready => [("font-size", "50px"), ("color", Cream)],
+        SpinState.Busy => [("font-size", "30px"), ("color", Cream)],
+        _ => [("font-size", "25px"), ("color", "#ff8a7a")],
     };
 
     private static UINode Footer(View v, Palette pal)
@@ -415,7 +471,7 @@ public static class RoulettePanel
             footer.Add(UI.Horizontal().WithStyles(("width", "100%"), ("height", "23px")).Add(
                 UI.Container().WithStyles(("width", "7px"), ("height", "7px"), ("vertical-align", "center"), ("margin-left", "2px"),
                                           ("background-color", pal.Deep), ("transform", "rotateZ(45deg)")),
-                UI.Label(id, line).WithStyles(("width", "fill-parent-flow(1.0)"), ("vertical-align", "center"), ("margin-left", "9px"),
+                UI.Label(id, line).Worn().WithStyles(("width", "fill-parent-flow(1.0)"), ("vertical-align", "center"), ("margin-left", "9px"),
                     ("font-family", Body), ("font-weight", "bold"), ("font-size", "15px"), ("color", Ink), ("text-overflow", "shrink"),
                     ("white-space", "nowrap"))));
         return footer;
@@ -476,8 +532,8 @@ public static class RoulettePanel
         update.Set("rsSpinText", SpinText(state))
               .SetStyle("rsSpinCost", "visibility", state == SpinState.Ready ? "visible" : "collapse")
               .SetStyle("rsSpinFrame", "border", $"2px solid {FrameColor(state)}");
-        foreach (var (name, value) in SpinStyle(state, category))
-            update.SetStyle("rsSpin", name, value);
+        foreach (var (name, value) in SpinBrushStyle(state))
+            update.SetStyle("rsSpinBrush", name, value);
         foreach (var (name, value) in SpinTextStyle(state))
             update.SetStyle("rsSpinText", name, value);
         return update;
