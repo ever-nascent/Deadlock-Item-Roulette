@@ -10,7 +10,13 @@ Turn the Curiosity Shop into a roulette machine, for a server the user hosts.
 
 \- The server rolls a random item of that category and price, deducts the souls, and gives the item.
 
-\- 1% of spins come back \*\*corrupted\*\* (Deadlock's Corrupted item variant).
+\- 1% of spins come back \*\*corrupted\*\* (Deadlock's Corrupted item variant). Raised later by the user: "Make it 5% for a corrupted item" (`CorruptedChancePercent` default 5; a config file written earlier keeps its own value).
+
+\- \*\*Build-aware spins\*\* (the user: "If you have a build queued, maybe it'll use that as the pool too? Cause, otherwise its super inconsistent"; chose "Both" sources and "Build items more likely"): items in the player's build are `BuildWeight` (default 3) times likelier. The build is the one picked in the shop (the client sends `CCitadelClientMsg\_HeroBuild`, hooked with `NetMessages.HookIncoming`; its `ability\_id`s are the items' string tokens, MurmurHash2 of the class name with seed 0x31415926, the `id` in the item data) plus the quickbuy queue (`CCitadelPlayerPawn.m\_vecQuickbuyQueue`, read as a CUtlVector: count at +0, data pointer at +8). Unverified in game: when the client sends its build (on picking one? at spawn?), and the queue read.
+
+\- \*\*Legendaries\*\* (the user: "add legendaries to the pool with a default 1% rate but adjustable mid-game via command"; chose "Any spin, same category"): `LegendaryChancePercent` (default 1) gives a tier 5 Legendary of the chosen category (any for the wildcard box) for the spin's price. The 17 shopable tier 5 items are marked `ERequirementStreetBrawl` in abilities.vdata; if `AddItem` refuses one, the spin lands a normal item (logged). Unverified: whether they can be given, and work, outside Street Brawl.
+
+\- \*\*Rates mid-game\*\*: `roulette\_rate [corrupted|legendary|jackpot|pity|build] [value]` (`/roulette\_rate`, `!roulette\_rate`, `dw\_roulette\_rate`), permission `roulette.admin` (the user chose "Admins only"; grant it from the server console with `perm\_grant <player> roulette.admin`). Changes last until `dw\_reloadconfig RouletteShopPlugin` or a restart, and are announced in chat.
 
 \- Extras the user picked after the design #3 build (each a config switch in `RouletteConfig.cs`): a spin of about 2 s; the game's own UI sounds; a \*\*jackpot\*\* (`JackpotChancePercent`, default 3%: the item comes from the next tier up for the same price); \*\*Corrupted pity\*\* (`CorruptedPitySpins`, default 10: after that many spins on Corrupted-capable items without one, the next one is Corrupted; counted per player, reset on disconnect); a \*\*wildcard box\*\* (`WildcardBox`: any category at the chosen price, `!roulette any 1600`).
 

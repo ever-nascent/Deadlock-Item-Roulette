@@ -1,5 +1,5 @@
 // Usage: node fetch-deadlock-assets.mjs <outDir>
-// Saves items-full.json, the shop icon of every roulette-eligible item, and manifest.json.
+// Saves items-full.json, the shop icon of every roulette-eligible item (tiers 1-4, and the tier 5 Legendaries), and manifest.json.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 
@@ -14,7 +14,7 @@ await writeFile(join(out, 'items-full.json'), text);
 
 const pool = JSON.parse(text).filter(i =>
   i.type === 'upgrade' && i.shopable && !i.disabled &&
-  ['weapon', 'vitality', 'spirit'].includes(i.item_slot_type) && i.item_tier >= 1 && i.item_tier <= 4);
+  ['weapon', 'vitality', 'spirit'].includes(i.item_slot_type) && i.item_tier >= 1 && i.item_tier <= 5);
 
 const failed = [];
 const items = await Promise.all(pool.map(async i => {
@@ -29,7 +29,8 @@ const items = await Promise.all(pool.map(async i => {
   }
   // The game's own icon (the item's m_strShopIconLarge in abilities.vdata): the asset path with .psd, checked for every pool item.
   const gameIcon = url && `file://{images}/${url.split('/assets-api-res/images/')[1].replace(/\.[^.]+$/, '')}.psd`;
-  return { class_name: i.class_name, name: i.name, slot: i.item_slot_type, tier: i.item_tier, cost: i.cost, active: i.is_active_item, imbue: !!i.imbue, corruptible: !!i.corrupted_info, icon, game_icon: gameIcon, source: url && basename(url) };
+  // id: the item's string token (MurmurHash2 of the class name), as hero builds and the quickbuy queue name items.
+  return { id: i.id, class_name: i.class_name, name: i.name, slot: i.item_slot_type, tier: i.item_tier, legendary: i.item_tier === 5, cost: i.cost, active: i.is_active_item, imbue: !!i.imbue, corruptible: !!i.corrupted_info, icon, game_icon: gameIcon, source: url && basename(url) };
 }));
 
 // Shop UI art: the catalog art dl-shop-panel uses (tabs, card backers, backgrounds), soul/corrupted icons, fonts.

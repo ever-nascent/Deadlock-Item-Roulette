@@ -1,11 +1,13 @@
 {
-  "fetched": "2026-10-11T01:29:50.904Z",
+  "fetched": "2026-10-13T05:34:43.683Z",
   "items": [
     {
+      "id": 1548066885,
       "class_name": "upgrade_clip_size",
       "name": "Extended Magazine",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -15,10 +17,12 @@
       "source": "basic_magazine.png"
     },
     {
+      "id": 1009965641,
       "class_name": "upgrade_non_player_bonus",
       "name": "Monster Rounds",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -28,10 +32,12 @@
       "source": "monster_rounds.png"
     },
     {
+      "id": 709540378,
       "class_name": "upgrade_non_player_bonus_sacrifice",
       "name": "Cultist Sacrifice",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -41,10 +47,12 @@
       "source": "cultist_sacrifice.png"
     },
     {
+      "id": 811521119,
       "class_name": "upgrade_chain_lightning",
       "name": "Tesla Bullets",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -54,10 +62,12 @@
       "source": "tesla_bullets.png"
     },
     {
+      "id": 710436191,
       "class_name": "upgrade_capacitor",
       "name": "Capacitor",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -67,10 +77,12 @@
       "source": "capacitor.png"
     },
     {
+      "id": 2678489038,
       "class_name": "upgrade_hollow_point_rounds",
       "name": "Hollow Point",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -80,10 +92,12 @@
       "source": "hollow_point.png"
     },
     {
+      "id": 2064029594,
       "class_name": "upgrade_pristine_emblem",
       "name": "Opening Rounds",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -93,10 +107,12 @@
       "source": "opening_rounds.png"
     },
     {
+      "id": 3077079169,
       "class_name": "upgrade_high_velocity_mag",
       "name": "High-Velocity Rounds",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -106,10 +122,12 @@
       "source": "high_velocity_rounds.png"
     },
     {
+      "id": 1437614329,
       "class_name": "upgrade_lifestrike_gauntlets",
       "name": "Melee Lifesteal",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -119,10 +137,12 @@
       "source": "melee_lifesteal.png"
     },
     {
+      "id": 4204808176,
       "class_name": "upgrade_melee_rebuttal",
       "name": "Rebuttal",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -132,10 +152,12 @@
       "source": "rebuttal.png"
     },
     {
+      "id": 1414025773,
       "class_name": "upgrade_counterspell",
       "name": "Counterspell",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -145,10 +167,12 @@
       "source": "counterspell.png"
     },
     {
+      "id": 3791587546,
       "class_name": "upgrade_weighted_shots",
       "name": "Weighted Shots",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -158,10 +182,12 @@
       "source": "weighted_shots.png"
     },
     {
+      "id": 1342610602,
       "class_name": "upgrade_close_range",
       "name": "Close Quarters",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -171,10 +197,12 @@
       "source": "close_quarters.png"
     },
     {
+      "id": 3331811235,
       "class_name": "upgrade_long_range",
       "name": "Long Range",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -184,10 +212,12 @@
       "source": "long_range.png"
     },
     {
+      "id": 393974127,
       "class_name": "upgrade_slowing_bullets",
       "name": "Slowing Bullets",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -197,10 +227,12 @@
       "source": "slowing_bullets.png"
     },
     {
+      "id": 2037039379,
       "class_name": "upgrade_inhibitor",
       "name": "Inhibitor",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -210,10 +242,12 @@
       "source": "inhibitor.png"
     },
     {
+      "id": 1144549437,
       "class_name": "upgrade_tech_defense_shredders",
       "name": "Spirit Shredder",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -223,10 +257,12 @@
       "source": "spirit_shredder_bullets.png"
     },
     {
+      "id": 2108215830,
       "class_name": "upgrade_dps_aura",
       "name": "Heroic Aura",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -236,10 +272,12 @@
       "source": "heroic_aura.png"
     },
     {
+      "id": 619484391,
       "class_name": "upgrade_targeted_silence",
       "name": "Silence Wave",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -249,10 +287,12 @@
       "source": "silence_glyph.png"
     },
     {
+      "id": 1113837674,
       "class_name": "upgrade_proc_silence",
       "name": "Silencer",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -262,10 +302,12 @@
       "source": "silencer.png"
     },
     {
+      "id": 1414319208,
       "class_name": "upgrade_berserker",
       "name": "Berserker",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -275,10 +317,12 @@
       "source": "berserker.png"
     },
     {
+      "id": 339443430,
       "class_name": "upgrade_fervor",
       "name": "Frenzy",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -288,10 +332,12 @@
       "source": "frenzy.png"
     },
     {
+      "id": 1282141666,
       "class_name": "upgrade_siphon_bullets",
       "name": "Siphon Bullets",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -301,10 +347,12 @@
       "source": "siphon_bullets.png"
     },
     {
+      "id": 2010028405,
       "class_name": "upgrade_headshot_booster",
       "name": "Headshot Booster",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -314,10 +362,12 @@
       "source": "headshot_booster.png"
     },
     {
+      "id": 1770441818,
       "class_name": "upgrade_headshot_booster2",
       "name": "Weakening Headshot",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -327,10 +377,12 @@
       "source": "weakening_headshot.png"
     },
     {
+      "id": 2152872419,
       "class_name": "upgrade_sharpshooter",
       "name": "Sharpshooter",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -340,10 +392,12 @@
       "source": "sharp_shooter.png"
     },
     {
+      "id": 4053935515,
       "class_name": "upgrade_headhunter",
       "name": "Headhunter",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -353,10 +407,12 @@
       "source": "headhunter.png"
     },
     {
+      "id": 4075861416,
       "class_name": "upgrade_spellslinger_headshots",
       "name": "Spirit Rend",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -366,10 +422,12 @@
       "source": "spellslinger_headshots.png"
     },
     {
+      "id": 3884003354,
       "class_name": "upgrade_banshee_slugs",
       "name": "Crippling Headshot",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -379,10 +437,12 @@
       "source": "crippling_headshot.png"
     },
     {
+      "id": 395867183,
       "class_name": "upgrade_crackshot",
       "name": "Mystic Shot",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -392,10 +452,12 @@
       "source": "mystic_shot.png"
     },
     {
+      "id": 1396247347,
       "class_name": "upgrade_critshot",
       "name": "Lucky Shot",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -405,10 +467,12 @@
       "source": "lucky_shot.png"
     },
     {
+      "id": 2095565695,
       "class_name": "upgrade_close_quarter_combat",
       "name": "Point Blank",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -418,10 +482,12 @@
       "source": "point_blank.png"
     },
     {
+      "id": 3696726732,
       "class_name": "upgrade_toxic_bullets",
       "name": "Toxic Bullets",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -431,10 +497,12 @@
       "source": "toxic_bullets.png"
     },
     {
+      "id": 2480592370,
       "class_name": "upgrade_ricochet",
       "name": "Ricochet",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -444,10 +512,12 @@
       "source": "ricochet.png"
     },
     {
+      "id": 3633614685,
       "class_name": "upgrade_health",
       "name": "Extra Health",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -457,10 +527,12 @@
       "source": "extra_health.png"
     },
     {
+      "id": 499683006,
       "class_name": "upgrade_vampire",
       "name": "Bullet Lifesteal",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -470,10 +542,12 @@
       "source": "bullet_lifesteal.png"
     },
     {
+      "id": 1047818222,
       "class_name": "upgrade_debuff_reducer",
       "name": "Debuff Reducer",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -483,10 +557,12 @@
       "source": "debuff_reducer.png"
     },
     {
+      "id": 3731635960,
       "class_name": "upgrade_reduce_debuff_duration",
       "name": "Dispel Magic",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -496,10 +572,12 @@
       "source": "debuff_remover.png"
     },
     {
+      "id": 2163598980,
       "class_name": "upgrade_tech_purge",
       "name": "Spirit Resilience",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -509,10 +587,12 @@
       "source": "spirit_resilience.png"
     },
     {
+      "id": 3140772621,
       "class_name": "upgrade_improved_bullet_armor",
       "name": "Bullet Resilience",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -522,10 +602,12 @@
       "source": "bullet_resilience.png"
     },
     {
+      "id": 1378931225,
       "class_name": "upgrade_metal_skin",
       "name": "Metal Skin",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -535,10 +617,12 @@
       "source": "metal_skin.png"
     },
     {
+      "id": 2566692615,
       "class_name": "upgrade_healing_booster",
       "name": "Healing Booster",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -548,10 +632,12 @@
       "source": "healing_booster.png"
     },
     {
+      "id": 3585132399,
       "class_name": "upgrade_chonky",
       "name": "Fortitude",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -561,10 +647,12 @@
       "source": "fortitude.png"
     },
     {
+      "id": 865846625,
       "class_name": "upgrade_damage_recycler",
       "name": "Leech",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -574,10 +662,12 @@
       "source": "leech.png"
     },
     {
+      "id": 3399065363,
       "class_name": "upgrade_sprint_booster",
       "name": "Sprint Boots",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -587,10 +677,12 @@
       "source": "sprint_boots.png"
     },
     {
+      "id": 3074274290,
       "class_name": "upgrade_trophy_collector",
       "name": "Trophy Collector",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -600,10 +692,12 @@
       "source": "trophy_collector.png"
     },
     {
+      "id": 2447176615,
       "class_name": "upgrade_cardio_calibrator",
       "name": "Enduring Speed",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -613,10 +707,12 @@
       "source": "enduring_speed.png"
     },
     {
+      "id": 334300056,
       "class_name": "upgrade_superior_stamina",
       "name": "Stamina Mastery",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -626,10 +722,12 @@
       "source": "stamina_mastery.png"
     },
     {
+      "id": 668299740,
       "class_name": "upgrade_rapid_rounds",
       "name": "Rapid Rounds",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -639,10 +737,12 @@
       "source": "rapid_rounds.png"
     },
     {
+      "id": 4139877411,
       "class_name": "upgrade_improved_stamina",
       "name": "Extra Stamina",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -652,10 +752,12 @@
       "source": "extra_stamina.png"
     },
     {
+      "id": 2481177645,
       "class_name": "upgrade_bullet_armor_reduction_aura",
       "name": "Hunter's Aura",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -665,10 +767,12 @@
       "source": "hunters_aura.png"
     },
     {
+      "id": 1672893796,
       "class_name": "upgrade_grit",
       "name": "Grit",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": true,
       "imbue": false,
@@ -678,10 +782,12 @@
       "source": "grit.png"
     },
     {
+      "id": 805079544,
       "class_name": "upgrade_weapon_shielding",
       "name": "Weapon Shielding",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -691,10 +797,12 @@
       "source": "weapon_shielding.png"
     },
     {
+      "id": 112198670,
       "class_name": "upgrade_spirit_bubble",
       "name": "Spirit Shielding",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -704,10 +812,12 @@
       "source": "spirit_shielding.png"
     },
     {
+      "id": 1235347618,
       "class_name": "upgrade_regenerating_bullet_shield",
       "name": "Battle Vest",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -717,10 +827,12 @@
       "source": "battle_vest.png"
     },
     {
+      "id": 3970837787,
       "class_name": "upgrade_magic_shield",
       "name": "Enchanter's Emblem",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -730,10 +842,12 @@
       "source": "enchanters_emblem.png"
     },
     {
+      "id": 968099481,
       "class_name": "upgrade_improved_spirit",
       "name": "Extra Spirit",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -743,10 +857,12 @@
       "source": "extra_spirit.png"
     },
     {
+      "id": 1439347412,
       "class_name": "upgrade_mystic_regeneration",
       "name": "Mystic Regeneration",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -756,10 +872,12 @@
       "source": "mystic_regen.png"
     },
     {
+      "id": 7409189,
       "class_name": "upgrade_soaring_spirit",
       "name": "Improved Spirit",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -769,10 +887,12 @@
       "source": "improved_spirit.png"
     },
     {
+      "id": 2226497419,
       "class_name": "upgrade_tech_overflow",
       "name": "Spiritual Overflow",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -782,10 +902,12 @@
       "source": "spiritual_overflow.png"
     },
     {
+      "id": 3361075077,
       "class_name": "upgrade_return_fire",
       "name": "Return Fire",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -795,10 +917,12 @@
       "source": "return_fire.png"
     },
     {
+      "id": 1193964439,
       "class_name": "upgrade_tech_range",
       "name": "Greater Expansion",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -808,10 +932,12 @@
       "source": "greater_expansion.png"
     },
     {
+      "id": 754480263,
       "class_name": "upgrade_magic_reach",
       "name": "Mystic Expansion",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": true,
@@ -821,10 +947,12 @@
       "source": "mystic_reach.png"
     },
     {
+      "id": 3776945997,
       "class_name": "upgrade_extra_charge",
       "name": "Extra Charge",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -834,10 +962,12 @@
       "source": "extra_charge.png"
     },
     {
+      "id": 876563814,
       "class_name": "upgrade_health_stealing_magic",
       "name": "Spirit Lifesteal",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -847,10 +977,12 @@
       "source": "spirit_lifesteal.png"
     },
     {
+      "id": 2971868509,
       "class_name": "upgrade_bullet_resist_shredder",
       "name": "Bullet Resist Shredder",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -860,10 +992,12 @@
       "source": "bullet_resist_shredder.png"
     },
     {
+      "id": 3577481646,
       "class_name": "upgrade_mystic_reverb",
       "name": "Mystic Reverb",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": true,
@@ -873,10 +1007,12 @@
       "source": "mystic_reverb.png"
     },
     {
+      "id": 1998374645,
       "class_name": "upgrade_magic_burst",
       "name": "Mystic Burst",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -886,10 +1022,12 @@
       "source": "mystic_burst.png"
     },
     {
+      "id": 2121044373,
       "class_name": "upgrade_magic_shock",
       "name": "Tankbuster",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -899,10 +1037,12 @@
       "source": "tankbuster.png"
     },
     {
+      "id": 2081037738,
       "class_name": "upgrade_magic_vulnerability",
       "name": "Mystic Vulnerability",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -912,10 +1052,12 @@
       "source": "mystic_vulnerability.png"
     },
     {
+      "id": 2603935618,
       "class_name": "upgrade_healbane",
       "name": "Healbane",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -925,10 +1067,12 @@
       "source": "healbane.png"
     },
     {
+      "id": 1102081447,
       "class_name": "upgrade_magic_slow",
       "name": "Mystic Slow",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -938,10 +1082,12 @@
       "source": "mystic_slow.png"
     },
     {
+      "id": 3005970438,
       "class_name": "upgrade_escalating_exposure",
       "name": "Escalating Exposure",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -951,10 +1097,12 @@
       "source": "escalating_exposure.png"
     },
     {
+      "id": 787198704,
       "class_name": "upgrade_rapid_recharge",
       "name": "Rapid Recharge",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -964,10 +1112,27 @@
       "source": "rapid_recharge.png"
     },
     {
+      "id": 424779525,
+      "class_name": "upgrade_omnicharge_pendant",
+      "name": "Omnicharge Signet",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": true,
+      "corruptible": false,
+      "icon": "icons/upgrade_omnicharge_pendant.png",
+      "game_icon": "file://{images}/items/brawl/omnicharge_pendant.psd",
+      "source": "omnicharge_pendant.png"
+    },
+    {
+      "id": 380806748,
       "class_name": "upgrade_magic_tempo",
       "name": "Compress Cooldown",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": true,
@@ -977,10 +1142,12 @@
       "source": "improved_cooldown.png"
     },
     {
+      "id": 3261353684,
       "class_name": "upgrade_cooldown_reduction",
       "name": "Superior Cooldown",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -990,10 +1157,12 @@
       "source": "superior_cooldown.png"
     },
     {
+      "id": 915014646,
       "class_name": "upgrade_transcendent_cooldown",
       "name": "Transcendent Cooldown",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1003,10 +1172,12 @@
       "source": "transcendent_cooldown.png"
     },
     {
+      "id": 1813726886,
       "class_name": "upgrade_containment",
       "name": "Slowing Hex",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1016,10 +1187,12 @@
       "source": "slowing_hex.png"
     },
     {
+      "id": 1219329868,
       "class_name": "upgrade_spirit_sap",
       "name": "Spirit Sap",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1029,10 +1202,12 @@
       "source": "spirit_sap.png"
     },
     {
+      "id": 2142980412,
       "class_name": "upgrade_focus_lens",
       "name": "Focus Lens",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1042,10 +1217,12 @@
       "source": "focus_lens.png"
     },
     {
+      "id": 2922054143,
       "class_name": "upgrade_withering_whip",
       "name": "Rusted Barrel",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": true,
       "imbue": false,
@@ -1055,10 +1232,12 @@
       "source": "rusted_barrel.png"
     },
     {
+      "id": 2061878743,
       "class_name": "upgrade_greater_withering_whip",
       "name": "Disarming Hex",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1068,10 +1247,12 @@
       "source": "disarming_hex.png"
     },
     {
+      "id": 1804594021,
       "class_name": "upgrade_rescue_beam",
       "name": "Rescue Beam",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1081,10 +1262,12 @@
       "source": "rescue_beam.png"
     },
     {
+      "id": 3144988365,
       "class_name": "upgrade_rupture",
       "name": "Decay",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1094,10 +1277,12 @@
       "source": "decay.png"
     },
     {
+      "id": 2417568017,
       "class_name": "upgrade_discord",
       "name": "Scourge",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1107,10 +1292,12 @@
       "source": "scourge.png"
     },
     {
+      "id": 1254091416,
       "class_name": "upgrade_target_stun",
       "name": "Knockdown",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1120,10 +1307,12 @@
       "source": "knockdown.png"
     },
     {
+      "id": 1371725689,
       "class_name": "upgrade_phantom_strike",
       "name": "Phantom Strike",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1133,10 +1322,12 @@
       "source": "phantom_strike.png"
     },
     {
+      "id": 3270001687,
       "class_name": "upgrade_warp_stone",
       "name": "Warp Stone",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1146,10 +1337,12 @@
       "source": "warp_stone.png"
     },
     {
+      "id": 1152158042,
       "class_name": "upgrade_aoe_root",
       "name": "Vortex Web",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1159,10 +1352,12 @@
       "source": "vortex_web.png"
     },
     {
+      "id": 677738769,
       "class_name": "upgrade_ability_refresher",
       "name": "Refresher",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1172,10 +1367,12 @@
       "source": "refresher.png"
     },
     {
+      "id": 630839635,
       "class_name": "upgrade_ability_power_shard",
       "name": "Echo Shard",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": true,
@@ -1185,10 +1382,12 @@
       "source": "echo_shard.png"
     },
     {
+      "id": 395944548,
       "class_name": "upgrade_tech_damage_pulse",
       "name": "Torment Pulse",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1198,10 +1397,12 @@
       "source": "torment_pulse.png"
     },
     {
+      "id": 3361811174,
       "class_name": "upgrade_cheat_death",
       "name": "Cheat Death",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1211,10 +1412,12 @@
       "source": "cheat_death.png"
     },
     {
+      "id": 1798666702,
       "class_name": "upgrade_cloaking_device_active",
       "name": "Shadow Weave",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1224,10 +1427,12 @@
       "source": "shadow_weave.png"
     },
     {
+      "id": 600033864,
       "class_name": "upgrade_rocket_booster",
       "name": "Majestic Leap",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1237,10 +1442,12 @@
       "source": "majestic_leap.png"
     },
     {
+      "id": 2956256701,
       "class_name": "upgrade_health_nova",
       "name": "Healing Nova",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1250,10 +1457,12 @@
       "source": "healing_nova.png"
     },
     {
+      "id": 2059712766,
       "class_name": "upgrade_restorative_locket",
       "name": "Restorative Locket",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1263,10 +1472,12 @@
       "source": "restorative_locket.png"
     },
     {
+      "id": 1710079648,
       "class_name": "upgrade_health_stimpak",
       "name": "Healing Rite",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": true,
       "imbue": false,
@@ -1276,10 +1487,27 @@
       "source": "healing_rite.png"
     },
     {
+      "id": 4121584236,
+      "class_name": "upgrade_shrink_ray",
+      "name": "Shrink Ray",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_shrink_ray.png",
+      "game_icon": "file://{images}/items/brawl/shrink_ray.psd",
+      "source": "shrink_ray.png"
+    },
+    {
+      "id": 1797283378,
       "class_name": "upgrade_infuser",
       "name": "Infuser",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1289,10 +1517,12 @@
       "source": "infuser.png"
     },
     {
+      "id": 857669956,
       "class_name": "upgrade_guardian_ward",
       "name": "Guardian Ward",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1302,10 +1532,12 @@
       "source": "guardian_ward.png"
     },
     {
+      "id": 1662311306,
       "class_name": "upgrade_divine_barrier",
       "name": "Divine Barrier",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1315,10 +1547,12 @@
       "source": "divine_barrier.png"
     },
     {
+      "id": 1932939246,
       "class_name": "upgrade_thermal_detonator",
       "name": "Alchemical Fire",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1328,10 +1562,12 @@
       "source": "alchemical_fire.png"
     },
     {
+      "id": 989206714,
       "class_name": "upgrade_blood_tribute",
       "name": "Blood Tribute",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1341,10 +1577,12 @@
       "source": "blood_tribute.png"
     },
     {
+      "id": 3403085434,
       "class_name": "upgrade_fleetfoot_boots",
       "name": "Fleetfoot",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1354,10 +1592,12 @@
       "source": "fleetfoot.png"
     },
     {
+      "id": 3977876567,
       "class_name": "upgrade_kinetic_sash",
       "name": "Kinetic Dash",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1367,10 +1607,12 @@
       "source": "kinetic_dash.png"
     },
     {
+      "id": 1150006784,
       "class_name": "upgrade_arcane_surge",
       "name": "Arcane Surge",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1380,10 +1622,12 @@
       "source": "arcane_surge.png"
     },
     {
+      "id": 3357231760,
       "class_name": "upgrade_unstoppable",
       "name": "Unstoppable",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1393,10 +1637,12 @@
       "source": "unstoppable.png"
     },
     {
+      "id": 2407781327,
       "class_name": "upgrade_colossus",
       "name": "Colossus",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1406,10 +1652,12 @@
       "source": "colossus.png"
     },
     {
+      "id": 1976391348,
       "class_name": "upgrade_cold_front",
       "name": "Cold Front",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1419,10 +1667,12 @@
       "source": "cold_front.png"
     },
     {
+      "id": 3812615317,
       "class_name": "upgrade_arctic_blast",
       "name": "Arctic Blast",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1432,10 +1682,12 @@
       "source": "arctic_blast.png"
     },
     {
+      "id": 2533252781,
       "class_name": "upgrade_self_bubble",
       "name": "Ethereal Shift",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1445,10 +1697,12 @@
       "source": "ethereal_shift.png"
     },
     {
+      "id": 2617435668,
       "class_name": "upgrade_glitch",
       "name": "Cursed Relic",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1458,10 +1712,12 @@
       "source": "curse.png"
     },
     {
+      "id": 2951612397,
       "class_name": "upgrade_arcane_extension",
       "name": "Duration Extender",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": true,
@@ -1471,10 +1727,12 @@
       "source": "duration_extender.png"
     },
     {
+      "id": 2717651715,
       "class_name": "upgrade_imbued_duration_extender",
       "name": "Superior Duration",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1484,10 +1742,12 @@
       "source": "superior_duration.png"
     },
     {
+      "id": 365620721,
       "class_name": "upgrade_glass_cannon",
       "name": "Glass Cannon",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1497,10 +1757,12 @@
       "source": "glass_cannon.png"
     },
     {
+      "id": 1409190604,
       "class_name": "upgrade_fury_trance",
       "name": "Fury Trance",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": true,
       "imbue": false,
@@ -1510,10 +1772,12 @@
       "source": "fury_trance.png"
     },
     {
+      "id": 1055679805,
       "class_name": "upgrade_surging_power",
       "name": "Vampiric Burst",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1523,10 +1787,12 @@
       "source": "vampiric_burst.png"
     },
     {
+      "id": 1252627263,
       "class_name": "upgrade_boxing_glove",
       "name": "Lifestrike",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1536,10 +1802,12 @@
       "source": "lifestrike.png"
     },
     {
+      "id": 465043967,
       "class_name": "upgrade_acolytes_glove",
       "name": "Spirit Strike",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -1549,10 +1817,12 @@
       "source": "spirit_strike.png"
     },
     {
+      "id": 3190916303,
       "class_name": "upgrade_spirit_snatch",
       "name": "Spirit Snatch",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1562,10 +1832,12 @@
       "source": "spirit_snatch.png"
     },
     {
+      "id": 26002154,
       "class_name": "upgrade_melee_charge",
       "name": "Melee Charge",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1575,10 +1847,12 @@
       "source": "melee_charge.png"
     },
     {
+      "id": 800008313,
       "class_name": "upgrade_crushing_fists",
       "name": "Crushing Fists",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1588,10 +1862,12 @@
       "source": "crushing_fists.png"
     },
     {
+      "id": 2820116164,
       "class_name": "upgrade_diviners_kevlar",
       "name": "Diviner's Kevlar",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1601,10 +1877,12 @@
       "source": "diviners_kevlar.png"
     },
     {
+      "id": 2947183272,
       "class_name": "upgrade_resonant_healing",
       "name": "Radiant Regeneration",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1614,10 +1892,12 @@
       "source": "radiant_regeneration.png"
     },
     {
+      "id": 2519598785,
       "class_name": "upgrade_boundless_spirit",
       "name": "Boundless Spirit",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1627,10 +1907,12 @@
       "source": "boundless_spirit.png"
     },
     {
+      "id": 2739107182,
       "class_name": "upgrade_burst_fire",
       "name": "Burst Fire",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1640,10 +1922,12 @@
       "source": "burst_fire.png"
     },
     {
+      "id": 2829638276,
       "class_name": "upgrade_endurance",
       "name": "Extra Regen",
       "slot": "vitality",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -1653,10 +1937,12 @@
       "source": "extra_regen.png"
     },
     {
+      "id": 1292979587,
       "class_name": "upgrade_magic_storm",
       "name": "Surge of Power",
       "slot": "spirit",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": true,
@@ -1666,10 +1952,12 @@
       "source": "surge_of_power.png"
     },
     {
+      "id": 1925087134,
       "class_name": "upgrade_suppressor",
       "name": "Suppressor",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1679,10 +1967,12 @@
       "source": "suppressor.png"
     },
     {
+      "id": 84321454,
       "class_name": "upgrade_quick_silver",
       "name": "Quicksilver Reload",
       "slot": "spirit",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": true,
@@ -1692,10 +1982,12 @@
       "source": "quicksilver_reload.png"
     },
     {
+      "id": 3919289022,
       "class_name": "upgrade_ethereal_bullets",
       "name": "Mercurial Magnum",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": true,
@@ -1705,10 +1997,12 @@
       "source": "mercurial_magnum.png"
     },
     {
+      "id": 2407033488,
       "class_name": "upgrade_intensifying_clip",
       "name": "Intensifying Magazine",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1718,10 +2012,12 @@
       "source": "intensifying_magazine.png"
     },
     {
+      "id": 2463960640,
       "class_name": "upgrade_reinforcing_casings",
       "name": "Escalating Resilience",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1731,10 +2027,12 @@
       "source": "escalating_resilience.png"
     },
     {
+      "id": 4104549924,
       "class_name": "upgrade_blitz_bullets",
       "name": "Swift Striker",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1744,10 +2042,12 @@
       "source": "swift_striker.png"
     },
     {
+      "id": 865958998,
       "class_name": "upgrade_veil_walker",
       "name": "Veil Walker",
       "slot": "vitality",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1757,10 +2057,12 @@
       "source": "veil_walker.png"
     },
     {
+      "id": 1644605047,
       "class_name": "upgrade_vex_barrier",
       "name": "Reactive Barrier",
       "slot": "vitality",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1770,10 +2072,12 @@
       "source": "reactive_barrier.png"
     },
     {
+      "id": 951866250,
       "class_name": "upgrade_auto_cleanse",
       "name": "Indomitable",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1783,10 +2087,12 @@
       "source": "indomitable.png"
     },
     {
+      "id": 3862866912,
       "class_name": "upgrade_medic_bullets",
       "name": "Restorative Shot",
       "slot": "weapon",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": false,
       "imbue": false,
@@ -1796,10 +2102,12 @@
       "source": "restorative_shot.png"
     },
     {
+      "id": 2356412290,
       "class_name": "upgrade_titan_round",
       "name": "Titanic Magazine",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1809,10 +2117,12 @@
       "source": "titanic_magazine.png"
     },
     {
+      "id": 3647584222,
       "class_name": "upgrade_split_shot",
       "name": "Split Shot",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": true,
       "imbue": false,
@@ -1822,10 +2132,12 @@
       "source": "split_shot.png"
     },
     {
+      "id": 381961617,
       "class_name": "upgrade_active_reload",
       "name": "Active Reload",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1835,10 +2147,12 @@
       "source": "active_reload.png"
     },
     {
+      "id": 2800629741,
       "class_name": "upgrade_magic_carpet",
       "name": "Magic Carpet",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": true,
       "imbue": false,
@@ -1848,10 +2162,12 @@
       "source": "magic_carpet.png"
     },
     {
+      "id": 343572757,
       "class_name": "upgrade_spirit_burn",
       "name": "Spirit Burn",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1861,10 +2177,12 @@
       "source": "spirit_burn.png"
     },
     {
+      "id": 493591231,
       "class_name": "upgrade_ultimate_burst",
       "name": "Lightning Scroll",
       "slot": "spirit",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1874,10 +2192,12 @@
       "source": "lightning_scroll.png"
     },
     {
+      "id": 3028234315,
       "class_name": "upgrade_absorbing_armor",
       "name": "Witchmail",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1887,10 +2207,12 @@
       "source": "witchmail.png"
     },
     {
+      "id": 1427630806,
       "class_name": "upgrade_healbuff",
       "name": "Healing Tempo",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1900,10 +2222,12 @@
       "source": "healing_tempo.png"
     },
     {
+      "id": 673001892,
       "class_name": "upgrade_aprounds",
       "name": "Armor Piercer",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1913,10 +2237,27 @@
       "source": "armor_piercing_rounds.png"
     },
     {
+      "id": 3269957497,
+      "class_name": "upgrade_infinite_rounds",
+      "name": "Infinite Rounds",
+      "slot": "weapon",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_infinite_rounds.png",
+      "game_icon": "file://{images}/items/brawl/infinite_rounds.psd",
+      "source": "infinite_rounds.png"
+    },
+    {
+      "id": 3491236900,
       "class_name": "upgrade_deflecting_armor",
       "name": "Plated Armor",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1926,10 +2267,12 @@
       "source": "plated_armor.png"
     },
     {
+      "id": 1955841979,
       "class_name": "upgrade_spellbreaker",
       "name": "Spellbreaker",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1939,10 +2282,12 @@
       "source": "spellbreaker.png"
     },
     {
+      "id": 1250307611,
       "class_name": "upgrade_juggernaut",
       "name": "Juggernaut",
       "slot": "vitality",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1952,10 +2297,12 @@
       "source": "juggernaut.png"
     },
     {
+      "id": 2221211450,
       "class_name": "upgrade_enchanted_holsters",
       "name": "Spellslinger",
       "slot": "weapon",
       "tier": 4,
+      "legendary": false,
       "cost": 6400,
       "active": false,
       "imbue": false,
@@ -1965,10 +2312,12 @@
       "source": "spell_slinger.png"
     },
     {
+      "id": 98582110,
       "class_name": "upgrade_weapon_backstabber",
       "name": "Stalker",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -1978,10 +2327,12 @@
       "source": "backstabber.png"
     },
     {
+      "id": 690458959,
       "class_name": "upgrade_express_shot",
       "name": "Express Shot",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": false,
@@ -1991,10 +2342,222 @@
       "source": "express_shot.png"
     },
     {
+      "id": 1736094134,
+      "class_name": "upgrade_icarus_wings",
+      "name": "Seraphim Wings",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_icarus_wings.png",
+      "game_icon": "file://{images}/items/brawl/icarus_wings.psd",
+      "source": "icarus_wings.png"
+    },
+    {
+      "id": 2054088113,
+      "class_name": "upgrade_mystical_piano",
+      "name": "Mystical Piano",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_mystical_piano.png",
+      "game_icon": "file://{images}/items/brawl/mystical_piano.psd",
+      "source": "mystical_piano.png"
+    },
+    {
+      "id": 3949773228,
+      "class_name": "upgrade_nullification_aura",
+      "name": "Nullification Burst",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_nullification_aura.png",
+      "game_icon": "file://{images}/items/brawl/nullification_aura.psd",
+      "source": "nullification_aura.png"
+    },
+    {
+      "id": 3729138568,
+      "class_name": "upgrade_celestial_guidance",
+      "name": "Celestial Blessing",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_celestial_guidance.png",
+      "game_icon": "file://{images}/items/brawl/celestial_guidance.psd",
+      "source": "celestial_guidance.png"
+    },
+    {
+      "id": 230297145,
+      "class_name": "upgrade_eternal_gift",
+      "name": "Eternal Gift",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_eternal_gift.png",
+      "game_icon": "file://{images}/items/brawl/eternal_gift.psd",
+      "source": "eternal_gift.png"
+    },
+    {
+      "id": 4050602737,
+      "class_name": "upgrade_patrons_blessing",
+      "name": "Mystic Conduit",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_patrons_blessing.png",
+      "game_icon": "file://{images}/items/brawl/patrons_blessing.psd",
+      "source": "patrons_blessing.png"
+    },
+    {
+      "id": 3568217437,
+      "class_name": "upgrade_eldritch_shot",
+      "name": "Haunting Shot",
+      "slot": "weapon",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_eldritch_shot.png",
+      "game_icon": "file://{images}/items/brawl/eldritch_shot.psd",
+      "source": "eldritch_shot.png"
+    },
+    {
+      "id": 3523480953,
+      "class_name": "upgrade_cloak_of_opportunity",
+      "name": "Cloak of Opportunity",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_cloak_of_opportunity.png",
+      "game_icon": "file://{images}/items/brawl/cloak_of_opportunity.psd",
+      "source": "cloak_of_opportunity.png"
+    },
+    {
+      "id": 64550694,
+      "class_name": "upgrade_runed_gauntlets",
+      "name": "Runed Gauntlets",
+      "slot": "weapon",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_runed_gauntlets.png",
+      "game_icon": "file://{images}/items/brawl/runed_gauntlets.psd",
+      "source": "runed_gauntlets.png"
+    },
+    {
+      "id": 1825399334,
+      "class_name": "upgrade_electric_slippers",
+      "name": "Electric Slippers",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_electric_slippers.png",
+      "game_icon": "file://{images}/items/brawl/electric_slippers.psd",
+      "source": "electric_slippers.png"
+    },
+    {
+      "id": 1132564516,
+      "class_name": "upgrade_prism_blast",
+      "name": "Prism Blast",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_prism_blast.png",
+      "game_icon": "file://{images}/items/brawl/prism_blast.psd",
+      "source": "prism_blast.png"
+    },
+    {
+      "id": 1558545403,
+      "class_name": "upgrade_unstable_concoction",
+      "name": "Unstable Concoction",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": true,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_unstable_concoction.png",
+      "game_icon": "file://{images}/items/brawl/unstable_concoction.psd",
+      "source": "unstable_concoction.png"
+    },
+    {
+      "id": 2068250483,
+      "class_name": "upgrade_shivas_bracelet",
+      "name": "Frostbite Charm",
+      "slot": "spirit",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": true,
+      "corruptible": false,
+      "icon": "icons/upgrade_shivas_bracelet.png",
+      "game_icon": "file://{images}/items/brawl/frostbite.psd",
+      "source": "frostbite.png"
+    },
+    {
+      "id": 2319629810,
+      "class_name": "upgrade_shadow_strike",
+      "name": "Shadow Strike",
+      "slot": "vitality",
+      "tier": 5,
+      "legendary": true,
+      "cost": 9999,
+      "active": false,
+      "imbue": false,
+      "corruptible": false,
+      "icon": "icons/upgrade_shadow_strike.png",
+      "game_icon": "file://{images}/items/brawl/shadow_strike.psd",
+      "source": "shadow_strike.png"
+    },
+    {
+      "id": 3294954488,
       "class_name": "upgrade_bulletshredimbue",
       "name": "Ballistic Enchantment",
       "slot": "weapon",
       "tier": 3,
+      "legendary": false,
       "cost": 3200,
       "active": false,
       "imbue": true,
@@ -2004,10 +2567,12 @@
       "source": "alchemical_seal.png"
     },
     {
+      "id": 1763073141,
       "class_name": "upgrade_rechargingbullets",
       "name": "Recharging Rush",
       "slot": "weapon",
       "tier": 2,
+      "legendary": false,
       "cost": 1600,
       "active": false,
       "imbue": false,
@@ -2017,10 +2582,12 @@
       "source": "recharging_rounds.png"
     },
     {
+      "id": 2462046703,
       "class_name": "upgrade_goose_egg",
       "name": "Golden Goose Egg",
       "slot": "spirit",
       "tier": 1,
+      "legendary": false,
       "cost": 800,
       "active": true,
       "imbue": false,

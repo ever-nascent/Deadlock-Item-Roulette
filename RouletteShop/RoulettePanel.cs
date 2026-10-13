@@ -39,6 +39,7 @@ public static class RoulettePanel
 
     private const string Ink = "#1a1510", Black = "#100d0a", Cream = "#eadfc6", Mint = "#9affd6", Red = "#b3261a", HitCorrupted = "#ff5a40";
     private const string Gold = "#9a6a00", HitJackpot = "#ffd23f";
+    private const string Amber = "#c2600a", HitLegendary = "#ff9b2f", LegendaryTag = "#c27a12";
     private const string Display = "Retail Demo", Body = "Radiance";
 
     private const string SoulIcon = "s2r://panorama/images/hud/icons/icon_soul.vsvg";
@@ -63,7 +64,9 @@ public static class RoulettePanel
 
     private static string Slug(ItemCategory? c) => c?.ToString().ToLowerInvariant() ?? "any";
 
-    private static string CardBacker(RouletteItem i) => $"s2r://panorama/images/shop/catalog/cards/card_backer_{Slug(i.Category)}_t{i.Tier}_psd.vtex";
+    /// <summary>The shop's card backer for the item's category and tier; a Legendary (tier 5 has no backer) takes tier 4's.</summary>
+    private static string CardBacker(RouletteItem i) =>
+        $"s2r://panorama/images/shop/catalog/cards/card_backer_{Slug(i.Category)}_t{Math.Min(i.Tier, 4)}_psd.vtex";
 
     /// <summary>The game's tab icons; the wildcard box gets its "all items" tab icon.</summary>
     private static string TabIcon(ItemCategory? c) => $"s2r://panorama/images/shop/catalog/catalog_shop_tab_icon_{(c == null ? "all" : Slug(c))}_psd.vtex";
@@ -82,10 +85,13 @@ public static class RoulettePanel
 
     private static T Centered<T>(this T n) where T : UINode => n.WithStyles(("horizontal-align", "center"), ("vertical-align", "center"));
 
-    /// <summary>What one player's panel shows. Category null is the wildcard box; Wildcard says whether it is offered.</summary>
+    /// <summary>
+    /// What one player's panel shows. Category null is the wildcard box; Wildcard says whether it is offered. DrawLine is
+    /// the line under the result (the odds, the build), RatesLine and OddsLine the fine print.
+    /// </summary>
     public sealed record View(
-        ItemCategory? Category, int Tier, int Souls, RouletteItem[] Pool, ISet<string> Owned, RouletteItem[] Reel,
-        bool ViaShopKey, bool Wildcard, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot);
+        ItemCategory? Category, int Tier, int Souls, RouletteItem[] Reel, bool ViaShopKey, bool Wildcard,
+        string DrawLine, string RatesLine, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot);
 
     // ─── the sheet ────────────────────────────────────────────────────────────
 
@@ -95,8 +101,7 @@ public static class RoulettePanel
     public static UINode Layout(View v)
     {
         var pal = Colors(v.Category);
-        int unowned = v.Pool.Count(i => !v.Owned.Contains(i.ClassName));
-        string hit = v.Landed == null ? Mint : HitColor(v.LandedCorrupted, v.LandedJackpot);
+        string hit = v.Landed is { } l ? HitColor(v.LandedCorrupted, v.LandedJackpot, l.Legendary) : Mint;
 
         // Centred, then pushed left by its right margin (alignment centres the margin box, as the game's own #Shop
         // relies on): the sheet's right edge lands SheetRightFromCenter left of the middle of the screen.
@@ -117,16 +122,15 @@ public static class RoulettePanel
                          ("background-image", $"url(\"{SlipPaper}\")"), ("background-size", "100% 100%"), ("background-img-opacity", "0.5"),
                          ("box-shadow", "2px 3px 0px #0000004d"))
                      .Add(v.Landed is { } landed ? Result("rsResult0", landed, v.LandedCorrupted, v.LandedJackpot) : Placeholder("rsResult0")),
-                 UI.Label("rsDraw", DrawText(unowned)).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5)
+                 UI.Label("rsDraw", v.DrawLine).At(Side, 730, SideWidth, 20).Font(Body, 15, Ink, 2.5)
                      .WithStyles(("text-align", "center"), ("text-overflow", "shrink"), ("white-space", "nowrap")),
                  SpinButton(v, pal),
                  Footer(v, pal));
     }
 
-    private static string DrawText(int unowned) => unowned > 0 ? $"RANDOM PICK · 1 OF {unowned}" : "YOU OWN THIS WHOLE BOX";
-
-    /// <summary>The ring and pointers round the winning card: red for Corrupted, gold for a jackpot.</summary>
-    private static string HitColor(bool corrupted, bool jackpot) => corrupted ? HitCorrupted : jackpot ? HitJackpot : Mint;
+    /// <summary>The ring and pointers round the winning card: red for Corrupted, gold for a jackpot, amber for a Legendary.</summary>
+    private static string HitColor(bool corrupted, bool jackpot, bool legendary)
+        => corrupted ? HitCorrupted : legendary ? HitLegendary : jackpot ? HitJackpot : Mint;
 
     private static UINode Mast(Palette pal, bool closable)
     {
@@ -220,7 +224,17 @@ public static class RoulettePanel
                 UI.Label("", i.Name).WithStyles(("width", Px(w * 0.88)), ("horizontal-align", "center"), ("vertical-align", "center"),
                     ("text-align", "center"), ("font-family", Display), ("font-weight", "bold"), ("font-size", Px(name)),
                     ("line-height", Px(name * 0.92)), ("letter-spacing", "0px"), ("text-overflow", "shrink"),
-                    ("color", i.Tier == 4 ? pal.T4Name : Ink))));
+                    ("color", i.Tier >= 4 ? pal.T4Name : Ink))));
+        if (i.Legendary)
+        {
+            // Tier 5 has no card art of its own (the shop only hides the tier label): a gold frame and a tag.
+            double tag = Math.Round(font * 0.615 * 1.25 + 4);
+            card.Add(UI.Container().At(0, 0, w, h).WithStyles(("border", $"{Px(Math.Max(2, w / 30))} solid {HitLegendary}"),
+                                                              ("border-radius", Px(radius))),
+                     UI.Label("", "LEGENDARY").At(0, 0, w, tag).WithStyles(("background-color", LegendaryTag), ("color", "#fff3d6"),
+                         ("font-family", Display), ("font-weight", "bold"), ("font-size", Px(font * 0.615)), ("letter-spacing", "1px"),
+                         ("text-align", "center"), ("border-radius", $"{Px(radius)} {Px(radius)} 0px 0px")));
+        }
         if (i.Imbue)
         {
             double tag = Math.Round(font * 0.615 * 1.25 + 4);
@@ -299,19 +313,28 @@ public static class RoulettePanel
     public static UINode Result(string id, RouletteItem item, bool corrupted, bool jackpot = false)
     {
         var pal = Colors(item.Category);
+        // The price tape: the item's shop price, or (tier 5 has no price here) its tier.
+        var tape = UI.Horizontal().WithStyles(("margin-left", "11px"), ("vertical-align", "center"), ("padding", "4px 9px 2px 7px"),
+                                              ("background-color", Black), ("border-radius", "3px"), ("transform", "rotateZ(-5deg)"));
+        if (item.Legendary)
+            tape.Add(UI.Label("", "TIER 5").Font(Display, 21, HitLegendary, 1).WithStyle("vertical-align", "center"));
+        else
+            tape.Add(UI.Image("", SoulIcon).WithStyles(("width", "12px"), ("height", "23px"), ("vertical-align", "center"), ("margin-right", "5px"),
+                                                       ("wash-color", Mint)),
+                     UI.Label("", Souls(ItemPool.TierPrices[item.Tier - 1])).Font(Display, 23, Mint).WithStyle("vertical-align", "center"));
         var body = ResultBody().Add(
             Card("", item, 112, corrupted).WithStyles(("horizontal-align", "center"), ("margin-bottom", "14px"), ("transform", "rotateZ(-3deg)"),
                                                       ("box-shadow", "0px 6px 14px #00000073")),
             ItemName(item.Name),
             UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "11px")).Add(
                 UI.Label("", Slug(item.Category)).Font(Display, 19, pal.Deep, 1).WithStyle("vertical-align", "center"),
-                UI.Horizontal().WithStyles(("margin-left", "11px"), ("vertical-align", "center"), ("padding", "4px 9px 2px 7px"),
-                                           ("background-color", Black), ("border-radius", "3px"), ("transform", "rotateZ(-5deg)")).Add(
-                    UI.Image("", SoulIcon).WithStyles(("width", "12px"), ("height", "23px"), ("vertical-align", "center"), ("margin-right", "5px"),
-                                                      ("wash-color", Mint)),
-                    UI.Label("", Souls(ItemPool.TierPrices[item.Tier - 1])).Font(Display, 23, Mint).WithStyle("vertical-align", "center"))));
+                tape));
         // Rubber stamps: CORRUPTED, and JACKPOT for an item from the tier above; smaller and shorter when there are both.
-        if (corrupted || jackpot)
+        // A Legendary (never Corrupted, never a jackpot) gets its own.
+        if (item.Legendary)
+            body.Add(UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "13px"))
+                .Add(Stamp(Amber, 22, "LEGENDARY", null)));
+        else if (corrupted || jackpot)
         {
             bool both = corrupted && jackpot;
             double size = both ? 14 : 22;
@@ -388,7 +411,7 @@ public static class RoulettePanel
     private static UINode Footer(View v, Palette pal)
     {
         var footer = UI.Vertical().At(18, 901, 408, 46);
-        foreach (var (id, line) in new[] { ("", "Selling is disabled while Roulette Shop is on"), ("rsOdds", v.OddsLine) })
+        foreach (var (id, line) in new[] { ("rsRates", v.RatesLine), ("rsOdds", v.OddsLine) })
             footer.Add(UI.Horizontal().WithStyles(("width", "100%"), ("height", "23px")).Add(
                 UI.Container().WithStyles(("width", "7px"), ("height", "7px"), ("vertical-align", "center"), ("margin-left", "2px"),
                                           ("background-color", pal.Deep), ("transform", "rotateZ(45deg)")),
@@ -422,16 +445,16 @@ public static class RoulettePanel
     }
 
     /// <summary>
-    /// After the reel stops: the ring turns red for a Corrupted item (gold for a jackpot); souls, the odds lines and the
-    /// button (in the box's colour) update.
+    /// After the reel stops: the ring turns red for a Corrupted item (gold for a jackpot, amber for a Legendary); souls, the
+    /// odds lines and the button (in the box's colour) update.
     /// </summary>
-    public static void ShowLanding(RecipientFilter to, ItemCategory? box, bool corrupted, bool jackpot, int souls, int unowned, string oddsLine,
-                                   SpinState state)
+    public static void ShowLanding(RecipientFilter to, ItemCategory? box, RouletteItem landed, bool corrupted, bool jackpot, int souls,
+                                   string drawLine, string oddsLine, SpinState state)
     {
-        var update = Panel.Build().Set("rsSouls", Souls(souls)).Set("rsDraw", DrawText(unowned)).Set("rsOdds", oddsLine);
-        if (corrupted || jackpot)
+        var update = Panel.Build().Set("rsSouls", Souls(souls)).Set("rsDraw", drawLine).Set("rsOdds", oddsLine);
+        if (corrupted || jackpot || landed.Legendary)
         {
-            string hit = HitColor(corrupted, jackpot);
+            string hit = HitColor(corrupted, jackpot, landed.Legendary);
             update.SetStyle("rsRing", "border", $"3px solid {hit}")
                   .SetStyle("rsPtrL", "background-color", hit)
                   .SetStyle("rsPtrR", "background-color", hit);
