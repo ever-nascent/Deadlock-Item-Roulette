@@ -17,9 +17,10 @@ public partial class RouletteShopPlugin
     /// <summary>
     /// A shop zone, or the base (its regeneration zone). The user, with friends: "when they try to use the roulette in base,
     /// it doesnt seem to work". The log: a friend at base had m_bInItemShopZone false (refused 4 times), while the host
-    /// spun at base; so the item shop trigger covers only part of the base.
+    /// spun at base; so the item shop trigger covers only part of the base. Dead counts too, as the game lets you buy
+    /// while dead (the user: "people should be able to buy while dead in the shop. like in the regular game").
     /// </summary>
-    private bool AtShop(CCitadelPlayerPawn pawn) => !Config.SpinOnlyAtShop || InItemShopZone.Get(pawn.Handle) || pawn.InRegenerationZone;
+    private bool AtShop(CCitadelPlayerPawn pawn) => !Config.SpinOnlyAtShop || InItemShopZone.Get(pawn.Handle) || pawn.InRegenerationZone || !pawn.IsAlive;
 
     // ─── the backstop for purchases that get past the buy block (quickbuy auto-buy, say) ───
 
