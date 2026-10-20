@@ -21,9 +21,11 @@ public static class RoulettePanel
 
     // Where the sheet goes. The game's shop (citadel_hud_hero_shop.css) puts its 1200-wide item page on the right and the
     // hero, souls and recent purchases on the left; the page's left edge is about 325 (16:9) to 350 (21:9) left of the
-    // screen's middle, 20 from the top, 960 tall. The sheet covers the left part, its right edge 370 left of the middle.
-    // Its size is the mockup's sheet (346x748) scaled to the page's height.
-    public const int SheetWidth = 444, SheetHeight = 960, SheetTop = 20, SheetRightFromCenter = 370;
+    // screen's middle, 20 from the top, 960 tall. The sheet sits at the screen's right edge (the user: "move the roulette
+    // to the right where theres an empty space", so it doesn't cover the build/quickbuy list on the left). On 21:9 the
+    // gap right of the page is about 460 wide (their screenshot); on 16:9 there is none, and the sheet covers the
+    // page's right end. Its size is the mockup's sheet (346x748) scaled to the page's height.
+    public const int SheetWidth = 444, SheetHeight = 960, SheetTop = 20, SheetRight = 8;
 
     // Reel geometry: five cards on show, the middle one wins (mockup STEP and WIN, at this scale). The spin is about 2 s
     // in all (the user's choice): TurnDelayMs for the strip to arrive, then SpinMs of turning.
@@ -134,12 +136,11 @@ public static class RoulettePanel
         var pal = Colors(v.Category);
         string hit = v.Landed is { } l ? HitColor(v.LandedCorrupted, v.LandedJackpot, l.Legendary) : Mint;
 
-        // Centred, then pushed left by its right margin (alignment centres the margin box, as the game's own #Shop
-        // relies on): the sheet's right edge lands SheetRightFromCenter left of the middle of the screen.
+        // SheetRight from the screen's right edge.
         // The hover style is there so it takes the mouse (hittest): clicks on the sheet don't reach the game.
         return UI.Container("rsSheet")
-            .WithStyles(("width", Px(SheetWidth)), ("height", Px(SheetHeight)), ("horizontal-align", "center"), ("vertical-align", "top"),
-                        ("margin-top", Px(SheetTop)), ("margin-right", Px(2 * (SheetRightFromCenter + SheetWidth / 2))),
+            .WithStyles(("width", Px(SheetWidth)), ("height", Px(SheetHeight)), ("horizontal-align", "right"), ("vertical-align", "top"),
+                        ("margin-top", Px(SheetTop)), ("margin-right", Px(SheetRight)),
                         ("background-color", "#d9c9a6"), ("background-image", $"url(\"{SheetPaper}\")"),
                         ("background-size", "1452px 2182px"), ("background-position", $"{pal.PaperX}px 0px"),
                         ("background-repeat", "no-repeat"), ("box-shadow", "0px 6px 18px #00000099"))
