@@ -7,6 +7,12 @@ namespace RouletteShop;
 /// </summary>
 public class RouletteConfig
 {
+    /// <summary>
+    /// Whether items can be sold to the game's shop (for half their price, as in the normal game), to make room for
+    /// upgrades. Off, selling is blocked (the command and, as a backstop, its refund).
+    /// </summary>
+    public bool SellingEnabled { get; set; } = true;
+
     /// <summary>Whether spins can come back Corrupted at all.</summary>
     public bool CorruptedEnabled { get; set; } = true;
 

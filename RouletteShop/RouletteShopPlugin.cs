@@ -41,6 +41,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         public ItemCategory? Category = ItemCategory.Weapon;   // null: the wildcard box (any category)
         public int Tier = 1;
         public bool ViaShopKey;
+        public long ShopKeyAt;                // when ViaShopKey was set (Environment.TickCount64)
+        public bool NoInShopLogged;           // logged that in_shop never came after the shop key
         public RouletteItem[] Reel = [];
         public RouletteItem? Landed;
         public bool LandedCorrupted;
@@ -56,8 +58,14 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         public int FreeShown;
     }
 
-    /// <summary>The usercmd in_shop flag each player last sent (true while the game's shop screen is open), and how many times it changed.</summary>
-    private readonly Dictionary<int, (bool InShop, int Changes)> _inShop = new();
+    /// <summary>When each player's usercmds last said in_shop (true while the game's shop screen is open), as Environment.TickCount64.</summary>
+    private readonly Dictionary<int, long> _lastInShop = new();
+
+    /// <summary>The item each player last asked to sell (sellitem), for the half-price refund in OnModifyCurrency.</summary>
+    private readonly Dictionary<int, (string ClassName, DateTime At)> _selling = new();
+
+    /// <summary>True while the roulette pays a sale's refund itself.</summary>
+    private bool _refunding;
 
     /// <summary>How long in_shop must stay off before the sheet closes: it flickers off for a few ms with the shop open.</summary>
     private const int ShopLeftDelayMs = 1000;
@@ -106,6 +114,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             .On("close", e => Close(e.Caller.Slot));
         UI.ClientResync += OnClientResync;
         Timer.Every(1.Seconds(), RefreshSouls);
+        Timer.Every(250.Milliseconds(), CloseLeftShops);
         ScheduleLucky();
         Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);
@@ -155,7 +164,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     public override void OnClientDisconnect(ClientDisconnectedEvent args)
     {
         _viewers.Remove(args.Slot);
-        _inShop.Remove(args.Slot);
+        _lastInShop.Remove(args.Slot);
+        _selling.Remove(args.Slot);
         _pityMisses.Remove(args.Slot);
         _builds.Remove(args.Slot);
         _streaks.Remove(args.Slot);
@@ -424,11 +434,13 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     private string RatesLine()
     {
         var parts = new List<string>();
+        if (!Config.SellingEnabled)
+            parts.Add("No selling");
         if (LegendaryChance > 0)
             parts.Add($"{LegendaryChance:0.##}% Legendary");
         if (Config.JackpotChancePercent > 0)
             parts.Add($"{Config.JackpotChancePercent:0.##}% jackpot (tier up)");
-        return parts.Count == 0 ? "Selling is disabled while Roulette Shop is on" : "No selling · " + string.Join(" · ", parts);
+        return string.Join(" · ", parts);
     }
 
     /// <summary>The Corrupted line on the sheet: the chance, and how many spins until the pity one.</summary>
@@ -505,13 +517,14 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             {
                 // Now the shop key closes it too; the cursor is the shop's.
                 v.ViaShopKey = true;
+                v.ShopKeyAt = Environment.TickCount64;
                 UI.Panel(RoulettePanel.Id).ReleaseCursor(controller.Recipients);
                 Render(controller, v);
             }
             return;
         }
 
-        _viewers[slot] = v = new Viewer { ViaShopKey = viaShopKey };
+        _viewers[slot] = v = new Viewer { ViaShopKey = viaShopKey, ShopKeyAt = Environment.TickCount64 };
         Render(controller, v);
         // From the shop key the game's own shop screen (underneath) has already freed the cursor.
         if (!viaShopKey)
@@ -699,7 +712,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         }
     }
 
-    // --- The normal shop can't sell anything: spinning is the only way to get items. ---
+    // --- The normal shop can't sell anything: spinning is the only way to get items. Selling to it works (SellingEnabled). ---
     // Command names from the server log of a real open / buy / sell (Checkpoint 3). The game's shop screen stays open (the
     // server couldn't close it: blocking open_item_shop didn't, nor did CCitadelUserMsg_ForceShopClosed sent with it),
     // and the roulette sheet sits beside its item page (design #3, the user's choice). Clicking an item there sends
@@ -708,23 +721,37 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
 
     public override void OnProcessUsercmds(ProcessUsercmdsEvent args)
     {
-        bool inShop = args.Usercmds[^1].InShop;
-        int slot = args.PlayerSlot;
-        if (_inShop.TryGetValue(slot, out var last) && last.InShop == inShop)
-            return;
-        int changes = last.Changes + 1;
-        _inShop[slot] = (inShop, changes);
-        if (inShop || !_viewers.ContainsKey(slot))
-            return;
-        // The Checkpoint 3 log shows in_shop dropping for ~30 ms with the shop still open: close only if it stays off.
-        Timer.Once(ShopLeftDelayMs.Milliseconds(), () =>
+        if (args.Usercmds.Any(c => c.InShop))
+            _lastInShop[args.PlayerSlot] = Environment.TickCount64;
+    }
+
+    /// <summary>
+    /// Closes the sheet of anyone whose usercmds stopped saying in_shop for ShopLeftDelayMs, however the shop closed (the
+    /// sheet stayed up before, closing only on exit_item_shop or an in_shop change seen with the sheet open). The sheet
+    /// waits for in_shop to be seen after the shop key, so it doesn't close at once if the game stops sending it.
+    /// </summary>
+    private void CloseLeftShops()
+    {
+        long now = Environment.TickCount64;
+        foreach (var (slot, v) in _viewers.ToList())
         {
-            if (_inShop.TryGetValue(slot, out var now) && now.Changes == changes && _viewers.TryGetValue(slot, out var v) && v.ViaShopKey)
+            if (!v.ViaShopKey)
+                continue;
+            bool seen = _lastInShop.TryGetValue(slot, out long last) && last >= v.ShopKeyAt - ShopLeftDelayMs;
+            if (!seen)
             {
-                Console.WriteLine($"[Roulette] slot {slot} left the shop (in_shop off for {ShopLeftDelayMs} ms): closing the roulette");
-                Close(slot);
+                if (!v.NoInShopLogged && now - v.ShopKeyAt > 3000)
+                {
+                    v.NoInShopLogged = true;
+                    Console.WriteLine($"[Roulette] slot {slot}: no in_shop usercmd since the shop key, so only exit_item_shop closes the roulette");
+                }
+                continue;
             }
-        });
+            if (now - last < ShopLeftDelayMs)
+                continue;
+            Console.WriteLine($"[Roulette] slot {slot} left the shop (in_shop off for {now - last} ms): closing the roulette");
+            Close(slot);
+        }
     }
 
     /// <summary>A click on an item in the game's shop: picks that item's box on the sheet. False if it isn't for the sheet.</summary>
@@ -764,6 +791,12 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
                     Block(e, "Buying is disabled. Spin instead: " + SpinUsage);
                 return HookResult.Stop;
             case "sellitem":
+                if (Config.SellingEnabled)
+                {
+                    if (controller != null && e.Args.ElementAtOrDefault(1) is { } sold)
+                        _selling[controller.Slot] = (sold, DateTime.UtcNow);
+                    return HookResult.Continue;
+                }
                 Block(e, "Selling is disabled while the roulette is on.");
                 return HookResult.Stop;
             default:
@@ -783,9 +816,11 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         if (e.CurrencyType != ECurrencyType.EGold)
             return HookResult.Continue;
 
-        // Backstop if a sale gets past the command block some other way: the item goes, but no souls come back.
         if (e.Source == ECurrencySource.EItemSale)
         {
+            if (Config.SellingEnabled)
+                return HalfPriceSale(e);
+            // Backstop if a sale gets past the command block some other way: the item goes, but no souls come back.
             Console.WriteLine($"[Roulette] blocked a {e.Amount}-soul sale refund for {e.Pawn.Controller?.PlayerName}");
             return HookResult.Stop;
         }
@@ -802,5 +837,39 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             }
         }
         return HookResult.Continue;
+    }
+
+    /// <summary>
+    /// What selling an item gives back: half its shop price, as in the normal game. A Legendary (9,999 in the item data, a
+    /// Street Brawl placeholder) counts as the top shop tier, so a lucky spin can't be sold for more than the best one.
+    /// </summary>
+    private static int SellRefund(RouletteItem item)
+        => (item.Legendary ? ItemPool.TierPrices[^1] : ItemPool.TierPrices[item.Tier - 1]) / 2;
+
+    /// <summary>
+    /// A sale's refund: the game's own if it is already half the item's price, else stopped and half paid instead (the
+    /// roulette gives items without a purchase, so the game's own refund isn't known to be half).
+    /// </summary>
+    private HookResult HalfPriceSale(ModifyCurrencyEvent e)
+    {
+        if (_refunding || e.Pawn.Controller is not { } seller || !_selling.Remove(seller.Slot, out var sold)
+            || DateTime.UtcNow - sold.At > TimeSpan.FromSeconds(2) || _pool.Find(sold.ClassName) is not { } item)
+            return HookResult.Continue;
+        int refund = SellRefund(item);
+        if (e.Amount == refund)
+            return HookResult.Continue;
+        Console.WriteLine($"[Roulette] {seller.PlayerName} sold {item.ClassName}: refund {e.Amount} -> {refund} (half its price)");
+        int slot = seller.Slot;
+        bool silent = e.Silent, forceGain = e.ForceGain, spendOnly = e.SpendOnly;
+        // Next tick, not from inside the game's own currency change.
+        Timer.NextTick(() =>
+        {
+            if (Players.FromSlot(slot)?.GetHeroPawn() is not { } pawn)
+                return;
+            _refunding = true;
+            try { pawn.ModifyCurrency(ECurrencyType.EGold, refund, ECurrencySource.EItemSale, silent, forceGain, spendOnly); }
+            finally { _refunding = false; }
+        });
+        return HookResult.Stop;
     }
 }
