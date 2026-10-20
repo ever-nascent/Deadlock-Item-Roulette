@@ -246,8 +246,16 @@ public partial class RouletteShopPlugin
             if (Config.RespawnTimePercent != 100)
                 Timer.NextTick(() => ShortenRespawn(victim));   // after the game has set the respawn time
         }
+        foreach (int slot in new[] { e.AttackerController?.Slot ?? -1, victim })
+            if (_viewers.ContainsKey(slot) && PlayerAt(slot) is { } c)
+                RoulettePanel.UpdateStreak(c.Recipients, StreakLine(slot));
         return HookResult.Continue;
     }
+
+    /// <summary>Free-spin progress for the SPIN button: kills in the current streak toward the next free spin.</summary>
+    private string StreakLine(int slot) => Config.FreeSpinKillStreak > 0
+        ? $"KILLS {_streaks.GetValueOrDefault(slot) % Config.FreeSpinKillStreak}/{Config.FreeSpinKillStreak} TO A FREE SPIN"
+        : "";
 
     /// <summary>When the hero died (game time; not GlobalVars.CurTime, which reads garbage on this build like MaxClients).</summary>
     private static readonly SchemaAccessor<float> DeathTime = new("CBasePlayerPawn"u8, "m_flDeathTime"u8);
@@ -334,15 +342,24 @@ public partial class RouletteShopPlugin
         : 0;
 
     /// <summary>What the sheet offers for the item the last spin gave (null once it's gone).</summary>
+    /// <summary>
+    /// What the sheet offers for the landed item: before it's kept, KEEP (for an imbue item, its ability keys), double or
+    /// nothing and reroll; after, imbuing (null once the item is gone).
+    /// </summary>
     private RoulettePanel.Landing? Landing(CCitadelPlayerController controller, Viewer v)
     {
-        if (v.Landed is not { } item || controller.GetHeroPawn() is not { } pawn || !Owns(pawn, item))
+        if (v.Landed is not { } item || controller.GetHeroPawn() is not { } pawn)
             return null;
-        bool bet = Config.DoubleOrNothingWinPercent > 0 && DoubleTargets(pawn, item).Length > 0;
-        bool[]? slots = item.Imbue && v.ImbuedSlot == null && _lastImbue.GetValueOrDefault(controller.Slot) == item.ClassName
-            ? Enumerable.Range(0, 4).Select(k => pawn.AbilityComponent.GetAbilityBySlot((EAbilitySlot)k)?.CanBeImbuedBy(item.ClassName) == true).ToArray()
-            : null;
-        return new(bet, RerollFee(v.Tier), slots, v.ImbuedSlot, v.LandedDoubled);
+        bool[] ImbueSlots() => Enumerable.Range(0, 4).Select(k => pawn.AbilityComponent.GetAbilityBySlot((EAbilitySlot)k)?.CanBeImbuedBy(item.ClassName) == true).ToArray();
+        if (!v.Kept)
+        {
+            bool bet = Config.DoubleOrNothingWinPercent > 0 && DoubleTargets(pawn, item).Length > 0;
+            return new(bet, RerollFee(v.Tier), item.Imbue ? ImbueSlots() : null, null, v.LandedDoubled, Keep: true);
+        }
+        if (!Owns(pawn, item))
+            return null;
+        bool[]? slots = item.Imbue && v.ImbuedSlot == null && _lastImbue.GetValueOrDefault(controller.Slot) == item.ClassName ? ImbueSlots() : null;
+        return new(false, 0, slots, v.ImbuedSlot, v.LandedDoubled);
     }
 
     /// <summary>Shows the item the last spin gave again, with what can be done with it now.</summary>
@@ -355,22 +372,12 @@ public partial class RouletteShopPlugin
     private void OnDouble(CCitadelPlayerController controller)
     {
         int slot = controller.Slot;
-        if (!_viewers.TryGetValue(slot, out var v) || v.Pending != null || v.Landed is not { } item || controller.GetHeroPawn() is not { } pawn
-            || Config.DoubleOrNothingWinPercent <= 0 || !Owns(pawn, item) || DoubleTargets(pawn, item) is not { Length: > 0 } targets)
+        // On the item before it's kept: nothing is given or taken back until KEEP.
+        if (!_viewers.TryGetValue(slot, out var v) || v.Pending != null || v.Landed is not { } item || v.Kept || controller.GetHeroPawn() is not { } pawn
+            || Config.DoubleOrNothingWinPercent <= 0 || DoubleTargets(pawn, item) is not { Length: > 0 } targets)
             return;
         bool win = Random.Shared.NextDouble() * 100 < Config.DoubleOrNothingWinPercent;
         var next = win ? Pick(targets, BuildIds(slot)) : null;
-        Granting(() => pawn.RemoveItem(item.ClassName));
-        if (next != null)
-        {
-            if (Granting(() => pawn.AddItem(next.ClassName)) == null)
-            {
-                Granting(() => pawn.AddItem(item.ClassName));
-                Console.WriteLine($"[Roulette] double or nothing: couldn't give {next.ClassName}, gave {item.ClassName} back");
-                return;
-            }
-            NoteGranted(slot, next.ClassName);
-        }
         Console.WriteLine($"[Roulette] {controller.PlayerName} bet {item.ClassName} double or nothing: {(next != null ? $"won {next.ClassName}" : "lost it")}");
 
         if (next != null)
@@ -379,10 +386,9 @@ public partial class RouletteShopPlugin
             v.LandedCorrupted = v.LandedJackpot = false;
             v.LandedDoubled = true;
             v.ImbuedSlot = null;
-            if (next.Imbue)
-                _lastImbue[slot] = next.ClassName;
             Play(controller, Sfx.Jackpot);
             ShowLandedResult(controller, v);
+            ShowReveal(controller, "YOU WON", next, corrupted: false, jackpot: false, doubled: true);
             if (Config.ShoutOuts)
                 Chat.PrintToChatAll($"Roulette: {controller.PlayerName} went double or nothing and won {next.Name}!");
         }
@@ -397,8 +403,8 @@ public partial class RouletteShopPlugin
 
     private void OnReroll(CCitadelPlayerController controller)
     {
-        if (!_viewers.TryGetValue(controller.Slot, out var v) || v.Pending != null || v.Landed is not { } old
-            || controller.GetHeroPawn() is not { } pawn || !Owns(pawn, old))
+        if (!_viewers.TryGetValue(controller.Slot, out var v) || v.Pending != null || v.Landed is not { } old || v.Kept
+            || controller.GetHeroPawn() is not { } pawn)
             return;
         int fee = RerollFee(v.Tier);
         if (fee <= 0)

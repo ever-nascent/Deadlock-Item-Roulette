@@ -118,13 +118,14 @@ public static class RoulettePanel
     public sealed record View(
         ItemCategory? Category, int Tier, int Souls, RouletteItem[] Reel, bool ViaShopKey, bool Wildcard,
         string DrawLine, string RatesLine, string OddsLine, RouletteItem? Landed, bool LandedCorrupted, bool LandedJackpot,
-        SpinState Button, int FreeSpins, bool Lucky, Landing? LandedAs = null);
+        SpinState Button, int FreeSpins, bool Lucky, Landing? LandedAs = null, string StreakLine = "");
 
     /// <summary>
-    /// What can be done with the item a spin just gave: bet it (double or nothing), reroll it for RerollCost souls, imbue it
-    /// (ImbueSlots: which of abilities 1-4 take it; ImbuedSlot once done). Doubled: it came from a double or nothing.
+    /// What can be done with the item a spin landed: Keep it (not given yet; until then it can be bet, double or nothing, or
+    /// rerolled for RerollCost souls), then imbue it (ImbueSlots: which of abilities 1-4 take it; ImbuedSlot once done).
+    /// Doubled: it came from a double or nothing.
     /// </summary>
-    public sealed record Landing(bool Double, int RerollCost, bool[]? ImbueSlots, int? ImbuedSlot, bool Doubled = false);
+    public sealed record Landing(bool Double, int RerollCost, bool[]? ImbueSlots, int? ImbuedSlot, bool Doubled = false, bool Keep = false);
 
     // ─── the sheet ────────────────────────────────────────────────────────────
 
@@ -381,8 +382,8 @@ public static class RoulettePanel
 
         // The card (smaller when there are buttons under it), on the shop's holographic Legendary sticker for a
         // Legendary, with its UPGRADE ribbon for a jackpot, and the rubber stamps across its foot.
-        bool actions = landing is { } l && (l.Double || l.RerollCost > 0 || l.ImbueSlots != null || l.ImbuedSlot != null);
-        double cw = actions ? 100 : 112, ch = Math.Round(cw * 128 / 82);
+        bool actions = landing is { } l && (l.Keep || l.Double || l.RerollCost > 0 || l.ImbueSlots != null || l.ImbuedSlot != null);
+        double cw = landing?.Keep == true ? 80 : actions ? 100 : 112, ch = Math.Round(cw * 128 / 82);
         var card = Card("", item, cw, corrupted, wear: 3).WithStyles(("horizontal-align", "center"), ("vertical-align", "top"),
                                                                     ("margin-top", "4px"), ("transform", "rotateZ(-3deg)"),
                                                                     ("box-shadow", "0px 6px 14px #00000073"));
@@ -412,15 +413,20 @@ public static class RoulettePanel
 
         var body = ResultBody().Add(
             holder,
-            ItemName(item.Name).WithStyle("margin-top", "4px"),
-            UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "8px")).Add(
+            ItemName(item.Name).WithStyle("margin-top", "8px"),
+            UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "12px")).Add(
                 UI.Label("", Slug(item.Category)).Font(Display, 19, pal.Deep, 1).Worn().WithStyle("vertical-align", "center"),
                 tape));
         if (landing is { } a)
         {
+            // KEEP; for an imbue item, picking its ability keeps it (and imbues it), as buying one in the shop does.
+            if (a.Keep)
+                body.Add(a.ImbueSlots is { } keys
+                    ? ImbueRow("KEEP INTO ABILITY", keys)
+                    : ActionButton("rsKeep", "keep", null, "KEEP IT", 256).WithStyles(("horizontal-align", "center"), ("margin-top", "16px")));
             if (a.Double || a.RerollCost > 0)
             {
-                var bets = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "10px"));
+                var bets = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "14px"));
                 if (a.Double)
                     bets.Add(ActionButton("rsDouble", "double", null, "DOUBLE OR NOTHING", 136));
                 if (a.RerollCost > 0)
@@ -429,17 +435,58 @@ public static class RoulettePanel
             }
             if (a.ImbuedSlot is { } done)
                 body.Add(UI.Label("", $"IMBUED INTO ABILITY {done}").Font(Body, 14, Ink, 2).Worn()
-                    .WithStyles(("horizontal-align", "center"), ("margin-top", "10px")));
-            else if (a.ImbueSlots is { } slots)
-            {
-                var imbue = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "8px")).Add(
-                    UI.Label("", "IMBUE INTO").Font(Body, 13, Ink, 2).Worn().WithStyles(("vertical-align", "center"), ("margin-right", "8px")));
-                for (int k = 0; k < slots.Length; k++)
-                    imbue.Add(ImbueKey(k + 1, slots[k]));
-                body.Add(imbue);
-            }
+                    .WithStyles(("horizontal-align", "center"), ("margin-top", "14px")));
+            else if (!a.Keep && a.ImbueSlots is { } slots)
+                body.Add(ImbueRow("IMBUE INTO", slots));
         }
-        return ResultFrame(id, "YOU GOT", body);
+        return ResultFrame(id, landing?.Keep == true ? "YOU ROLLED" : "YOU GOT", body);
+    }
+
+    /// <summary>A label and the four ability keys (greyed out for an ability that won't take the item).</summary>
+    private static UINode ImbueRow(string label, bool[] slots)
+    {
+        var row = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("margin-top", "16px")).Add(
+            UI.Label("", label).Font(Body, 13, Ink, 2).Worn().WithStyles(("vertical-align", "center"), ("margin-right", "8px")));
+        for (int k = 0; k < slots.Length; k++)
+            row.Add(ImbueKey(k + 1, slots[k]));
+        return row;
+    }
+
+    // ─── the reveal: the landed item, big, in the middle of the screen for a few seconds ───
+
+    public const string RevealId = "rouletteReveal";
+    public const int RevealMs = 3000;
+
+    /// <summary>
+    /// The item a spin landed, big, in the middle of the screen (the user: "when you get the item, it displays it to you.
+    /// that way people know what they get"). No hover style, so it doesn't take the mouse.
+    /// </summary>
+    public static UINode Reveal(string heading, RouletteItem item, bool corrupted, bool jackpot, bool doubled)
+    {
+        const int w = 420, h = 570, cw = 200;
+        var card = Card("", item, cw, corrupted, wear: 3).WithStyles(("horizontal-align", "center"), ("margin-top", "116px"),
+                                                                    ("transform", "rotateZ(-2deg)"), ("box-shadow", "0px 8px 20px #000000aa"));
+        if (jackpot)
+            card.Add(UI.Image("", UpgradeSticker).At(cw - 90, 0, 90, 86));
+
+        var tags = UI.Horizontal().WithStyles(("horizontal-align", "center"), ("vertical-align", "bottom"), ("margin-bottom", "24px"))
+            .Add(UI.Label("", item.Legendary ? "TIER 5" : $"{Slug(item.Category)} · {Souls(ItemPool.TierPrices[item.Tier - 1])}")
+                .Font(Display, 22, Colors(item.Category).Tab, 2).WithStyle("vertical-align", "center"));
+        foreach (var (on, color, text) in new[] { (item.Legendary, Amber, "LEGENDARY"), (corrupted, Red, "CORRUPTED"), (jackpot, Gold, "JACKPOT"), (doubled, Gold, "DOUBLED") })
+            if (on)
+                tags.Add(Stamp(color, 15, text, null).WithStyle("margin-left", "10px"));
+
+        return UI.Container("rvRoot")
+            .WithStyles(("width", Px(w)), ("height", Px(h)), ("horizontal-align", "center"), ("vertical-align", "center"), ("margin-bottom", "80px"),
+                        ("background-color", Black), ("background-image", $"url(\"{Slate}\")"), ("background-size", "cover"),
+                        ("border-radius", "6px"), ("box-shadow", "0px 10px 30px #000000cc"))
+            .Add(Layer(w, 92, Brush(item.Category)),
+                 UI.Label("", heading).At(0, 18, w, 56).Font(Display, 44, Cream, 3).Worn()
+                     .WithStyles(("text-align", "center"), ("text-shadow", "2px 3px 0px #000000cc")),
+                 card,
+                 UI.Label("", item.Name).At(16, 446, w - 32, 40).Font(Display, 34, Cream).WithStyles(("text-align", "center"), ("text-transform", "none"),
+                     ("text-overflow", "shrink"), ("white-space", "nowrap"), ("text-shadow", "2px 2px 0px #000000cc")),
+                 tags);
     }
 
     /// <summary>A small button on the slip: worn tape, cream worn type.</summary>
@@ -497,8 +544,14 @@ public static class RoulettePanel
                          .WithStyles(SpinTextStyle(state)),
                      UI.Image("rsSpinCost", PriceTag(v.Tier)).WithStyles(("width", "104px"), ("height", "64px"), ("margin-left", "10px"),
                          ("vertical-align", "center"), ("transform", $"rotateZ({StickerTilt(v.Tier)})"), ("img-shadow", "0px 3px 5px #000000aa"),
-                         ("visibility", state == SpinState.Ready ? "visible" : "collapse"))));
+                         ("visibility", state == SpinState.Ready ? "visible" : "collapse"))),
+                 // Free-spin progress (the user: "how are you supposed to see your progress on a free spin?").
+                 UI.Label("rsStreak", v.StreakLine).At(0, 98, SideWidth, 18).Font(Body, 13, Mint, 2)
+                     .WithStyles(("text-align", "center"), ("text-shadow", "1px 1px 0px #000000cc")));
     }
+
+    /// <summary>The free-spin progress line on the SPIN button.</summary>
+    public static void UpdateStreak(RecipientFilter to, string streakLine) => Panel.Build().Set("rsStreak", streakLine).SendTo(to);
 
     private static string FrameColor(SpinState s) => s switch
     {
