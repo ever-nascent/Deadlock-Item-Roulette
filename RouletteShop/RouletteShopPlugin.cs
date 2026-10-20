@@ -125,12 +125,30 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         ScheduleLucky();
         Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);
+        try { _purchaseHook = NetMessages.HookOutgoing<CCitadelUserMessage_ItemPurchaseNotification>(OnPurchaseNotification); }
+        catch (InvalidOperationException ex) { Console.WriteLine($"[Roulette] can't watch purchase notifications: {ex.Message}"); }
+    }
+
+    private IHandle? _purchaseHook;
+
+    /// <summary>
+    /// Logs the game's own purchase notice (it says whether quickbuy made the purchase), to show in the log which purchases
+    /// the backstop in OnModifyCurrency missed.
+    /// </summary>
+    private HookResult OnPurchaseNotification(OutgoingMessageContext<CCitadelUserMessage_ItemPurchaseNotification> ctx)
+    {
+        var m = ctx.Message;
+        string item = _pool.Find(m.AbilityId)?.ClassName ?? $"id {m.AbilityId}";
+        Console.WriteLine($"[Roulette] purchase notice: userid {m.Userid}, {item}{(m.Sell ? ", sell" : "")}{(m.Quickbuy ? ", quickbuy" : "")}"
+                          + $"{(_granting ? " (the roulette's own)" : "")}");
+        return HookResult.Continue;
     }
 
     public override void OnUnload()
     {
         UI.ClientResync -= OnClientResync;
         _buildHook?.Cancel();
+        _purchaseHook?.Cancel();
         foreach (int slot in _viewers.Keys.ToList())
             Close(slot);
     }
@@ -182,6 +200,9 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         _strays.Remove(args.Slot);
         _granted.Remove(args.Slot);
         _blockedPurchase.Remove(args.Slot);
+        _consumed.Remove(args.Slot);
+        _sold.Remove(args.Slot);
+        _toldBlocked.Remove(args.Slot);
     }
 
     [Command("hello", Description = "Say hello")]
@@ -795,7 +816,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     {
         // Temporary: log shop-like commands, to spot any other way into a shop (the Broker's, say).
         if (e.Command != "dw_ui" && (e.Command.Contains("shop") || e.Command.Contains("item") || e.Command.Contains("corrupt")
-                                     || e.Command.Contains("broker") || e.Command.Contains("trade")))
+                                     || e.Command.Contains("broker") || e.Command.Contains("trade") || e.Command.Contains("buy")))
             Console.WriteLine($"[Roulette] client command from {e.Controller?.PlayerName}: '{e.Command}' args [{string.Join(", ", e.Args)}]");
 
         var controller = e.Controller;
@@ -821,7 +842,10 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
                 if (Config.SellingEnabled)
                 {
                     if (controller != null && e.Args.ElementAtOrDefault(1) is { } sold)
+                    {
                         _selling[controller.Slot] = (sold, DateTime.UtcNow);
+                        NoteSold(controller.Slot, sold);
+                    }
                     return HookResult.Continue;
                 }
                 Block(e, "Selling is disabled while the roulette is on.");
@@ -851,12 +875,15 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             Console.WriteLine($"[Roulette] blocked a {e.Amount}-soul sale refund for {e.Pawn.Controller?.PlayerName}");
             return HookResult.Stop;
         }
-        if (e.Source == ECurrencySource.EItemPurchase)
+        // EItemUpgrade too: the user, after the EItemPurchase-only backstop: "quick buy bypasses it". Quickbuy mostly buys
+        // build items that upgrade one the player has (unverified which source the game charges those under).
+        if (e.Source is ECurrencySource.EItemPurchase or ECurrencySource.EItemUpgrade)
         {
             if (_granting)
                 return HookResult.Continue;
-            // A purchase that got past the buy block (quickbuy auto-buy, say): no souls, and its item is taken back.
-            Console.WriteLine($"[Roulette] souls EItemPurchase {e.Amount} for {e.Pawn.Controller?.PlayerName}, not from a spin");
+            // A purchase that got past the buy block (quickbuy, say): no souls, its item is taken back, and any item it
+            // used up is given back.
+            Console.WriteLine($"[Roulette] souls {e.Source} {e.Amount} for {e.Pawn.Controller?.PlayerName}, not from a spin");
             if (Config.BlockOtherPurchases && e.Pawn.Controller is { } buyer)
             {
                 PurchaseBlocked(buyer.Slot);

@@ -23,6 +23,18 @@ public partial class RouletteShopPlugin
     private readonly Dictionary<int, DateTime> _blockedPurchase = new();
     private readonly Dictionary<int, List<(string Name, DateTime At)>> _strays = new();
 
+    /// <summary>
+    /// Items that left a player outside the roulette (ability_removed): an upgrade bought by quickbuy uses up the item it
+    /// upgrades, which is given back when the upgrade is taken back.
+    /// </summary>
+    private readonly Dictionary<int, List<(string Name, DateTime At)>> _consumed = new();
+
+    /// <summary>Items each player sold (sellitem): never given back as an upgrade's used-up part.</summary>
+    private readonly Dictionary<int, List<(string Name, DateTime At)>> _sold = new();
+
+    /// <summary>Whether the player has been told in chat about the purchase blocked around now.</summary>
+    private readonly HashSet<int> _toldBlocked = new();
+
     /// <summary>Items the roulette gave, in case the game reports them (ability_added) after the grant returned.</summary>
     private readonly Dictionary<int, List<(string Name, DateTime At)>> _granted = new();
 
@@ -62,19 +74,42 @@ public partial class RouletteShopPlugin
         return HookResult.Continue;
     }
 
+    /// <summary>An item left the player. If a purchase was stopped around now, it was used up by that purchase: give it back.</summary>
+    [GameEventHandler("ability_removed")]
+    public HookResult OnAbilityRemoved(AbilityRemovedEvent e)
+    {
+        string? name = e.Ability?.SubclassVData?.Name;
+        if (_granting || !Config.BlockOtherPurchases || name == null || !name.StartsWith("upgrade_") || e.Userid?.Controller is not { } controller)
+            return HookResult.Continue;
+        int slot = controller.Slot;
+        if (Recent(_sold, slot).Any(s => s.Name == name))
+            return HookResult.Continue;
+        Recent(_consumed, slot).Add((name, DateTime.UtcNow));
+        TakeBackStrays(slot);
+        return HookResult.Continue;
+    }
+
+    private void NoteSold(int slot, string name) => Recent(_sold, slot).Add((name, DateTime.UtcNow));
+
     /// <summary>A soul charge for an item that didn't come from a spin was stopped (OnModifyCurrency).</summary>
     private void PurchaseBlocked(int slot)
     {
         _blockedPurchase[slot] = DateTime.UtcNow;
+        _toldBlocked.Remove(slot);
         TakeBackStrays(slot);
     }
 
+    /// <summary>
+    /// Within StrayWindow of a stopped purchase: takes back the items it gave and gives back the items it used up. Runs on
+    /// each event, as the game's order of charge, removal and addition isn't known (and may differ for quickbuy).
+    /// </summary>
     private void TakeBackStrays(int slot)
     {
         if (!_blockedPurchase.TryGetValue(slot, out var at) || DateTime.UtcNow - at > StrayWindow)
             return;
         var strays = Recent(_strays, slot);
-        if (strays.Count == 0 || Players.FromSlot(slot)?.GetHeroPawn() is not { } pawn)
+        var consumed = Recent(_consumed, slot);
+        if (strays.Count + consumed.Count == 0 || Players.FromSlot(slot)?.GetHeroPawn() is not { } pawn)
             return;
         foreach (var (name, _) in strays)
         {
@@ -82,8 +117,23 @@ public partial class RouletteShopPlugin
             Console.WriteLine($"[Roulette] took back {name} from slot {slot}: it was bought outside the roulette ({(removed ? "removed" : "couldn't remove it")})");
         }
         strays.Clear();
-        _blockedPurchase.Remove(slot);
-        Chat.PrintToChat(slot, "Roulette: buying from the shop is off. Spin instead.");
+        var giveBack = consumed.Select(c => c.Name).ToList();
+        consumed.Clear();
+        // Next tick, not from inside the game's own removal.
+        if (giveBack.Count > 0)
+            Timer.NextTick(() =>
+            {
+                if (Players.FromSlot(slot)?.GetHeroPawn() is not { } p)
+                    return;
+                foreach (string name in giveBack)
+                {
+                    NoteGranted(slot, name);
+                    bool given = Granting(() => p.AddItem(name)) != null;
+                    Console.WriteLine($"[Roulette] gave {name} back to slot {slot}: a blocked purchase used it up ({(given ? "given" : "couldn't give it")})");
+                }
+            });
+        if (_toldBlocked.Add(slot))
+            Chat.PrintToChat(slot, "Roulette: buying from the shop is off, quickbuy too. Spin instead.");
     }
 
     // ─── imbuing ──────────────────────────────────────────────────────────────
