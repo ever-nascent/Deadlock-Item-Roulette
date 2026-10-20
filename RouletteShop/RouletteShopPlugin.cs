@@ -680,13 +680,19 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         }
         KeepLanded(controller, v);
         UI.Panel(RoulettePanel.Id).DestroyLayout(controller.Recipients);
+        // The reveal goes with the sheet (the user: "the UI of all things should disappear instantly like the shop").
+        _revealSeq[slot] = _revealSeq.GetValueOrDefault(slot) + 1;
+        UI.Panel(RoulettePanel.RevealId).DestroyLayout(controller.Recipients);
         Console.WriteLine($"[Roulette] closed the panel for {controller.PlayerName}");
         foreach (int ms in DestroyResendMs)
             Timer.Once(ms.Milliseconds(), () =>
             {
                 // Not if the sheet was opened again since.
                 if (!_viewers.ContainsKey(slot) && PlayerAt(slot) is { } c)
+                {
                     UI.Panel(RoulettePanel.Id).DestroyLayout(c.Recipients);
+                    UI.Panel(RoulettePanel.RevealId).DestroyLayout(c.Recipients);
+                }
             });
     }
 
@@ -762,8 +768,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         }
         if (turning)
         {
-            // Closed before the reel stopped: still show what they got.
-            ShowReveal(controller, "YOU GOT", item, v.LandedCorrupted, v.LandedJackpot, doubled: false);
+            // Closed before the reel stopped (the UI goes with the shop): say in chat what they got.
+            Chat.PrintToChat(controller, $"Roulette: you got {(v.LandedCorrupted ? "CORRUPTED " : "")}{item.Name}.");
             ShoutOut(controller, item, v.LandedCorrupted, v.LandedJackpot);
         }
     }

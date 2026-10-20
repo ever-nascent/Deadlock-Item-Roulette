@@ -79,6 +79,9 @@ public class RouletteConfig
     /// <summary>A reroll (give back the last spin's item and spin again) costs this percent of the spin price. 0 turns it off.</summary>
     public double RerollCostPercent { get; set; } = 50;
 
-    /// <summary>Death timers are this percent of the game's own (the user: "make it so death timers are half as long"). 100 leaves them alone.</summary>
-    public double RespawnTimePercent { get; set; } = 50;
+    /// <summary>
+    /// Death timers are this percent of the game's own (the user, first "half as long", then "make death times 30% less
+    /// instead of 50%"). 100 leaves them alone.
+    /// </summary>
+    public double RespawnTimePercent { get; set; } = 70;
 }
