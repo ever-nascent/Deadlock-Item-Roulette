@@ -13,7 +13,12 @@ public partial class RouletteShopPlugin
     /// <summary>Whether the hero stands in a shop zone (set by the game's item shop triggers, where buying works).</summary>
     private static readonly SchemaAccessor<bool> InItemShopZone = new("CCitadelPlayerPawn"u8, "m_bInItemShopZone"u8);
 
-    private bool AtShop(CCitadelPlayerPawn pawn) => !Config.SpinOnlyAtShop || InItemShopZone.Get(pawn.Handle);
+    /// <summary>
+    /// A shop zone, or the base (its regeneration zone). The user, with friends: "when they try to use the roulette in base,
+    /// it doesnt seem to work". The log: a friend at base had m_bInItemShopZone false (refused 4 times), while the host
+    /// spun at base; so the item shop trigger covers only part of the base.
+    /// </summary>
+    private bool AtShop(CCitadelPlayerPawn pawn) => !Config.SpinOnlyAtShop || InItemShopZone.Get(pawn.Handle) || pawn.InRegenerationZone;
 
     // ─── the backstop for purchases that get past the buy block (quickbuy auto-buy, say) ───
 

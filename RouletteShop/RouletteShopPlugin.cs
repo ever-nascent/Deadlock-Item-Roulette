@@ -735,6 +735,9 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         }
         catch (CommandException ex)
         {
+            var hero = controller.GetHeroPawn();
+            Console.WriteLine($"[Roulette] {controller.PlayerName} can't spin: {ex.Message} "
+                              + $"({(hero == null ? "no hero" : $"m_bInItemShopZone {InItemShopZone.Get(hero.Handle)}, m_bInRegenerationZone {hero.InRegenerationZone}")})");
             Play(controller, Sfx.Error);
             ShowResult(controller, v, id => RoulettePanel.Message(id, "Can't spin", ex.Message));
             return;
