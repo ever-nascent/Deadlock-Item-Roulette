@@ -91,8 +91,29 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     /// <summary>A spin that has happened: the item is given and the souls taken. Jackpot: the item is from the tier above.</summary>
     private sealed record SpinOutcome(RouletteItem Item, bool Corrupted, bool Jackpot, RouletteItem[] Strip);
 
+    /// <summary>The server window's writer, put back on unload.</summary>
+    private TextWriter? _serverOut;
+
+    /// <summary>
+    /// Copies everything written to the console into roulette_server.log beside the server, with times: Deadworks writes
+    /// the log only to the server window (no file, and con_logfile is hidden), and the log has to be read after each test.
+    /// </summary>
+    private sealed class FileCopy(TextWriter server, string path) : TextWriter
+    {
+        private readonly StreamWriter _file = new(new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)) { AutoFlush = true };
+        public override System.Text.Encoding Encoding => server.Encoding;
+        public override void Write(char value) => server.Write(value);
+        public override void Write(string? value) { server.Write(value); _file.Write(value); }
+        public override void WriteLine(string? value) { server.WriteLine(value); _file.WriteLine($"{DateTime.Now:HH:mm:ss.fff} {value}"); }
+        protected override void Dispose(bool disposing) { if (disposing) _file.Dispose(); }
+    }
+
     public override void OnLoad(bool isReload)
     {
+        _serverOut = Console.Out;
+        string logPath = Path.Combine(AppContext.BaseDirectory, "roulette_server.log");
+        Console.SetOut(new FileCopy(_serverOut, logPath));
+        Console.WriteLine($"[Roulette] copying the log to {logPath}");
         _pool = ItemPool.Load();
         Console.WriteLine(isReload ? "Roulette Shop reloaded!" : "Roulette Shop loaded!");
         Console.WriteLine($"[Roulette] Item pool: {_pool.Count} items ({_pool.Summary()}), {_pool.CorruptibleCount} with a Corrupted version, "
@@ -152,6 +173,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         _purchaseHook?.Cancel();
         foreach (int slot in _viewers.Keys.ToList())
             Close(slot);
+        if (_serverOut != null)
+            Console.SetOut(_serverOut);
     }
 
     public override void OnConfigReloaded()
@@ -190,6 +213,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     public override void OnClientDisconnect(ClientDisconnectedEvent args)
     {
         _viewers.Remove(args.Slot);
+        _lookupLogged.Remove(args.Slot);
         _lastInShop.Remove(args.Slot);
         _lastFreeCursor.Remove(args.Slot);
         _selling.Remove(args.Slot);
@@ -562,27 +586,23 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Console.WriteLine($"[Roulette] opened the panel for {controller.PlayerName} ({(viaShopKey ? "shop key" : "chat")})");
     }
 
-    /// <summary>Slots whose Players.FromSlot answer has been logged as wrong (once each).</summary>
-    private readonly HashSet<int> _fromSlotLogged = new();
+    /// <summary>Slots whose lookup has been logged (once each).</summary>
+    private readonly HashSet<int> _lookupLogged = new();
 
     /// <summary>
-    /// The connected player in <paramref name="slot"/> (a controller's Slot, as commands and panel events give it). Not
-    /// Players.FromSlot: the user's log showed it finding no one for the slot of the player who just closed the shop, so
-    /// Close never sent the destroy (no "closed the panel" line after exit_item_shop, though the sheet was forgotten), and
-    /// the spin, the soul count and the m_bHasShopOpen read, which used it too, never reached the player either.
+    /// The player in <paramref name="slot"/> (a controller's Slot, as commands and panel events give it), by entity index:
+    /// Slot is EntityIndex - 1 (Deadworks v0.5.6, CBasePlayerController). Not Players.GetAll or Players.FromSlot: both
+    /// skip slots at or past GlobalVars.MaxClients, and GetAll also skips slots not marked fully connected. The user's
+    /// log: every exit_item_shop gave "no connected player has that slot" for slot 0, though the event's own controller
+    /// was slot 0, so the destroy was never sent and the sheet stayed. Logs once per slot why GetAll missed.
     /// </summary>
     private CCitadelPlayerController? PlayerAt(int slot)
     {
-        var found = Players.GetAll().FirstOrDefault(c => c.Slot == slot);
-        if (found != null && _fromSlotLogged.Add(slot))
-        {
-            var bySlot = Players.FromSlot(slot);
-            if (bySlot?.Slot != slot)
-                Console.WriteLine($"[Roulette] Players.FromSlot({slot}) gave {(bySlot == null ? "no one" : $"slot {bySlot.Slot}")}, "
-                                  + $"not {found.PlayerName}: using the player matched by Slot");
-            else
-                _fromSlotLogged.Remove(slot);   // agreed: check again next time, logging only a wrong answer
-        }
+        var found = CBaseEntity.FromIndex<CCitadelPlayerController>(slot + 1);
+        if (_lookupLogged.Add(slot))
+            Console.WriteLine($"[Roulette] slot {slot} is {found?.PlayerName ?? "no one"} by entity index; Players.GetAll has "
+                              + $"{Players.GetAll().Count()}, FromSlot {(Players.FromSlot(slot) == null ? "no one" : "found")}, "
+                              + $"MaxClients {GlobalVars.MaxClients}, IsConnected {Players.IsConnected(slot)}");
         return found;
     }
 
