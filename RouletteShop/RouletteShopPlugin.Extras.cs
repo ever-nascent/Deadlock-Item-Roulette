@@ -137,7 +137,7 @@ public partial class RouletteShopPlugin
             return;
         var strays = Recent(_strays, slot);
         var consumed = Recent(_consumed, slot);
-        if (strays.Count + consumed.Count == 0 || Players.FromSlot(slot)?.GetHeroPawn() is not { } pawn)
+        if (strays.Count + consumed.Count == 0 || PlayerAt(slot)?.GetHeroPawn() is not { } pawn)
             return;
         foreach (var (name, _) in strays)
         {
@@ -151,7 +151,7 @@ public partial class RouletteShopPlugin
         if (giveBack.Count > 0)
             Timer.NextTick(() =>
             {
-                if (Players.FromSlot(slot)?.GetHeroPawn() is not { } p)
+                if (PlayerAt(slot)?.GetHeroPawn() is not { } p)
                     return;
                 foreach (string name in giveBack)
                 {
@@ -288,7 +288,7 @@ public partial class RouletteShopPlugin
     private void RefreshLines()
     {
         foreach (var (slot, v) in _viewers)
-            if (Players.FromSlot(slot) is { } controller)
+            if (PlayerAt(slot) is { } controller)
                 RoulettePanel.UpdateLines(controller.Recipients, DrawLine(controller, v.Category, v.Tier), RatesLine(), OddsLine(slot), Lucky);
     }
 

@@ -167,7 +167,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     {
         foreach (var (slot, v) in _viewers)
         {
-            if (v.Pending != null || Players.FromSlot(slot) is not { } controller)
+            if (v.Pending != null || PlayerAt(slot) is not { } controller)
                 continue;
             if (v.Category == null && !Config.WildcardBox)
                 v.Category = ItemCategory.Weapon;
@@ -391,7 +391,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Console.WriteLine($"[Roulette] before: {before} | after: {Snapshot(controller, pawn)}");
         Timer.Once(1.Seconds(), () =>
         {
-            if (Players.FromSlot(slot) is { } c && c.GetHeroPawn() is { } p)
+            if (PlayerAt(slot) is { } c && c.GetHeroPawn() is { } p)
                 Console.WriteLine($"[Roulette] 1s later: {Snapshot(c, p)}");
         });
 
@@ -444,7 +444,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         var ids = build?.Details?.ModCategories.SelectMany(c => c.Mods).Select(m => m.AbilityId).ToHashSet() ?? [];
         _builds[slot] = ids;
         Console.WriteLine($"[Roulette] slot {slot} picked the build '{build?.Name}': {ids.Count(id => _pool.Find(id) != null)} roulette items");
-        if (_viewers.TryGetValue(slot, out var v) && v.Pending == null && Players.FromSlot(slot) is { } controller)
+        if (_viewers.TryGetValue(slot, out var v) && v.Pending == null && PlayerAt(slot) is { } controller)
             Render(controller, v);
         return HookResult.Continue;
     }
@@ -562,6 +562,30 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Console.WriteLine($"[Roulette] opened the panel for {controller.PlayerName} ({(viaShopKey ? "shop key" : "chat")})");
     }
 
+    /// <summary>Slots whose Players.FromSlot answer has been logged as wrong (once each).</summary>
+    private readonly HashSet<int> _fromSlotLogged = new();
+
+    /// <summary>
+    /// The connected player in <paramref name="slot"/> (a controller's Slot, as commands and panel events give it). Not
+    /// Players.FromSlot: the user's log showed it finding no one for the slot of the player who just closed the shop, so
+    /// Close never sent the destroy (no "closed the panel" line after exit_item_shop, though the sheet was forgotten), and
+    /// the spin, the soul count and the m_bHasShopOpen read, which used it too, never reached the player either.
+    /// </summary>
+    private CCitadelPlayerController? PlayerAt(int slot)
+    {
+        var found = Players.GetAll().FirstOrDefault(c => c.Slot == slot);
+        if (found != null && _fromSlotLogged.Add(slot))
+        {
+            var bySlot = Players.FromSlot(slot);
+            if (bySlot?.Slot != slot)
+                Console.WriteLine($"[Roulette] Players.FromSlot({slot}) gave {(bySlot == null ? "no one" : $"slot {bySlot.Slot}")}, "
+                                  + $"not {found.PlayerName}: using the player matched by Slot");
+            else
+                _fromSlotLogged.Remove(slot);   // agreed: check again next time, logging only a wrong answer
+        }
+        return found;
+    }
+
     /// <summary>
     /// When the sheet's destroy is sent again after a close. The user's log: exit_item_shop came 430 ms after
     /// open_item_shop, Close ran, and the sheet stayed for good. The Deadworks client reads its messages from closed-caption
@@ -576,22 +600,25 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         if (!_viewers.Remove(slot))
             return;
         // DestroyLayout also gives back a cursor the panel asked for.
-        if (Players.FromSlot(slot) is not { } controller)
+        if (PlayerAt(slot) is not { } controller)
+        {
+            Console.WriteLine($"[Roulette] closing the panel for slot {slot}, but no connected player has that slot: nothing sent");
             return;
+        }
         UI.Panel(RoulettePanel.Id).DestroyLayout(controller.Recipients);
         Console.WriteLine($"[Roulette] closed the panel for {controller.PlayerName}");
         foreach (int ms in DestroyResendMs)
             Timer.Once(ms.Milliseconds(), () =>
             {
                 // Not if the sheet was opened again since.
-                if (!_viewers.ContainsKey(slot) && Players.FromSlot(slot) is { } c)
+                if (!_viewers.ContainsKey(slot) && PlayerAt(slot) is { } c)
                     UI.Panel(RoulettePanel.Id).DestroyLayout(c.Recipients);
             });
     }
 
     private void OnClientResync(int slot)
     {
-        if (!_viewers.TryGetValue(slot, out var v) || Players.FromSlot(slot) is not { } controller)
+        if (!_viewers.TryGetValue(slot, out var v) || PlayerAt(slot) is not { } controller)
             return;
         Render(controller, v);
         if (!v.ViaShopKey)
@@ -691,7 +718,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
 
         Timer.Once(RoulettePanel.TurnDelayMs.Milliseconds(), () =>
         {
-            if (_viewers.TryGetValue(slot, out var now) && now.StripId == stripId && Players.FromSlot(slot) is { } c)
+            if (_viewers.TryGetValue(slot, out var now) && now.StripId == stripId && PlayerAt(slot) is { } c)
             {
                 RoulettePanel.TurnReel(c.Recipients, stripId);
                 Play(c, Sfx.Reel);
@@ -703,7 +730,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     private void Land(int slot, string stripId)
     {
         if (!_viewers.TryGetValue(slot, out var v) || v.StripId != stripId || v.Pending is not { } outcome
-            || Players.FromSlot(slot) is not { } controller)
+            || PlayerAt(slot) is not { } controller)
             return;
         Settle(v, outcome);
         if (outcome.Item.Imbue)
@@ -747,7 +774,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     {
         foreach (var (slot, v) in _viewers)
         {
-            if (Players.FromSlot(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
+            if (PlayerAt(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
                 continue;
             int souls = pawn.GetCurrency(ECurrencyType.EGold), free = _freeSpins.GetValueOrDefault(slot);
             var state = ButtonState(controller, v);
@@ -792,7 +819,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         {
             if (!v.ViaShopKey)
                 continue;
-            if (Players.FromSlot(slot)?.GetHeroPawn() is { } pawn && HasShopOpen.Get(pawn.Handle))
+            if (PlayerAt(slot)?.GetHeroPawn() is { } pawn && HasShopOpen.Get(pawn.Handle))
                 v.PawnShopOpenAt = now;
 
             (string Name, long At)[] signals =
@@ -937,7 +964,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         // Next tick, not from inside the game's own currency change.
         Timer.NextTick(() =>
         {
-            if (Players.FromSlot(slot)?.GetHeroPawn() is not { } pawn)
+            if (PlayerAt(slot)?.GetHeroPawn() is not { } pawn)
                 return;
             _refunding = true;
             try { pawn.ModifyCurrency(ECurrencyType.EGold, refund, ECurrencySource.EItemSale, silent, forceGain, spendOnly); }
