@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using DeadworksManaged.Api;
 using DeadworksManaged.Api.UI;
 
@@ -84,9 +83,6 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     private readonly Dictionary<int, HashSet<uint>> _builds = new();
 
     private IHandle? _buildHook;
-
-    /// <summary>The pawn's quickbuy queue: a CNetworkUtlVectorBase of CUtlStringToken (item ids).</summary>
-    private static readonly SchemaAccessor<byte> QuickbuyQueue = new("CCitadelPlayerPawn"u8, "m_vecQuickbuyQueue"u8);
 
     /// <summary>A spin that has happened: the item is given and the souls taken. Jackpot: the item is from the tier above.</summary>
     private sealed record SpinOutcome(RouletteItem Item, bool Corrupted, bool Jackpot, RouletteItem[] Strip);
@@ -219,6 +215,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         _selling.Remove(args.Slot);
         _pityMisses.Remove(args.Slot);
         _builds.Remove(args.Slot);
+        _quickbuy.Remove(args.Slot);
         _streaks.Remove(args.Slot);
         _freeSpins.Remove(args.Slot);
         _lastImbue.Remove(args.Slot);
@@ -349,7 +346,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             throw new CommandException(category == null ? $"You already own every item at {price}." : $"You already own every {category} item at {price}.");
 
         var before = Snapshot(controller, pawn);
-        var build = BuildIds(controller.Slot, pawn);
+        var build = BuildIds(controller.Slot);
 
         // Legendary: now and then a tier 5 Legendary of the box's category, for the same price. The game marks them Street
         // Brawl only and may refuse them: then the spin carries on with a normal item.
@@ -446,18 +443,36 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         return candidates[^1];
     }
 
-    /// <summary>The player's build: the one they picked in the shop, and whatever is in their quickbuy queue.</summary>
-    private HashSet<uint> BuildIds(int slot, CCitadelPlayerPawn pawn)
+    /// <summary>The player's build: the one they picked in the shop, and what they put in their quickbuy queue.</summary>
+    private HashSet<uint> BuildIds(int slot)
+        => [.. _builds.GetValueOrDefault(slot) ?? [], .. _quickbuy.GetValueOrDefault(slot) ?? []];
+
+    /// <summary>The items each player's client asked to queue for quickbuy (the blocked quickbuy command's ids).</summary>
+    private readonly Dictionary<int, HashSet<uint>> _quickbuy = new();
+
+    /// <summary>
+    /// The client's quickbuy command. Logged in game: the client sends "quickbuy clear" then "quickbuy add &lt;item id&gt; 1
+    /// false" per queued item, and the game bought the first one ~100 ms later (EItemPurchase, notice "quickbuy"); the
+    /// backstop's take-back then failed ("couldn't remove it"). Blocked, the server's queue stays empty, so quickbuy has
+    /// nothing to buy; the ids are kept for build-aware spins.
+    /// </summary>
+    private HookResult OnQuickbuy(ClientConCommandEvent e)
     {
-        var ids = new HashSet<uint>(_builds.GetValueOrDefault(slot) ?? []);
-        // CUtlVector layout: the count at +0, the element pointer at +8.
-        nint vector = QuickbuyQueue.GetAddress(pawn.Handle);
-        int count = Marshal.ReadInt32(vector);
-        nint data = Marshal.ReadIntPtr(vector, 8);
-        if (count is > 0 and <= 256 && data != 0)
-            for (int k = 0; k < count; k++)
-                ids.Add((uint)Marshal.ReadInt32(data, 4 * k));
-        return ids;
+        if (e.Controller is not { } controller)
+            return HookResult.Continue;
+        int slot = controller.Slot;
+        switch (e.Args.ElementAtOrDefault(1))
+        {
+            case "clear":
+                _quickbuy.Remove(slot);
+                break;
+            case "add" when int.TryParse(e.Args.ElementAtOrDefault(2), out int id):
+                if (!_quickbuy.TryGetValue(slot, out var ids))
+                    _quickbuy[slot] = ids = [];
+                ids.Add((uint)id);
+                break;
+        }
+        return Config.BlockOtherPurchases ? HookResult.Stop : HookResult.Continue;
     }
 
     /// <summary>The build the player picked in the shop: the game sends it to the server (and so to us) as they pick it.</summary>
@@ -480,7 +495,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         var unowned = _pool.Get(category, tier).Where(i => pawn == null || !Owns(pawn, i)).ToArray();
         if (unowned.Length == 0)
             return "YOU OWN THIS WHOLE BOX";
-        int inBuild = pawn == null || Config.BuildWeight <= 1 ? 0 : unowned.Count(i => BuildIds(controller.Slot, pawn).Contains(i.Id));
+        int inBuild = pawn == null || Config.BuildWeight <= 1 ? 0 : unowned.Count(i => BuildIds(controller.Slot).Contains(i.Id));
         return inBuild > 0 ? $"1 OF {unowned.Length} · {inBuild} FROM YOUR BUILD ({Config.BuildWeight:0.#}X)" : $"RANDOM PICK · 1 OF {unowned.Length}";
     }
 
@@ -888,6 +903,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         var controller = e.Controller;
         switch (e.Command)
         {
+            case "quickbuy":
+                return OnQuickbuy(e);
             case "open_item_shop":
                 // The game's shop opens as normal; the roulette sheet opens beside it.
                 if (controller != null)

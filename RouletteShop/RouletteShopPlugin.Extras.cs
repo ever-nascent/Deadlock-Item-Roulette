@@ -89,9 +89,11 @@ public partial class RouletteShopPlugin
     {
         if (!Config.BlockOtherPurchases)
             return;
-        foreach (var controller in Players.GetAll())
+        // Not Players.GetAll: it lists no one on this game build (see PlayerAt).
+        for (int slot = 0; slot < Players.MaxSlot; slot++)
         {
-            if (controller.GetHeroPawn() is not { } pawn || !QuickbuyAutoPurchase.Get(pawn.Handle))
+            if (!Players.IsConnected(slot) || PlayerAt(slot) is not { } controller
+                || controller.GetHeroPawn() is not { } pawn || !QuickbuyAutoPurchase.Get(pawn.Handle))
                 continue;
             uint request = QuickbuyAutoPurchaseRequest.Get(pawn.Handle);
             QuickbuyAutoPurchase.Set(pawn.Handle, false);
@@ -328,7 +330,7 @@ public partial class RouletteShopPlugin
             || Config.DoubleOrNothingWinPercent <= 0 || !Owns(pawn, item) || DoubleTargets(pawn, item) is not { Length: > 0 } targets)
             return;
         bool win = Random.Shared.NextDouble() * 100 < Config.DoubleOrNothingWinPercent;
-        var next = win ? Pick(targets, BuildIds(slot, pawn)) : null;
+        var next = win ? Pick(targets, BuildIds(slot)) : null;
         Granting(() => pawn.RemoveItem(item.ClassName));
         if (next != null)
         {
