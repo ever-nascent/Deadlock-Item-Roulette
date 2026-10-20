@@ -152,7 +152,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Timer.Every(1.Seconds(), RefreshSouls);
         Timer.Every(250.Milliseconds(), CloseLeftShops);
         Timer.Every(100.Milliseconds(), StopAutoPurchase);
-        Timer.Every(1.Seconds(), RefreshExtras);
+        Timer.Every(1.Seconds(), LogSlots);
         ScheduleLucky();
         Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);
@@ -186,9 +186,6 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         foreach (int slot in _revealSeq.Keys)
             if (PlayerAt(slot) is { } c)
                 UI.Panel(RoulettePanel.RevealId).DestroyLayout(c.Recipients);
-        foreach (var (slot, shown) in _extrasShown)
-            if (shown != "" && PlayerAt(slot) is { } c)
-                UI.Panel(RoulettePanel.ExtrasId).DestroyLayout(c.Recipients);
         if (_serverOut != null)
             Console.SetOut(_serverOut);
     }
@@ -231,7 +228,6 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         _viewers.Remove(args.Slot);
         _lookupLogged.Remove(args.Slot);
         _revealSeq.Remove(args.Slot);
-        _extrasShown.Remove(args.Slot);
         _slotsLogged.Remove(args.Slot);
         _lastInShop.Remove(args.Slot);
         _lastFreeCursor.Remove(args.Slot);

@@ -452,39 +452,6 @@ public static class RoulettePanel
         return row;
     }
 
-    // ─── the extras box: items past the HUD's 12 slots, bottom left, like Street Brawl's extra rows ───
-
-    public const string ExtrasId = "rouletteExtras";
-
-    /// <summary>
-    /// Street Brawl's extra item boxes (the user's screenshot): cream squares with the item icon, up to 8 a row, just
-    /// above the HUD's own item slots (placed from the user's 21:9 screenshot: their left edge about 355 in, their top
-    /// about 900 down). No hover style, so it doesn't take the mouse.
-    /// </summary>
-    public static UINode Extras(IReadOnlyList<RouletteItem> items)
-    {
-        const int box = 56, gap = 8, perRow = 8;
-        var rows = UI.Vertical();
-        for (int r = 0; r * perRow < items.Count; r++)
-        {
-            var row = UI.Horizontal().WithStyle("margin-top", r == 0 ? "0px" : Px(gap));
-            foreach (var (item, k) in items.Skip(r * perRow).Take(perRow).Select((item, k) => (item, k)))
-                row.Add(UI.Container().WithStyles(("width", Px(box)), ("height", Px(box)), ("margin-left", k == 0 ? "0px" : Px(gap)),
-                        ("background-color", "#efe3c8"), ("border-radius", "4px"), ("box-shadow", "0px 2px 4px #00000080"))
-                    .Add(UI.Image("", item.GameIcon).WithStyles(("width", "86%"), ("height", "86%"), ("horizontal-align", "center"),
-                                                               ("vertical-align", "center")),
-                         // The category's colour in the corner, as the shop's tier badge sits.
-                         UI.Container().At(box - 14, 0, 14, 14).WithStyles(("background-color", Colors(item.Category).Tab),
-                                                                           ("border-radius", "0px 4px 0px 4px"))));
-            rows.Add(row);
-        }
-        return UI.Vertical("exRoot")
-            .WithStyles(("horizontal-align", "left"), ("vertical-align", "bottom"), ("margin-left", "355px"), ("margin-bottom", "190px"),
-                        ("padding", "8px 10px 10px 10px"), ("background-color", "#1a1510b3"), ("border-radius", "6px"))
-            .Add(UI.Label("", $"EXTRA ITEMS · {items.Count}").Font(Body, 13, Cream, 2).WithStyle("margin-bottom", "6px"),
-                 rows);
-    }
-
     // ─── the reveal: the landed item, big, in the middle of the screen for a few seconds ───
 
     public const string RevealId = "rouletteReveal";

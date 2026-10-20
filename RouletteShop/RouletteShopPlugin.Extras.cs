@@ -206,9 +206,9 @@ public partial class RouletteShopPlugin
         return $"imbued into ability {n}.";
     }
 
-    // ─── item slots: the cap while flex slots are locked, a box for items past it after ───
-    // The user: "12, 3 locked. and you shouldn't be able to buy as many items as you want if there's a locked item slot",
-    // and, past the cap, "it should add a box like how street brawl does to show your items" (the HUD drops the newest).
+    // ─── item slots: the cap while flex slots are locked ───
+    // The user: "12, 3 locked. and you shouldn't be able to buy as many items as you want if there's a locked item slot".
+    // (A box for items past 12 was built and removed: the user, "the extra item draw thing doesn't reallty work".)
 
     private const int BaseItemSlots = 9, FlexItemSlots = 3;
 
@@ -251,38 +251,22 @@ public partial class RouletteShopPlugin
         return locked && Items(pawn).Count >= slots;
     }
 
-    private readonly Dictionary<int, string> _extrasShown = new();
     private readonly Dictionary<int, string> _slotsLogged = new();
 
-    /// <summary>
-    /// Every second: the box of each player's items past the HUD's 12 (the newest, which the HUD leaves out), built or
-    /// taken down when that list changes. Also logs each player's slot count when it changes, to check the flex reading.
-    /// </summary>
-    private void RefreshExtras()
+    /// <summary>Every second: logs each player's item and slot count when it changes, to check the flex reading.</summary>
+    private void LogSlots()
     {
         for (int slot = 0; slot < Players.MaxSlot; slot++)
         {
             if (!Players.IsConnected(slot) || PlayerAt(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
                 continue;
-            var items = Items(pawn);
             var (slots, locked) = ItemSlots(pawn);
-            string slotsLine = $"{items.Count} items, {slots} slots{(locked ? " (flex locked)" : "")}";
-            if (_slotsLogged.GetValueOrDefault(slot) != slotsLine)
-            {
-                _slotsLogged[slot] = slotsLine;
-                Console.WriteLine($"[Roulette] {controller.PlayerName}: {slotsLine} (team {pawn.TeamNum} m_nFlexSlotsUnlocked "
-                                  + $"{(Team(pawn.TeamNum) is { } t ? FlexSlotsUnlocked.Get(t.Handle).ToString() : "no team entity")})");
-            }
-
-            var extras = items.Skip(BaseItemSlots + FlexItemSlots).ToList();
-            string key = string.Join(",", extras.Select(i => i.ClassName));
-            if (_extrasShown.GetValueOrDefault(slot, "") == key)
+            string slotsLine = $"{Items(pawn).Count} items, {slots} slots{(locked ? " (flex locked)" : "")}";
+            if (_slotsLogged.GetValueOrDefault(slot) == slotsLine)
                 continue;
-            _extrasShown[slot] = key;
-            if (extras.Count == 0)
-                UI.Panel(RoulettePanel.ExtrasId).DestroyLayout(controller.Recipients);
-            else
-                UI.Panel(RoulettePanel.ExtrasId).BuildLayout(controller.Recipients, RoulettePanel.Extras(extras));
+            _slotsLogged[slot] = slotsLine;
+            Console.WriteLine($"[Roulette] {controller.PlayerName}: {slotsLine} (team {pawn.TeamNum} m_nFlexSlotsUnlocked "
+                              + $"{(Team(pawn.TeamNum) is { } t ? FlexSlotsUnlocked.Get(t.Handle).ToString() : "no team entity")})");
         }
     }
 
