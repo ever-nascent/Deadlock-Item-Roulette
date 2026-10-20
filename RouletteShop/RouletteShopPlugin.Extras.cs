@@ -1,4 +1,5 @@
 using DeadworksManaged.Api;
+using DeadworksManaged.Api.UI;
 
 namespace RouletteShop;
 
@@ -205,6 +206,86 @@ public partial class RouletteShopPlugin
         return $"imbued into ability {n}.";
     }
 
+    // ─── item slots: the cap while flex slots are locked, a box for items past it after ───
+    // The user: "12, 3 locked. and you shouldn't be able to buy as many items as you want if there's a locked item slot",
+    // and, past the cap, "it should add a box like how street brawl does to show your items" (the HUD drops the newest).
+
+    private const int BaseItemSlots = 9, FlexItemSlots = 3;
+
+    /// <summary>The team's unlocked flex slots (EFlexSlotTypes_t; read as flags, one per slot, which the log is to confirm).</summary>
+    private static readonly SchemaAccessor<int> FlexSlotsUnlocked = new("CCitadelTeam"u8, "m_nFlexSlotsUnlocked"u8);
+
+    /// <summary>Each team's CCitadelTeam entity index, by team number (looked up again if it stops matching: a new map).</summary>
+    private readonly Dictionary<int, int> _teamIndex = new();
+
+    private CBaseEntity? Team(int team)
+    {
+        if (_teamIndex.TryGetValue(team, out int index) && CBaseEntity.FromIndex(index) is { Classname: "CCitadelTeam" } known && known.TeamNum == team)
+            return known;
+        _teamIndex.Clear();
+        foreach (var e in Entities.All.Where(e => e.Classname == "CCitadelTeam"))
+            _teamIndex[e.TeamNum] = e.EntityIndex;
+        return _teamIndex.TryGetValue(team, out index) ? CBaseEntity.FromIndex(index) : null;
+    }
+
+    /// <summary>The team's unlocked flex slots; all of them if the team can't be found (so no one is held back).</summary>
+    private int FlexUnlocked(int team) => Team(team) is { } t
+        ? Math.Min(FlexItemSlots, System.Numerics.BitOperations.PopCount((uint)FlexSlotsUnlocked.Get(t.Handle)))
+        : FlexItemSlots;
+
+    /// <summary>The player's items (pool items, Legendaries included), in the order the game lists them.</summary>
+    private List<RouletteItem> Items(CCitadelPlayerPawn pawn)
+        => pawn.AbilityComponent.Abilities.Where(a => a.IsItem).Select(a => _pool.Find(a.AbilityName)).OfType<RouletteItem>().ToList();
+
+    /// <summary>Usable item slots (9 plus unlocked flex slots), and whether any flex slot is still locked.</summary>
+    private (int Slots, bool Locked) ItemSlots(CCitadelPlayerPawn pawn)
+    {
+        int flex = FlexUnlocked(pawn.TeamNum);
+        return (BaseItemSlots + flex, flex < FlexItemSlots);
+    }
+
+    /// <summary>Full: as many items as usable slots while a flex slot is still locked (no spin then, like the shop).</summary>
+    private bool SlotsFull(CCitadelPlayerPawn pawn)
+    {
+        var (slots, locked) = ItemSlots(pawn);
+        return locked && Items(pawn).Count >= slots;
+    }
+
+    private readonly Dictionary<int, string> _extrasShown = new();
+    private readonly Dictionary<int, string> _slotsLogged = new();
+
+    /// <summary>
+    /// Every second: the box of each player's items past the HUD's 12 (the newest, which the HUD leaves out), built or
+    /// taken down when that list changes. Also logs each player's slot count when it changes, to check the flex reading.
+    /// </summary>
+    private void RefreshExtras()
+    {
+        for (int slot = 0; slot < Players.MaxSlot; slot++)
+        {
+            if (!Players.IsConnected(slot) || PlayerAt(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
+                continue;
+            var items = Items(pawn);
+            var (slots, locked) = ItemSlots(pawn);
+            string slotsLine = $"{items.Count} items, {slots} slots{(locked ? " (flex locked)" : "")}";
+            if (_slotsLogged.GetValueOrDefault(slot) != slotsLine)
+            {
+                _slotsLogged[slot] = slotsLine;
+                Console.WriteLine($"[Roulette] {controller.PlayerName}: {slotsLine} (team {pawn.TeamNum} m_nFlexSlotsUnlocked "
+                                  + $"{(Team(pawn.TeamNum) is { } t ? FlexSlotsUnlocked.Get(t.Handle).ToString() : "no team entity")})");
+            }
+
+            var extras = items.Skip(BaseItemSlots + FlexItemSlots).ToList();
+            string key = string.Join(",", extras.Select(i => i.ClassName));
+            if (_extrasShown.GetValueOrDefault(slot, "") == key)
+                continue;
+            _extrasShown[slot] = key;
+            if (extras.Count == 0)
+                UI.Panel(RoulettePanel.ExtrasId).DestroyLayout(controller.Recipients);
+            else
+                UI.Panel(RoulettePanel.ExtrasId).BuildLayout(controller.Recipients, RoulettePanel.Extras(extras));
+        }
+    }
+
     // ─── chat shout-outs ──────────────────────────────────────────────────────
 
     private void ShoutOut(CCitadelPlayerController controller, RouletteItem item, bool corrupted, bool jackpot)
@@ -253,9 +334,11 @@ public partial class RouletteShopPlugin
     }
 
     /// <summary>Free-spin progress for the SPIN button: kills in the current streak toward the next free spin.</summary>
-    private string StreakLine(int slot) => Config.FreeSpinKillStreak > 0
-        ? $"KILLS {_streaks.GetValueOrDefault(slot) % Config.FreeSpinKillStreak}/{Config.FreeSpinKillStreak} TO A FREE SPIN"
-        : "";
+    /// "0/3" right after earning one read as lost progress (the user: "when i got 3 kills, it went back to 0/3"), so a
+    /// waiting free spin is named instead.
+    private string StreakLine(int slot) => Config.FreeSpinKillStreak <= 0 ? ""
+        : _freeSpins.GetValueOrDefault(slot) > 0 ? "FREE SPIN READY · CLICK TO SPIN FREE"
+        : $"KILLS {_streaks.GetValueOrDefault(slot) % Config.FreeSpinKillStreak}/{Config.FreeSpinKillStreak} TO A FREE SPIN";
 
     /// <summary>When the hero died (game time; not GlobalVars.CurTime, which reads garbage on this build like MaxClients).</summary>
     private static readonly SchemaAccessor<float> DeathTime = new("CBasePlayerPawn"u8, "m_flDeathTime"u8);

@@ -152,6 +152,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Timer.Every(1.Seconds(), RefreshSouls);
         Timer.Every(250.Milliseconds(), CloseLeftShops);
         Timer.Every(100.Milliseconds(), StopAutoPurchase);
+        Timer.Every(1.Seconds(), RefreshExtras);
         ScheduleLucky();
         Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);
@@ -185,6 +186,9 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         foreach (int slot in _revealSeq.Keys)
             if (PlayerAt(slot) is { } c)
                 UI.Panel(RoulettePanel.RevealId).DestroyLayout(c.Recipients);
+        foreach (var (slot, shown) in _extrasShown)
+            if (shown != "" && PlayerAt(slot) is { } c)
+                UI.Panel(RoulettePanel.ExtrasId).DestroyLayout(c.Recipients);
         if (_serverOut != null)
             Console.SetOut(_serverOut);
     }
@@ -227,6 +231,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         _viewers.Remove(args.Slot);
         _lookupLogged.Remove(args.Slot);
         _revealSeq.Remove(args.Slot);
+        _extrasShown.Remove(args.Slot);
+        _slotsLogged.Remove(args.Slot);
         _lastInShop.Remove(args.Slot);
         _lastFreeCursor.Remove(args.Slot);
         _selling.Remove(args.Slot);
@@ -351,6 +357,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         var pawn = controller.GetHeroPawn() ?? throw new CommandException("You need a hero to spin.");
         if (!AtShop(pawn))
             throw new CommandException("Spin at a shop: walk into a shop zone first, like buying.");
+        if (SlotsFull(pawn))
+            throw new CommandException($"Your item slots are full ({ItemSlots(pawn).Slots}) while a flex slot is still locked. Sell an item first.");
         int price = charge ?? ItemPool.TierPrices[tier - 1];
         int souls = pawn.GetCurrency(ECurrencyType.EGold);
         if (souls < price)
@@ -850,7 +858,10 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             return;
         }
         if (free)
+        {
             _freeSpins[slot]--;
+            RoulettePanel.UpdateStreak(to, StreakLine(slot));
+        }
         v.Pending = outcome;
         Play(controller, Sfx.Purchase);
 
@@ -906,6 +917,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
             return RoulettePanel.SpinState.Broke;
         if (!AtShop(pawn))
             return RoulettePanel.SpinState.Away;
+        if (SlotsFull(pawn))
+            return RoulettePanel.SpinState.Full;
         if (_freeSpins.GetValueOrDefault(controller.Slot) > 0)
             return RoulettePanel.SpinState.Free;
         return pawn.GetCurrency(ECurrencyType.EGold) < ItemPool.TierPrices[v.Tier - 1] ? RoulettePanel.SpinState.Broke : RoulettePanel.SpinState.Ready;
