@@ -241,8 +241,32 @@ public partial class RouletteShopPlugin
             }
         }
         if (victim >= 0)
+        {
             _streaks[victim] = 0;
+            if (Config.RespawnTimePercent != 100)
+                Timer.NextTick(() => ShortenRespawn(victim));   // after the game has set the respawn time
+        }
         return HookResult.Continue;
+    }
+
+    /// <summary>When the hero died (game time; not GlobalVars.CurTime, which reads garbage on this build like MaxClients).</summary>
+    private static readonly SchemaAccessor<float> DeathTime = new("CBasePlayerPawn"u8, "m_flDeathTime"u8);
+
+    /// <summary>Scales the wait from death to respawn (the pawn's m_flRespawnTime, a game time) by RespawnTimePercent.</summary>
+    private void ShortenRespawn(int slot)
+    {
+        if (PlayerAt(slot) is not { } controller || controller.GetHeroPawn() is not { } pawn)
+            return;
+        float died = DeathTime.Get(pawn.Handle), respawn = pawn.RespawnTime, wait = respawn - died;
+        if (wait <= 0 || wait > 300)
+        {
+            Console.WriteLine($"[Roulette] {controller.PlayerName} died, but the respawn time looks wrong (death {died:0.0}, respawn {respawn:0.0}): left alone");
+            return;
+        }
+        float shorter = wait * (float)(Config.RespawnTimePercent / 100);
+        pawn.RespawnTime = died + shorter;
+        Console.WriteLine($"[Roulette] {controller.PlayerName} died: respawn in {wait:0.0} s -> {shorter:0.0} s "
+                          + $"(death {died:0.0}, respawn {respawn:0.0} -> {pawn.RespawnTime:0.0})");
     }
 
     // ─── lucky hours ──────────────────────────────────────────────────────────
