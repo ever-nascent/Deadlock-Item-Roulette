@@ -1,0 +1,89 @@
+using System.Text.Json;
+
+namespace RouletteShop;
+
+public enum ItemCategory { Weapon, Vitality, Spirit }
+
+/// <param name="Corruptible">Has a Corrupted version (corrupted_info in the item data; tiers 3 and 4).</param>
+/// <param name="GameIcon">The game's own shop icon, e.g. file://{images}/items/weapon/basic_magazine.psd.</param>
+/// <param name="Active">An active item (the shop draws its icon round).</param>
+/// <param name="Imbue">Has to be imbued into an ability.</param>
+/// <param name="Id">The item's string token (MurmurHash2 of the class name): how hero builds and the quickbuy queue name it.</param>
+/// <param name="Legendary">A tier 5 Legendary (the game marks them Street Brawl only).</param>
+public sealed record RouletteItem(string ClassName, string Name, ItemCategory Category, int Tier, bool Corruptible,
+                                  string GameIcon, bool Active, bool Imbue, uint Id, bool Legendary);
+
+/// <summary>
+/// The items a spin can land on. Read from the embedded manifest.json, which fetch-deadlock-assets.mjs writes from
+/// items-full.json: shopable, not disabled, tiers 1-4, plus the tier 5 Street Brawl Legendaries, kept apart (a spin only
+/// lands on one through the Legendary roll).
+/// </summary>
+public sealed class ItemPool
+{
+    /// <summary>Spin price per tier (index 0 is tier 1). Roulette charges the flat tier price.</summary>
+    public static readonly int[] TierPrices = [800, 1600, 3200, 6400];
+
+    private readonly ILookup<(ItemCategory Category, int Tier), RouletteItem> _items;
+    private readonly Dictionary<string, RouletteItem> _byClass;
+    private readonly Dictionary<uint, RouletteItem> _byId;
+    private readonly RouletteItem[] _legendaries;
+
+    private ItemPool(List<RouletteItem> all)
+    {
+        var items = all.Where(i => !i.Legendary).ToList();
+        _legendaries = all.Where(i => i.Legendary).ToArray();
+        Count = items.Count;
+        CorruptibleCount = items.Count(i => i.Corruptible);
+        _items = items.ToLookup(i => (i.Category, i.Tier));
+        _byClass = all.ToDictionary(i => i.ClassName);
+        _byId = all.ToDictionary(i => i.Id);
+    }
+
+    public int Count { get; }
+
+    public int CorruptibleCount { get; }
+
+    /// <summary>The items in one box: a category (or, with null, every category: the wildcard box) at one tier.</summary>
+    public RouletteItem[] Get(ItemCategory? category, int tier) => category is { } c
+        ? _items[(c, tier)].ToArray()
+        : Enum.GetValues<ItemCategory>().SelectMany(c => _items[(c, tier)]).ToArray();
+
+    /// <summary>The pool item with this class name (upgrade_...), or null.</summary>
+    public RouletteItem? Find(string className) => _byClass.GetValueOrDefault(className);
+
+    /// <summary>The pool item with this id (a hero build's ability_id, a quickbuy queue entry), or null.</summary>
+    public RouletteItem? Find(uint id) => _byId.GetValueOrDefault(id);
+
+    /// <summary>The Legendaries of a category, or of every category for null (the wildcard box).</summary>
+    public RouletteItem[] Legendaries(ItemCategory? category) => _legendaries.Where(i => category == null || i.Category == category).ToArray();
+
+    public int LegendaryCount => _legendaries.Length;
+
+    /// <summary>Item counts per category for tiers 1-4, e.g. "weapon 7/16/19/11".</summary>
+    public string Summary() => string.Join(", ", Enum.GetValues<ItemCategory>().Select(c =>
+        $"{c.ToString().ToLowerInvariant()} {string.Join('/', Enumerable.Range(1, TierPrices.Length).Select(t => _items[(c, t)].Count()))}"));
+
+    public static ItemPool Load()
+    {
+        using var stream = typeof(ItemPool).Assembly.GetManifestResourceStream("manifest.json")
+            ?? throw new InvalidOperationException("manifest.json is not embedded in the plugin");
+        using var doc = JsonDocument.Parse(stream);
+
+        var items = new List<RouletteItem>();
+        foreach (var e in doc.RootElement.GetProperty("items").EnumerateArray())
+        {
+            items.Add(new RouletteItem(
+                e.GetProperty("class_name").GetString()!,
+                e.GetProperty("name").GetString()!,
+                Enum.Parse<ItemCategory>(e.GetProperty("slot").GetString()!, ignoreCase: true),
+                e.GetProperty("tier").GetInt32(),
+                e.GetProperty("corruptible").GetBoolean(),
+                e.GetProperty("game_icon").GetString()!,
+                e.GetProperty("active").GetBoolean(),
+                e.GetProperty("imbue").GetBoolean(),
+                e.GetProperty("id").GetUInt32(),
+                e.GetProperty("legendary").GetBoolean()));
+        }
+        return new ItemPool(items);
+    }
+}

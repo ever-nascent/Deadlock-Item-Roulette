@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>RouletteShop</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <!-- Deadlock's game\bin\win64\managed folder (Deadworks installed). Change it if your Steam library is elsewhere,
+         or pass -p:DeadlockManagedDir=... to dotnet build. -->
+    <DeadlockManagedDir Condition="'$(DeadlockManagedDir)' == ''">D:\Games\Steam\steamapps\common\Deadlock\game\bin\win64\managed</DeadlockManagedDir>
+  </PropertyGroup>
+
+  <!-- Private=false: Deadworks supplies both assemblies, and it tries to load every .dll in plugins/ as a plugin. -->
+  <ItemGroup>
+    <Reference Include="DeadworksManaged.Api">
+      <HintPath>$(DeadlockManagedDir)\DeadworksManaged.Api.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Google.Protobuf">
+      <HintPath>$(DeadlockManagedDir)\Google.Protobuf.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- The spin pool, generated from items-full.json by fetch-deadlock-assets.mjs. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\deadlock-assets\manifest.json" LogicalName="manifest.json" />
+  </ItemGroup>
+
+  <!-- Copy creates plugins\ if Deadworks hasn't yet; Deadworks only watches it if it existed when the server started. -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(DeadlockManagedDir)')">
+    <ItemGroup>
+      <DeployFiles Include="$(OutputPath)RouletteShop.dll;$(OutputPath)RouletteShop.pdb" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(DeployFiles)"
+      DestinationFolder="$(DeadlockManagedDir)\plugins"
+      SkipUnchangedFiles="false"
+      Retries="0"
+      ContinueOnError="WarnAndContinue" />
+  </Target>
+
+</Project>
