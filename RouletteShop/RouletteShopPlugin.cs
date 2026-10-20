@@ -122,6 +122,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         UI.ClientResync += OnClientResync;
         Timer.Every(1.Seconds(), RefreshSouls);
         Timer.Every(250.Milliseconds(), CloseLeftShops);
+        Timer.Every(100.Milliseconds(), StopAutoPurchase);
         ScheduleLucky();
         Timer.Every(5.Seconds(), LuckyTick);
         _buildHook = NetMessages.HookIncoming<CCitadelClientMsg_HeroBuild>(OnHeroBuild);

@@ -74,6 +74,34 @@ public partial class RouletteShopPlugin
         return HookResult.Continue;
     }
 
+    /// <summary>The hero's quickbuy auto-purchase switch (networked): on, the game buys queued items as souls come in.</summary>
+    private static readonly SchemaAccessor<bool> QuickbuyAutoPurchase = new("CCitadelPlayerPawn"u8, "m_bQuickbuyAutoPurchase"u8);
+
+    /// <summary>The item auto-purchase is waiting to buy (networked CUtlStringToken; 0 for none).</summary>
+    private static readonly SchemaAccessor<uint> QuickbuyAutoPurchaseRequest = new("CCitadelPlayerPawn"u8, "m_unQuickbuyAutoPurchaseRequest"u8);
+
+    /// <summary>
+    /// Turns quickbuy auto-purchase back off. The user: "i'd press the quickbuy button and it'd suddenly start buying items
+    /// when i had the souls". Switched off here, before it buys; the soul-charge backstop still catches a purchase made
+    /// in between. The quickbuy queue itself stays (build-aware spins read it).
+    /// </summary>
+    private void StopAutoPurchase()
+    {
+        if (!Config.BlockOtherPurchases)
+            return;
+        foreach (var controller in Players.GetAll())
+        {
+            if (controller.GetHeroPawn() is not { } pawn || !QuickbuyAutoPurchase.Get(pawn.Handle))
+                continue;
+            uint request = QuickbuyAutoPurchaseRequest.Get(pawn.Handle);
+            QuickbuyAutoPurchase.Set(pawn.Handle, false);
+            QuickbuyAutoPurchaseRequest.Set(pawn.Handle, 0);
+            Console.WriteLine($"[Roulette] turned off quickbuy auto-purchase for {controller.PlayerName} "
+                              + $"(it was waiting to buy {_pool.Find(request)?.ClassName ?? $"id {request}"})");
+            Chat.PrintToChat(controller, "Roulette: quickbuy can't buy items here. Spin instead.");
+        }
+    }
+
     /// <summary>An item left the player. If a purchase was stopped around now, it was used up by that purchase: give it back.</summary>
     [GameEventHandler("ability_removed")]
     public HookResult OnAbilityRemoved(AbilityRemovedEvent e)
