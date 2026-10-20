@@ -562,13 +562,31 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         Console.WriteLine($"[Roulette] opened the panel for {controller.PlayerName} ({(viaShopKey ? "shop key" : "chat")})");
     }
 
+    /// <summary>
+    /// When the sheet's destroy is sent again after a close. The user's log: exit_item_shop came 430 ms after
+    /// open_item_shop, Close ran, and the sheet stayed for good. The Deadworks client reads its messages from closed-caption
+    /// slots in slot order, not send order, so a destroy can be read before the last piece of a build still arriving and
+    /// find nothing to destroy. A destroy with no sheet does nothing; the gaps are over the client's 500 ms window for
+    /// dropping a repeated caption.
+    /// </summary>
+    private static readonly int[] DestroyResendMs = [600, 2000, 4000];
+
     private void Close(int slot)
     {
         if (!_viewers.Remove(slot))
             return;
         // DestroyLayout also gives back a cursor the panel asked for.
-        if (Players.FromSlot(slot) is { } controller)
-            UI.Panel(RoulettePanel.Id).DestroyLayout(controller.Recipients);
+        if (Players.FromSlot(slot) is not { } controller)
+            return;
+        UI.Panel(RoulettePanel.Id).DestroyLayout(controller.Recipients);
+        Console.WriteLine($"[Roulette] closed the panel for {controller.PlayerName}");
+        foreach (int ms in DestroyResendMs)
+            Timer.Once(ms.Milliseconds(), () =>
+            {
+                // Not if the sheet was opened again since.
+                if (!_viewers.ContainsKey(slot) && Players.FromSlot(slot) is { } c)
+                    UI.Panel(RoulettePanel.Id).DestroyLayout(c.Recipients);
+            });
     }
 
     private void OnClientResync(int slot)
