@@ -42,7 +42,8 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         public int Tier = 1;
         public bool ViaShopKey;
         public long ShopKeyAt;                // when ViaShopKey was set (Environment.TickCount64)
-        public bool NoInShopLogged;           // logged that in_shop never came after the shop key
+        public long PawnShopOpenAt;           // when the hero's m_bHasShopOpen last read true (Environment.TickCount64)
+        public string? ShopSignalsLogged;     // the shop signals last logged, so only changes are logged
         public RouletteItem[] Reel = [];
         public RouletteItem? Landed;
         public bool LandedCorrupted;
@@ -61,13 +62,19 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     /// <summary>When each player's usercmds last said in_shop (true while the game's shop screen is open), as Environment.TickCount64.</summary>
     private readonly Dictionary<int, long> _lastInShop = new();
 
+    /// <summary>When each player's usercmds last said using_free_cursor (the mouse is a cursor, not aiming), as Environment.TickCount64.</summary>
+    private readonly Dictionary<int, long> _lastFreeCursor = new();
+
+    /// <summary>The hero's own flag for the shop screen being open (schema; not yet seen in a log).</summary>
+    private static readonly SchemaAccessor<bool> HasShopOpen = new("CCitadelPlayerPawn"u8, "m_bHasShopOpen"u8);
+
     /// <summary>The item each player last asked to sell (sellitem), for the half-price refund in OnModifyCurrency.</summary>
     private readonly Dictionary<int, (string ClassName, DateTime At)> _selling = new();
 
     /// <summary>True while the roulette pays a sale's refund itself.</summary>
     private bool _refunding;
 
-    /// <summary>How long in_shop must stay off before the sheet closes: it flickers off for a few ms with the shop open.</summary>
+    /// <summary>How long a shop signal must stay off before the sheet closes: in_shop flickers off for a few ms with the shop open.</summary>
     private const int ShopLeftDelayMs = 1000;
 
     /// <summary>Spins on items with a Corrupted version since each player's last Corrupted one (for CorruptedPitySpins).</summary>
@@ -165,6 +172,7 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     {
         _viewers.Remove(args.Slot);
         _lastInShop.Remove(args.Slot);
+        _lastFreeCursor.Remove(args.Slot);
         _selling.Remove(args.Slot);
         _pityMisses.Remove(args.Slot);
         _builds.Remove(args.Slot);
@@ -717,18 +725,25 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
     // server couldn't close it: blocking open_item_shop didn't, nor did CCitadelUserMsg_ForceShopClosed sent with it),
     // and the roulette sheet sits beside its item page (design #3, the user's choice). Clicking an item there sends
     // buyitem, which is blocked and instead picks that item's category and price on the sheet. The sheet closes with the
-    // shop: on exit_item_shop, or when the player's usercmds stop saying in_shop (however the shop closed).
+    // shop: on exit_item_shop, or when one of the shop signals below goes off (however the shop closed).
 
     public override void OnProcessUsercmds(ProcessUsercmdsEvent args)
     {
+        long now = Environment.TickCount64;
         if (args.Usercmds.Any(c => c.InShop))
-            _lastInShop[args.PlayerSlot] = Environment.TickCount64;
+            _lastInShop[args.PlayerSlot] = now;
+        if (args.Usercmds.Any(c => c.UsingFreeCursor))
+            _lastFreeCursor[args.PlayerSlot] = now;
     }
 
     /// <summary>
-    /// Closes the sheet of anyone whose usercmds stopped saying in_shop for ShopLeftDelayMs, however the shop closed (the
-    /// sheet stayed up before, closing only on exit_item_shop or an in_shop change seen with the sheet open). The sheet
-    /// waits for in_shop to be seen after the shop key, so it doesn't close at once if the game stops sending it.
+    /// Closes the sheet of anyone whose shop is no longer open, however it closed. The user, after the in_shop-only build:
+    /// "the roulette shop is not going away when i close my in-game shop". Three signals, none of them confirmed in a log
+    /// as going off when the shop closes: the usercmd's in_shop, the hero's m_bHasShopOpen, and the usercmd's
+    /// using_free_cursor (the shop frees the cursor; a shop-key sheet doesn't ask for one, so a closed shop means aiming
+    /// again). A signal counts only once it has been seen on since the shop key, so one the game never sets can't close
+    /// the sheet; the sheet closes when any counted one stays off for ShopLeftDelayMs. Changes are logged, to tell which
+    /// signal works.
     /// </summary>
     private void CloseLeftShops()
     {
@@ -737,20 +752,32 @@ public partial class RouletteShopPlugin : DeadworksPluginBase
         {
             if (!v.ViaShopKey)
                 continue;
-            bool seen = _lastInShop.TryGetValue(slot, out long last) && last >= v.ShopKeyAt - ShopLeftDelayMs;
-            if (!seen)
+            if (Players.FromSlot(slot)?.GetHeroPawn() is { } pawn && HasShopOpen.Get(pawn.Handle))
+                v.PawnShopOpenAt = now;
+
+            (string Name, long At)[] signals =
+            [
+                ("in_shop", _lastInShop.GetValueOrDefault(slot)),
+                ("m_bHasShopOpen", v.PawnShopOpenAt),
+                ("using_free_cursor", _lastFreeCursor.GetValueOrDefault(slot)),
+            ];
+            string State(long at) => at < v.ShopKeyAt - ShopLeftDelayMs ? "unseen" : now - at < ShopLeftDelayMs ? "on" : "off";
+
+            string line = string.Join(", ", signals.Select(s => $"{s.Name} {State(s.At)}"));
+            if (line != v.ShopSignalsLogged)
             {
-                if (!v.NoInShopLogged && now - v.ShopKeyAt > 3000)
-                {
-                    v.NoInShopLogged = true;
-                    Console.WriteLine($"[Roulette] slot {slot}: no in_shop usercmd since the shop key, so only exit_item_shop closes the roulette");
-                }
-                continue;
+                v.ShopSignalsLogged = line;
+                Console.WriteLine($"[Roulette] slot {slot} shop signals: {line}");
             }
-            if (now - last < ShopLeftDelayMs)
-                continue;
-            Console.WriteLine($"[Roulette] slot {slot} left the shop (in_shop off for {now - last} ms): closing the roulette");
-            Close(slot);
+
+            foreach (var (name, at) in signals)
+            {
+                if (State(at) != "off")
+                    continue;
+                Console.WriteLine($"[Roulette] slot {slot} left the shop ({name} off for {now - at} ms): closing the roulette");
+                Close(slot);
+                break;
+            }
         }
     }
 
